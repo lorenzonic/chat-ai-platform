@@ -51,6 +51,7 @@ try {
     if (!$store) {
         $store = \App\Models\Store::create([
             'name' => 'Test Store',
+            'slug' => 'test-store',
             'email' => $storeEmail,
             'password' => \Illuminate\Support\Facades\Hash::make($storePassword),
             'description' => 'Negozio di test per la demo',

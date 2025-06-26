@@ -44,9 +44,10 @@ try {
     $store = $stmt->fetch();
     
     if (!$store) {
-        $stmt = $pdo->prepare("INSERT INTO stores (name, email, password, description, phone, address, website, is_active, chat_enabled, assistant_name, chat_context, chat_opening_message, chat_theme_color, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO stores (name, slug, email, password, description, phone, address, website, is_active, chat_enabled, assistant_name, chat_context, chat_opening_message, chat_theme_color, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             'Test Store',
+            'test-store',
             $storeEmail,
             $storePassword,
             'Negozio di test per la demo',
