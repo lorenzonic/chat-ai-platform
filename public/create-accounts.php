@@ -4,10 +4,26 @@
 header('Content-Type: application/json');
 
 try {
-    // Carica Laravel
+    // Carica Laravel completamente
     require_once __DIR__ . '/../vendor/autoload.php';
     $app = require_once __DIR__ . '/../bootstrap/app.php';
+    
+    // Inizializza il kernel HTTP
     $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+    
+    // Crea una request fittizia per inizializzare Laravel
+    $request = Illuminate\Http\Request::capture();
+    $app->instance('request', $request);
+    
+    // Bootstrap dell'applicazione
+    $kernel->bootstrap();
+    
+    // Test connessione database
+    try {
+        \Illuminate\Support\Facades\DB::connection()->getPdo();
+    } catch (Exception $e) {
+        throw new Exception("Database connection failed: " . $e->getMessage());
+    }
     
     // Crea admin
     $adminEmail = 'admin@chataiplatform.com';
