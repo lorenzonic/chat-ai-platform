@@ -21,6 +21,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Force HTTPS in production and trust proxies
+        if (config('app.env') === 'production' || config('app.force_https', false)) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+        
+        // Trust Railway proxy headers
+        if (config('app.env') === 'production') {
+            request()->server->set('HTTPS', true);
+        }
     }
 }
