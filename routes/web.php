@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 Route::get('/', function () {
     return view('welcome');
@@ -20,6 +22,49 @@ Route::middleware('auth')->group(function () {
 // Admin redirect
 Route::get('/admin', function () {
     return redirect()->route('admin.login');
+});
+
+// Database connection test route
+Route::get('/test-db-connection', function () {
+    try {
+        $connection = DB::connection();
+        $pdo = $connection->getPdo();
+
+        $result = [
+            'status' => 'success',
+            'connection' => 'OK',
+            'driver' => $connection->getDriverName(),
+            'database' => $connection->getDatabaseName(),
+            'server_version' => $pdo->getAttribute(PDO::ATTR_SERVER_VERSION),
+            'timestamp' => now(),
+            'tables' => []
+        ];
+
+        // Check tables
+        $tables = DB::select('SHOW TABLES');
+        $result['tables_count'] = count($tables);
+
+        // Check required tables
+        $required = ['users', 'stores', 'conversations', 'interactions'];
+        foreach ($required as $table) {
+            $exists = Schema::hasTable($table);
+            $count = $exists ? DB::table($table)->count() : 0;
+            $result['tables'][$table] = [
+                'exists' => $exists,
+                'records' => $count
+            ];
+        }
+
+        return response()->json($result, 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'code' => $e->getCode(),
+            'timestamp' => now()
+        ], 500);
+    }
 });
 
 // Test route for analytics data
