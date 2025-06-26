@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Analytics Map</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .test-section { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .data-display { background: #f8f9fa; padding: 15px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; }
+        .loading { text-align: center; padding: 40px; color: #666; }
+        .error { color: #dc3545; background: #f8d7da; padding: 15px; border-radius: 4px; }
+        .success { color: #155724; background: #d4edda; padding: 15px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗺️ Test Analytics Map Data</h1>
+
+        <div class="test-section">
+            <h2>🔍 Test Analytics API</h2>
+            <button onclick="testAnalyticsAPI()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Test Analytics Data
+            </button>
+            <div id="analyticsResult" class="loading" style="display: none;">Caricamento...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Geographic Data</h2>
+            <div id="geographicData" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 Summary</h2>
+            <div id="summary" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        async function testAnalyticsAPI() {
+            const resultDiv = document.getElementById('analyticsResult');
+            const geoDiv = document.getElementById('geographicData');
+            const summaryDiv = document.getElementById('summary');
+
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<div class="loading">Caricamento dati analytics...</div>';
+
+            try {
+                // Test analytics API endpoint
+                const response = await fetch('/store/analytics', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('Analytics data:', data);
+
+                // Display results
+                resultDiv.innerHTML = '<div class="success">✅ Analytics API response received!</div>';
+
+                // Show geographic data
+                if (data.geographic_data && data.geographic_data.length > 0) {
+                    geoDiv.style.display = 'block';
+
+                    let geoHtml = '<h3>🌍 Geographic Points Found: ' + data.geographic_data.length + '</h3>';
+                    geoHtml += '<div class="data-display">';
+
+                    data.geographic_data.forEach((point, index) => {
+                        const hasOnlyInteractions = point.interactions_count > 0 && point.leads_count === 0;
+                        const hasOnlyLeads = point.leads_count > 0 && point.interactions_count === 0;
+                        const hasConverted = point.leads_count > 0 && point.interactions_count > 0;
+
+                        let type = '';
+                        let color = '';
+                        if (hasConverted) {
+                            type = 'Convertito';
+                            color = '#eab308';
+                        } else if (hasOnlyLeads) {
+                            type = 'Solo Lead';
+                            color = '#16a34a';
+                        } else {
+                            type = 'Solo Interazioni';
+                            color = '#3b82f6';
+                        }
+
+                        geoHtml += `
+${index + 1}. ${point.city}, ${point.country}
+   📍 Coordinate: ${point.lat}, ${point.lng}
+   💬 Interazioni: ${point.interactions_count}
+   👤 Lead: ${point.leads_count}
+   📊 Totale: ${point.total}
+   🎯 Tipo: ${type}
+   🎨 Colore: ${color}
+
+`;
+                    });
+
+                    geoHtml += '</div>';
+                    geoDiv.innerHTML = geoHtml;
+                } else {
+                    geoDiv.style.display = 'block';
+                    geoDiv.innerHTML = '<div class="error">⚠️ Nessun dato geografico trovato</div>';
+                }
+
+                // Show summary
+                if (data.summary) {
+                    summaryDiv.style.display = 'block';
+                    summaryDiv.innerHTML = `
+                        <div class="data-display">
+📈 RIEPILOGO ANALYTICS:
+- Interazioni totali: ${data.summary.total_interactions}
+- Lead totali: ${data.summary.total_leads}
+- Tasso conversione: ${data.summary.conversion_rate}%
+- Visitatori unici: ${data.summary.unique_visitors}
+
+🗓️ PERIODO ANALIZZATO:
+- Dal: ${data.date_range?.from || 'N/A'}
+- Al: ${data.date_range?.to || 'N/A'}
+- Periodo: ${data.period || 'N/A'}
+                        </div>
+                    `;
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `<div class="error">❌ Errore: ${error.message}</div>`;
+            }
+        }
+
+        // Auto-run test on page load
+        window.addEventListener('load', () => {
+            setTimeout(testAnalyticsAPI, 1000);
+        });
+    </script>
+</body>
+</html>

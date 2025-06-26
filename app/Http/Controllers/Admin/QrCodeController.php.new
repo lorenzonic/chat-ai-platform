@@ -1,0 +1,198 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\QrCode;
+use App\Models\Store;
+use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
+use SimpleSoftwareIO\QrCode\Facades\QrCode as QrCodeGenerator;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+
+class QrCodeController extends Controller
+{
+    /**
+     * Display a listing of QR codes.
+     */
+    public function index(): View
+    {
+        $qrCodes = QrCode::with('store')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return view('admin.qr-codes.index', compact('qrCodes'));
+    }
+
+    /**
+     * Show the form for creating a new QR code.
+     */
+    public function create(): View
+    {
+        $stores = Store::where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.qr-codes.create', compact('stores'));
+    }
+
+    /**
+     * Store a newly created QR code.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'store_id' => 'required|exists:stores,id',
+            'name' => 'required|string|max:255',
+            'question' => 'nullable|string|max:500',
+        ]);
+
+        // Generate reference code
+        $refCode = 'qr_' . Str::random(8) . '_' . time();
+
+        // Create QR code
+        $qrCode = QrCode::create([
+            'store_id' => $request->store_id,
+            'name' => $request->name,
+            'question' => $request->question,
+            'ref_code' => $refCode,
+        ]);
+
+        // Generate the QR code image
+        $this->generateQrCodeImage($qrCode);
+
+        return redirect()
+            ->route('admin.qr-codes.show', $qrCode)
+            ->with('success', 'QR Code created successfully!');
+    }
+
+    /**
+     * Display the specified QR code.
+     */
+    public function show(QrCode $qrCode): View
+    {
+        $qrCode->load('store');
+
+        // Generate QR image if it doesn't exist
+        if (!$qrCode->qr_code_image || !Storage::disk('public')->exists($qrCode->qr_code_image)) {
+            $this->generateQrCodeImage($qrCode);
+        }
+
+        return view('admin.qr-codes.show', compact('qrCode'));
+    }
+
+    /**
+     * Show the form for editing the specified QR code.
+     */
+    public function edit(QrCode $qrCode): View
+    {
+        $stores = Store::where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.qr-codes.edit', compact('qrCode', 'stores'));
+    }
+
+    /**
+     * Update the specified QR code.
+     */
+    public function update(Request $request, QrCode $qrCode): RedirectResponse
+    {
+        $request->validate([
+            'store_id' => 'required|exists:stores,id',
+            'name' => 'required|string|max:255',
+            'question' => 'nullable|string|max:500',
+        ]);
+
+        $qrCode->update([
+            'store_id' => $request->store_id,
+            'name' => $request->name,
+            'question' => $request->question,
+        ]);
+
+        return redirect()
+            ->route('admin.qr-codes.show', $qrCode)
+            ->with('success', 'QR Code updated successfully!');
+    }
+
+    /**
+     * Remove the specified QR code.
+     */
+    public function destroy(QrCode $qrCode): RedirectResponse
+    {
+        // Delete the image file
+        if ($qrCode->qr_code_image && Storage::disk('public')->exists($qrCode->qr_code_image)) {
+            Storage::disk('public')->delete($qrCode->qr_code_image);
+        }
+
+        $qrCode->delete();
+
+        return redirect()
+            ->route('admin.qr-codes.index')
+            ->with('success', 'QR Code deleted successfully!');
+    }
+
+    /**
+     * Download QR code image.
+     */
+    public function download(QrCode $qrCode)
+    {
+        if (!$qrCode->qr_code_image || !Storage::disk('public')->exists($qrCode->qr_code_image)) {
+            $this->generateQrCodeImage($qrCode);
+        }
+
+        // Determine file extension from the stored filename
+        $extension = pathinfo($qrCode->qr_code_image, PATHINFO_EXTENSION);
+        $filename = Str::slug($qrCode->name) . '-qr-code.' . $extension;
+
+        return Storage::disk('public')->download($qrCode->qr_code_image, $filename);
+    }
+
+    /**
+     * Generate QR code image and save to storage
+     */
+    private function generateQrCodeImage(QrCode $qrCode): void
+    {
+        // Delete old image if exists
+        if ($qrCode->qr_code_image && Storage::disk('public')->exists($qrCode->qr_code_image)) {
+            Storage::disk('public')->delete($qrCode->qr_code_image);
+        }
+
+        // Generate QR code using SVG format (no ImageMagick required)
+        $qrUrl = $qrCode->getQrUrl();
+
+        try {
+            // Try to generate with SVG format first (most compatible)
+            $qrImage = QrCodeGenerator::format('svg')
+                ->size(300)
+                ->margin(1)
+                ->errorCorrection('M')
+                ->generate($qrUrl);
+
+            $fileName = 'qr-codes/' . $qrCode->ref_code . '.svg';
+
+        } catch (\Exception $e) {
+            // Fallback: generate as string and create data URL
+            $qrString = QrCodeGenerator::size(300)
+                ->margin(1)
+                ->errorCorrection('M')
+                ->generate($qrUrl);
+
+            // Save as SVG string
+            $fileName = 'qr-codes/' . $qrCode->ref_code . '.svg';
+            Storage::disk('public')->put($fileName, $qrString);
+
+            // Update QR code record
+            $qrCode->update(['qr_code_image' => $fileName]);
+            return;
+        }
+
+        // Save to storage
+        Storage::disk('public')->put($fileName, $qrImage);
+
+        // Update QR code record
+        $qrCode->update(['qr_code_image' => $fileName]);
+    }
+}

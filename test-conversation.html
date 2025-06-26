@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Conversazione Chatbot</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .chat-container { border: 1px solid #ddd; height: 400px; overflow-y: scroll; padding: 10px; margin: 20px 0; }
+        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .user { background: #e3f2fd; text-align: right; }
+        .assistant { background: #f1f8e9; }
+        .input-container { display: flex; gap: 10px; }
+        input { flex: 1; padding: 10px; }
+        button { padding: 10px 20px; }
+        .session-info { background: #fff3e0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🤖 Test Conversazione Chatbot</h1>
+
+    <div class="session-info">
+        <strong>Session ID:</strong> <span id="sessionId">-</span><br>
+        <strong>Store:</strong> <span id="storeName">-</span><br>
+        <strong>Test:</strong> Questo chat mantiene il contesto della conversazione. Prova a fare domande correlate!
+    </div>
+
+    <div class="chat-container" id="chatContainer">
+        <div class="message assistant">
+            👋 Ciao! Sono l'assistente AI. Fai una domanda per iniziare la conversazione!
+        </div>
+    </div>
+
+    <div class="input-container">
+        <input type="text" id="messageInput" placeholder="Scrivi il tuo messaggio..." onkeypress="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()">Invia</button>
+        <button onclick="clearChat()">Pulisci Chat</button>
+    </div>
+
+    <h3>Esempi di test per verificare il contesto:</h3>
+    <ul>
+        <li>1. "Il mio nome è Marco" → poi "Come mi chiamo?"</li>
+        <li>2. "Ho un pothos con foglie gialle" → poi "Cosa dovrei fare per risolverlo?"</li>
+        <li>3. "Vorrei comprare una pianta" → poi "Quale mi consigli?"</li>
+    </ul>
+
+    <script>
+        let sessionId = 'test-' + Date.now();
+        let storeSlug = 'garden-center'; // Store di test
+
+        document.getElementById('sessionId').textContent = sessionId;
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Mostra messaggio utente
+            addMessage(message, 'user');
+            input.value = '';
+
+            try {
+                const response = await fetch(`/api/chat/${storeSlug}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        session_id: sessionId,
+                        user_name: 'Test User'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    addMessage(data.response, 'assistant');
+                    document.getElementById('storeName').textContent = storeSlug;
+                } else {
+                    addMessage('Errore: ' + (data.error || 'Errore sconosciuto'), 'assistant');
+                }
+            } catch (error) {
+                addMessage('Errore di connessione: ' + error.message, 'assistant');
+            }
+        }
+
+        function addMessage(text, sender) {
+            const container = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `<strong>${sender === 'user' ? 'Tu' : 'Assistente'}:</strong> ${text}`;
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function clearChat() {
+            sessionId = 'test-' + Date.now();
+            document.getElementById('sessionId').textContent = sessionId;
+            document.getElementById('chatContainer').innerHTML = `
+                <div class="message assistant">
+                    👋 Ciao! Sono l'assistente AI. Fai una domanda per iniziare la conversazione!
+                </div>
+            `;
+        }
+
+        // Focus automatico sull'input
+        document.getElementById('messageInput').focus();
+    </script>
+</body>
+</html>
