@@ -26,8 +26,9 @@ try {
     
     $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
     $stmt->execute([$adminEmail]);
+    $adminExists = $stmt->fetch();
     
-    if (!$stmt->fetch()) {
+    if (!$adminExists) {
         $stmt = $pdo->prepare("INSERT INTO users (name, email, password, user_type, email_verified_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute(['Admin', $adminEmail, $adminPassword, 'admin', $now, $now, $now]);
         $results['admin'] = 'CREATED';
@@ -41,9 +42,9 @@ try {
     
     $stmt = $pdo->prepare("SELECT id FROM stores WHERE email = ?");
     $stmt->execute([$storeEmail]);
-    $store = $stmt->fetch();
+    $storeExists = $stmt->fetch();
     
-    if (!$store) {
+    if (!$storeExists) {
         $stmt = $pdo->prepare("INSERT INTO stores (name, slug, email, password, description, phone, address, website, is_active, chat_enabled, assistant_name, chat_context, chat_opening_message, chat_theme_color, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             'Test Store',
@@ -72,6 +73,10 @@ try {
         'status' => 'success',
         'timestamp' => $now,
         'results' => $results,
+        'debug' => [
+            'admin_exists' => $adminExists ? 'YES' : 'NO',
+            'store_exists' => $storeExists ? 'YES' : 'NO'
+        ],
         'accounts' => [
             'admin' => [
                 'email' => $adminEmail,
