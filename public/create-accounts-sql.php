@@ -35,38 +35,35 @@ try {
         $results['admin'] = 'EXISTS';
     }
     
-    // Crea store user
+    // Crea store direttamente (non user)
     $storeEmail = 'store@test.com';
     $storePassword = password_hash('store123', PASSWORD_DEFAULT);
     
-    $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+    $stmt = $pdo->prepare("SELECT id FROM stores WHERE email = ?");
     $stmt->execute([$storeEmail]);
-    $storeUser = $stmt->fetch();
+    $store = $stmt->fetch();
     
-    if (!$storeUser) {
-        $stmt = $pdo->prepare("INSERT INTO users (name, email, password, user_type, email_verified_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute(['Test Store', $storeEmail, $storePassword, 'store', $now, $now, $now]);
-        $storeUserId = $pdo->lastInsertId();
-        $results['store_user'] = 'CREATED';
-        
-        // Crea store
-        $stmt = $pdo->prepare("INSERT INTO stores (user_id, name, description, phone, email, address, website, category, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    if (!$store) {
+        $stmt = $pdo->prepare("INSERT INTO stores (name, email, password, description, phone, address, website, is_active, chat_enabled, assistant_name, chat_context, chat_opening_message, chat_theme_color, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
-            $storeUserId,
             'Test Store',
+            $storeEmail,
+            $storePassword,
             'Negozio di test per la demo',
             '+39 333 123 4567',
-            $storeEmail,
             'Via Test 123, Milano',
             'https://teststore.com',
-            'retail',
             1,
+            1,
+            'Assistant',
+            'Assistente virtuale per Test Store',
+            'Ciao! Come posso aiutarti oggi?',
+            '#3b82f6',
             $now,
             $now
         ]);
         $results['store'] = 'CREATED';
     } else {
-        $results['store_user'] = 'EXISTS';
         $results['store'] = 'EXISTS';
     }
     

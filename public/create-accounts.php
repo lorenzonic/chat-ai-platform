@@ -43,37 +43,31 @@ try {
         $adminCreated = false;
     }
     
-    // Crea store
+    // Crea store direttamente (non user)
     $storeEmail = 'store@test.com';
     $storePassword = 'store123';
     
-    $storeUser = \App\Models\User::where('email', $storeEmail)->first();
-    if (!$storeUser) {
-        $storeUser = \App\Models\User::create([
+    $store = \App\Models\Store::where('email', $storeEmail)->first();
+    if (!$store) {
+        $store = \App\Models\Store::create([
             'name' => 'Test Store',
             'email' => $storeEmail,
             'password' => \Illuminate\Support\Facades\Hash::make($storePassword),
-            'user_type' => 'store',
-            'email_verified_at' => now(),
-        ]);
-        
-        // Crea il negozio associato
-        $store = \App\Models\Store::create([
-            'user_id' => $storeUser->id,
-            'name' => 'Test Store',
             'description' => 'Negozio di test per la demo',
             'phone' => '+39 333 123 4567',
-            'email' => $storeEmail,
             'address' => 'Via Test 123, Milano',
             'website' => 'https://teststore.com',
-            'category' => 'retail',
             'is_active' => true,
+            'chat_enabled' => true,
+            'assistant_name' => 'Assistant',
+            'chat_context' => 'Assistente virtuale per Test Store',
+            'chat_opening_message' => 'Ciao! Come posso aiutarti oggi?',
+            'chat_theme_color' => '#3b82f6',
         ]);
         
         $storeCreated = true;
     } else {
         $storeCreated = false;
-        $store = \App\Models\Store::where('user_id', $storeUser->id)->first();
     }
     
     $response = [
