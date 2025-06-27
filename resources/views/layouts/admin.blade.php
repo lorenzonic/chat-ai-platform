@@ -27,10 +27,32 @@
                                     Admin Panel
                                 </a>
                             </div>
+
+                            <!-- Navigation Links -->
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                                <a href="{{ route('admin.dashboard') }}"
+                                   class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                                          {{ request()->routeIs('admin.dashboard') ? 'border-indigo-500 text-gray-900' : '' }}">
+                                    Dashboard
+                                </a>
+                                <a href="{{ route('admin.accounts.index') }}"
+                                   class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                                          {{ request()->routeIs('admin.accounts.*') ? 'border-indigo-500 text-gray-900' : '' }}">
+                                    Accounts
+                                </a>
+                                <a href="{{ route('admin.qr-codes.index') }}"
+                                   class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                                          {{ request()->routeIs('admin.qr-codes.*') ? 'border-indigo-500 text-gray-900' : '' }}">
+                                    QR Codes
+                                </a>
+                            </div>
                         </div>
 
                         <div class="flex items-center">
                             <span class="text-gray-700 mr-4">{{ auth('admin')->user()->name }}</span>
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded mr-4">
+                                {{ ucfirst(str_replace('_', ' ', auth('admin')->user()->role)) }}
+                            </span>
                             <form method="POST" action="{{ route('admin.logout') }}" class="inline">
                                 @csrf
                                 <button type="submit" class="text-gray-500 hover:text-gray-700">

@@ -33,18 +33,30 @@
 
                 <div class="mb-6">
                     <h2 class="text-xl font-bold mb-4">Quick Actions</h2>
-                    <div class="space-x-4">
-                        <a href="{{ route('admin.qr-codes.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <a href="{{ route('admin.accounts.stores.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-center">
+                            Create Store Account
+                        </a>
+                        <a href="{{ route('admin.accounts.admins.create') }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-center">
+                            Create Admin Account
+                        </a>
+                        <a href="{{ route('admin.accounts.index') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-center">
+                            Manage Accounts
+                        </a>
+                        <a href="{{ route('admin.qr-codes.create') }}" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded text-center">
                             Generate QR Code
                         </a>
-                        <a href="{{ route('admin.qr-codes.index') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">
+                        <a href="{{ route('admin.qr-codes.index') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded text-center">
                             Manage QR Codes
                         </a>
-                        <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                        <button class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded">
                             Create Blog Post
                         </button>
-                        <button class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                        <button class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded">
                             View Analytics
+                        </button>
+                        <button class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">
+                            System Settings
                         </button>
                     </div>
                 </div>

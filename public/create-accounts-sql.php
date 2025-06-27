@@ -24,7 +24,7 @@ try {
     $stmt = $pdo->prepare("DESCRIBE admins");
     $stmt->execute();
     $adminColumns = $stmt->fetchAll();
-    
+
     $results['admin_table_structure'] = $adminColumns;
 
     // Crea admin nella tabella admins
