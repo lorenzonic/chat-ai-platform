@@ -66,7 +66,19 @@ class QrCode extends Model
      */
     public function getQrUrl(): string
     {
+        // Get base URL with fallback for production
         $baseUrl = config('app.url');
+        
+        // If APP_URL is not properly set or still contains variable, use request URL
+        if (empty($baseUrl) || str_contains($baseUrl, '${') || $baseUrl === 'http://localhost') {
+            $baseUrl = request()->getSchemeAndHttpHost();
+        }
+        
+        // Ensure HTTPS in production
+        if (app()->environment('production')) {
+            $baseUrl = str_replace('http://', 'https://', $baseUrl);
+        }
+        
         $url = "{$baseUrl}/{$this->store->slug}";
 
         if ($this->question) {
