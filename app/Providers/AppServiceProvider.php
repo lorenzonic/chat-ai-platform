@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production' || config('app.force_https', false)) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
-        
+
         // Trust Railway proxy headers
         if (config('app.env') === 'production') {
             request()->server->set('HTTPS', true);

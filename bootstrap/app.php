@@ -24,7 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'isAdmin' => \App\Http\Middleware\IsAdmin::class,
             'isStore' => \App\Http\Middleware\IsStore::class,
         ]);
-        
+
         // Trust Railway proxies
         $middleware->trustProxies(at: '*');
     })

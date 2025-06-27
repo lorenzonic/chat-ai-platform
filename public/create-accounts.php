@@ -7,28 +7,28 @@ try {
     // Carica Laravel completamente
     require_once __DIR__ . '/../vendor/autoload.php';
     $app = require_once __DIR__ . '/../bootstrap/app.php';
-    
+
     // Inizializza il kernel HTTP
     $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-    
+
     // Crea una request fittizia per inizializzare Laravel
     $request = Illuminate\Http\Request::capture();
     $app->instance('request', $request);
-    
+
     // Bootstrap dell'applicazione
     $kernel->bootstrap();
-    
+
     // Test connessione database
     try {
         \Illuminate\Support\Facades\DB::connection()->getPdo();
     } catch (Exception $e) {
         throw new Exception("Database connection failed: " . $e->getMessage());
     }
-    
+
     // Crea admin
     $adminEmail = 'admin@chataiplatform.com';
     $adminPassword = 'admin123';
-    
+
     $admin = \App\Models\User::where('email', $adminEmail)->first();
     if (!$admin) {
         $admin = \App\Models\User::create([
@@ -42,11 +42,11 @@ try {
     } else {
         $adminCreated = false;
     }
-    
+
     // Crea store direttamente (non user)
     $storeEmail = 'store@test.com';
     $storePassword = 'store123';
-    
+
     $store = \App\Models\Store::where('email', $storeEmail)->first();
     if (!$store) {
         $store = \App\Models\Store::create([
@@ -65,12 +65,12 @@ try {
             'chat_opening_message' => 'Ciao! Come posso aiutarti oggi?',
             'chat_theme_color' => '#3b82f6',
         ]);
-        
+
         $storeCreated = true;
     } else {
         $storeCreated = false;
     }
-    
+
     $response = [
         'status' => 'success',
         'timestamp' => date('Y-m-d H:i:s'),
@@ -95,10 +95,10 @@ try {
             'Puoi eliminare questo file dopo aver creato gli account'
         ]
     ];
-    
+
     http_response_code(200);
     echo json_encode($response, JSON_PRETTY_PRINT);
-    
+
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([

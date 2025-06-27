@@ -9,7 +9,7 @@ try {
         use App\Models\User;
         use App\Models\Store;
         use Illuminate\Support\Facades\Hash;
-        
+
         // Crea admin
         \$admin = User::firstOrCreate(
             [\'email\' => \'admin@chataiplatform.com\'],
@@ -20,9 +20,9 @@ try {
                 \'email_verified_at\' => now(),
             ]
         );
-        
+
         echo \'Admin: admin@chataiplatform.com / admin123\n\';
-        
+
         // Crea store user
         \$storeUser = User::firstOrCreate(
             [\'email\' => \'store@test.com\'],
@@ -33,7 +33,7 @@ try {
                 \'email_verified_at\' => now(),
             ]
         );
-        
+
         // Crea store
         \$store = Store::firstOrCreate(
             [\'user_id\' => \$storeUser->id],
@@ -48,17 +48,17 @@ try {
                 \'is_active\' => true,
             ]
         );
-        
+
         echo \'Store: store@test.com / store123\n\';
         echo \'Accounts created successfully!\';
     "');
-    
+
     echo "=== ACCOUNT CREATION RESULT ===\n";
     echo $output;
     echo "\n\n=== LOGIN URLs ===\n";
     echo "Admin: https://web-production-9c70.up.railway.app/admin/login\n";
     echo "Store: https://web-production-9c70.up.railway.app/store/login\n";
-    
+
 } catch (Exception $e) {
     echo "ERROR: " . $e->getMessage();
 }
