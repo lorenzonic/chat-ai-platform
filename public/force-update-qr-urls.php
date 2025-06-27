@@ -12,9 +12,9 @@ try {
     $app = require_once 'bootstrap/app.php';
     $kernel = $app->make(\Illuminate\Contracts\Console\Kernel::class);
     $kernel->bootstrap();
-    
+
     echo "✓ Laravel app loaded successfully\n\n";
-    
+
 } catch (Exception $e) {
     echo "✗ Failed to load Laravel app: " . $e->getMessage() . "\n";
     exit(1);
@@ -62,36 +62,36 @@ foreach ($qrCodes as $qrCode) {
     try {
         $oldUrl = str_replace($forceUrl, $originalAppUrl, $qrCode->getQrUrl());
         $newUrl = $qrCode->getQrUrl();
-        
+
         echo "QR Code #{$qrCode->id} - {$qrCode->name}\n";
         echo "  Old: {$oldUrl}\n";
         echo "  New: {$newUrl}\n";
-        
+
         // Regenerate QR code image with new URL
         if (class_exists('SimpleSoftwareIO\QrCode\Facades\QrCode')) {
             $qrCodeImage = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
                 ->size(300)
                 ->margin(1)
                 ->generate($newUrl);
-            
+
             // Save the new image
             $fileName = 'qr_codes/qr_' . $qrCode->id . '_' . time() . '.png';
-            
+
             if (!file_exists(storage_path('app/public/qr_codes'))) {
                 mkdir(storage_path('app/public/qr_codes'), 0755, true);
             }
-            
+
             file_put_contents(storage_path('app/public/' . $fileName), $qrCodeImage);
-            
+
             $qrCode->update(['qr_code_image' => $fileName]);
-            
+
             echo "  ✅ Updated with new image: {$fileName}\n\n";
             $updatedCount++;
         } else {
             echo "  ⚠️  QR code generator not available, only URL updated\n\n";
             $updatedCount++;
         }
-        
+
     } catch (Exception $e) {
         echo "  ❌ Error: " . $e->getMessage() . "\n\n";
         $errorCount++;
@@ -118,8 +118,8 @@ echo "3. Check analytics are working\n";
 echo "4. Remove this script after verification\n";
 
 if (isset($_SERVER['HTTP_HOST'])) {
-    echo "\nAccess this script at: " . 
-         'https://' . $_SERVER['HTTP_HOST'] . '/force-update-qr-urls.php' . 
+    echo "\nAccess this script at: " .
+         'https://' . $_SERVER['HTTP_HOST'] . '/force-update-qr-urls.php' .
          '?url=https://' . $_SERVER['HTTP_HOST'] . "\n";
 }
 

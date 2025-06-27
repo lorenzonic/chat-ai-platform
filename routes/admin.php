@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\QrCodeController;
 use App\Http\Controllers\Admin\AccountController;
+use App\Http\Controllers\Admin\AnalyticsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -49,5 +50,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('admins', [AccountController::class, 'storeAdmin'])->name('admins.store');
             Route::get('admins/{admin}', [AccountController::class, 'showAdmin'])->name('admins.show');
         });
+
+        // Analytics routes
+        Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+        Route::get('analytics/export', [AnalyticsController::class, 'export'])->name('analytics.export');
+        Route::get('analytics/test', [\App\Http\Controllers\Admin\TestAnalyticsController::class, 'test'])->name('analytics.test');
     });
 });

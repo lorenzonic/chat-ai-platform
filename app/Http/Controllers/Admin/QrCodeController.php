@@ -82,13 +82,7 @@ class QrCodeController extends Controller
         }
 
         // Generate dummy stats for now (you can implement real analytics later)
-        $stats = [
-            'total_scans' => 0,
-            'unique_ips' => 0,
-            'mobile_scans' => 0,
-            'desktop_scans' => 0,
-            'recent_scans' => 0,
-        ];
+        $stats = $qrCode->stats;
 
         return view('admin.qr-codes.show', compact('qrCode', 'stats'));
     }

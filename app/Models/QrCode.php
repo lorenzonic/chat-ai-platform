@@ -68,17 +68,17 @@ class QrCode extends Model
     {
         // Get base URL with fallback for production
         $baseUrl = config('app.url');
-        
+
         // If APP_URL is not properly set or still contains variable, use request URL
         if (empty($baseUrl) || str_contains($baseUrl, '${') || $baseUrl === 'http://localhost') {
             $baseUrl = request()->getSchemeAndHttpHost();
         }
-        
+
         // Ensure HTTPS in production
         if (app()->environment('production')) {
             $baseUrl = str_replace('http://', 'https://', $baseUrl);
         }
-        
+
         $url = "{$baseUrl}/{$this->store->slug}";
 
         if ($this->question) {
@@ -88,5 +88,59 @@ class QrCode extends Model
         $url .= ($this->question ? '&' : '?') . 'ref=' . $this->ref_code;
 
         return $url;
+    }
+
+    /**
+     * Get total scan count for this QR code.
+     */
+    public function getTotalScansAttribute(): int
+    {
+        return $this->scans()->count();
+    }
+
+    /**
+     * Get unique visitor count (by IP).
+     */
+    public function getUniqueVisitorsAttribute(): int
+    {
+        return $this->scans()->distinct('ip_address')->count('ip_address');
+    }
+
+    /**
+     * Get mobile scan count.
+     */
+    public function getMobileScansAttribute(): int
+    {
+        return $this->scans()->where('device_type', 'mobile')->count();
+    }
+
+    /**
+     * Get desktop scan count.
+     */
+    public function getDesktopScansAttribute(): int
+    {
+        return $this->scans()->where('device_type', 'desktop')->count();
+    }
+
+    /**
+     * Get recent scans count (last 7 days).
+     */
+    public function getRecentScansAttribute(): int
+    {
+        return $this->scans()->where('created_at', '>=', now()->subDays(7))->count();
+    }
+
+    /**
+     * Get scan statistics.
+     */
+    public function getStatsAttribute(): array
+    {
+        return [
+            'total_scans' => $this->total_scans,
+            'unique_ips' => $this->unique_visitors,
+            'mobile_scans' => $this->mobile_scans,
+            'desktop_scans' => $this->desktop_scans,
+            'recent_scans' => $this->recent_scans,
+        ];
     }
 }

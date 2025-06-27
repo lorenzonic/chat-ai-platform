@@ -49,11 +49,11 @@
                         <a href="{{ route('admin.qr-codes.index') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded text-center">
                             Manage QR Codes
                         </a>
-                        <button class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded">
-                            Create Blog Post
-                        </button>
-                        <button class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded">
+                        <a href="{{ route('admin.analytics.index') }}" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded text-center">
                             View Analytics
+                        </a>
+                        <button class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded">
+                            Create Blog Post
                         </button>
                         <button class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">
                             System Settings
