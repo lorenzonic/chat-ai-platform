@@ -13,6 +13,21 @@
 
 ## ✨ FUNZIONALITÀ DEPLOYATE
 
+### 🔐 **LOGIN E REDIRECT SYSTEM FIXES**
+- ✅ **Fix redirect post-login** per admin e store
+- ✅ **Validazione sicura URL intended** (controllo host e path)
+- ✅ **Protezione contro redirect esterni** malevolenti
+- ✅ **Memorizzazione URL intended** nei middleware
+- ✅ **Fallback garantito** alla dashboard corretta
+- ✅ **Test completi** per validazione sistema login
+
+**DETTAGLI TECNICI:**
+- `AdminLoginController`: redirect sicuro a `/admin/dashboard` con URL intended validation
+- `StoreLoginController`: redirect sicuro a `/store/dashboard` con URL intended validation
+- `IsAdmin middleware`: memorizza URL intended per accessi non autenticati
+- `IsStore middleware`: memorizza URL intended per accessi non autenticati
+- Validazione host per prevenire open redirect vulnerabilities
+
 ### 🎨 **PERSONALIZZAZIONI FRONTEND COMPLETE**
 - ✅ **Colori dinamici** dal database (`chat_theme_color`)
 - ✅ **Font personalizzati** (`chat_font_family`) - Poppins per Botanica Verde
@@ -39,6 +54,8 @@
 - ✅ **Pipeline Python spaCy** completamente integrata
 
 ### 🔧 **FIX TECNICI CRITICI**
+- ✅ **Fix redirect post-login** per admin e store (NUOVO!)
+- ✅ **URL intended validation** e protezione sicurezza (NUOVO!)
 - ✅ **Fix getChatSuggestions()** array return type error
 - ✅ **Rimossi suoni** notifiche chat (su richiesta utente)
 - ✅ **Rimossa persistenza** chat tra sessioni (refresh = nuova chat)
