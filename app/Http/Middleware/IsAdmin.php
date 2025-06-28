@@ -16,6 +16,11 @@ class IsAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if (!auth()->guard('admin')->check()) {
+            // Store the intended URL if accessing an admin route
+            if ($request->is('admin/*') && !$request->is('admin/login')) {
+                $request->session()->put('url.intended', $request->fullUrl());
+            }
+            
             return redirect()->route('admin.login');
         }
 

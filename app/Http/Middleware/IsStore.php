@@ -16,6 +16,11 @@ class IsStore
     public function handle(Request $request, Closure $next): Response
     {
         if (!auth()->guard('store')->check()) {
+            // Store the intended URL if accessing a store route
+            if ($request->is('store/*') && !$request->is('store/login')) {
+                $request->session()->put('url.intended', $request->fullUrl());
+            }
+            
             return redirect()->route('store.login');
         }
 
