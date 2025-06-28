@@ -169,6 +169,12 @@ class GeminiService
         $isFirstMessage = $context['is_first_message'] ?? false;
         $conversationHistory = $context['conversation_history'] ?? collect();
 
+        // === NUOVO: DATI NLP ===
+        $nlpAnalysis = $context['nlp_analysis'] ?? null;
+        $detectedIntent = $context['detected_intent'] ?? null;
+        $keywords = $context['keywords'] ?? [];
+        $entities = $context['entities'] ?? [];
+
         // Informazioni del profilo
         $phone = $context['phone'] ?? null;
         $address = $context['address'] ?? null;
@@ -199,6 +205,45 @@ class GeminiService
                 $prompt .= "\nTu: " . $chat->ai_response;
             }
             $prompt .= "\n\nTieni conto di questa cronologia per fornire risposte coerenti e non ripetere informazioni già fornite.";
+        }
+
+        // === NUOVO: INFORMAZIONI ANALISI NLP ===
+        if ($nlpAnalysis) {
+            $prompt .= "\n\nANALISI DEL MESSAGGIO UTENTE:";
+
+            if ($detectedIntent && $detectedIntent !== 'altro') {
+                $prompt .= "\n• Intent rilevato: {$detectedIntent}";
+
+                // Aggiungi istruzioni specifiche per intent
+                switch ($detectedIntent) {
+                    case 'cura':
+                        $prompt .= "\n• Il cliente ha una domanda sulla CURA delle piante. Fornisci una risposta dettagliata e pratica.";
+                        break;
+                    case 'acquisto':
+                        $prompt .= "\n• Il cliente è interessato all'ACQUISTO. Fornisci informazioni su disponibilità, prezzi indicativi o dove trovare il prodotto.";
+                        break;
+                    case 'identificazione':
+                        $prompt .= "\n• Il cliente vuole IDENTIFICARE una pianta. Aiutalo con domande specifiche o suggerisci di caricare una foto.";
+                        break;
+                    case 'consiglio':
+                        $prompt .= "\n• Il cliente cerca CONSIGLI. Chiedi dettagli sulle sue esigenze per dare suggerimenti personalizzati.";
+                        break;
+                }
+            }
+
+            if (!empty($keywords)) {
+                $prompt .= "\n• Parole chiave identificate: " . implode(', ', array_slice($keywords, 0, 5));
+            }
+
+            if (!empty($entities)) {
+                $entitiesText = [];
+                foreach ($entities as $entity) {
+                    $entitiesText[] = $entity['text'] . ' (' . $entity['label'] . ')';
+                }
+                $prompt .= "\n• Entità riconosciute: " . implode(', ', array_slice($entitiesText, 0, 3));
+            }
+
+            $prompt .= "\n\nUsa queste informazioni per fornire una risposta più mirata e pertinente.";
         }
 
         // Add specific instructions for continuing conversations

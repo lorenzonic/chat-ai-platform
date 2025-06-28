@@ -17,6 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
             Route::middleware('web')
                 ->group(base_path('routes/store.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/test.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/demo.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {

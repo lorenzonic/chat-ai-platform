@@ -9,6 +9,7 @@ use App\Models\ChatLog;
 use App\Models\QrScan;
 use App\Models\Interaction;
 use App\Services\GeminiService;
+use App\Services\NLPService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
@@ -16,7 +17,8 @@ use Illuminate\Support\Str;
 class ChatbotController extends Controller
 {
     public function __construct(
-        private GeminiService $geminiService
+        private GeminiService $geminiService,
+        private NLPService $nlpService
     ) {}
 
     /**
@@ -73,6 +75,18 @@ class ChatbotController extends Controller
 
             $isFirstMessage = $conversationHistory->isEmpty();
 
+            // === ANALISI NLP CON SPACY ===
+            $nlpAnalysis = $this->nlpService->analyzeText($message);
+
+            // Salva l'analisi per miglioramenti futuri
+            $this->nlpService->saveAnalysis($message, $nlpAnalysis, $store->id);
+
+            // Genera suggerimenti basati sull'intent rilevato
+            $smartSuggestions = $this->nlpService->generateSuggestions(
+                $nlpAnalysis['intent'],
+                $nlpAnalysis['keywords']
+            );
+
             // Prepare context for AI with store's custom settings and conversation history
             $context = [
                 'store_name' => $store->name,
@@ -85,6 +99,11 @@ class ChatbotController extends Controller
                 'user_name' => $userName, // Add user name to context
                 'is_first_message' => $isFirstMessage, // Add flag for first message
                 'conversation_history' => $conversationHistory, // Add conversation history
+                // === NUOVO: DATI NLP ===
+                'nlp_analysis' => $nlpAnalysis, // Analisi spaCy completa
+                'detected_intent' => $nlpAnalysis['intent'], // Intent rilevato
+                'keywords' => $nlpAnalysis['keywords'], // Parole chiave estratte
+                'entities' => $nlpAnalysis['entities'], // Entità riconosciute
                 // Informazioni del profilo (escluso email, username, password)
                 'phone' => $store->phone,
                 'address' => $store->address,
@@ -98,7 +117,7 @@ class ChatbotController extends Controller
             // Get AI response (first check knowledge base, then use AI with conversation context)
             $aiResponse = $this->geminiService->generateResponse($message, $context, $store);
 
-            // Log the conversation
+            // Log the conversation with NLP data
             $chatLog = ChatLog::create([
                 'store_id' => $store->id,
                 'qr_code_id' => $qrCode?->id,
@@ -110,6 +129,7 @@ class ChatbotController extends Controller
                 'metadata' => [
                     'referer' => $request->header('referer'),
                     'ref_code' => $refCode,
+                    'nlp_analysis' => $nlpAnalysis, // Salva analisi NLP
                 ],
             ]);
 
@@ -121,6 +141,14 @@ class ChatbotController extends Controller
                 'response' => $aiResponse,
                 'session_id' => $sessionId,
                 'chat_id' => $chatLog->id,
+                // === NUOVI DATI NLP ===
+                'nlp' => [
+                    'intent' => $nlpAnalysis['intent'],
+                    'keywords' => $nlpAnalysis['keywords'],
+                    'entities' => $nlpAnalysis['entities'],
+                    'suggestions' => $smartSuggestions,
+                    'source' => $nlpAnalysis['source'] ?? 'spacy'
+                ]
             ]);
 
         } catch (\Exception $e) {

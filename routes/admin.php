@@ -55,5 +55,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
         Route::get('analytics/export', [AnalyticsController::class, 'export'])->name('analytics.export');
         Route::get('analytics/test', [\App\Http\Controllers\Admin\TestAnalyticsController::class, 'test'])->name('analytics.test');
+
+        // Trends Analytics routes
+        Route::get('trends', [\App\Http\Controllers\Admin\TrendsController::class, 'index'])->name('trends.index');
+        Route::get('trends/advanced', [\App\Http\Controllers\Admin\TrendsController::class, 'advanced'])->name('trends.advanced');
+        Route::get('trends/configure', [\App\Http\Controllers\Admin\TrendsController::class, 'configure'])->name('trends.configure');
+        Route::post('trends/sites', [\App\Http\Controllers\Admin\TrendsController::class, 'storeSite'])->name('trends.sites.store');
+        Route::delete('trends/sites/{key}', [\App\Http\Controllers\Admin\TrendsController::class, 'destroySite'])->name('trends.sites.destroy');
+
+        // Placeholder for future features
+        Route::get('placeholder', function () {
+            return view('admin.placeholder');
+        })->name('placeholder');
     });
 });

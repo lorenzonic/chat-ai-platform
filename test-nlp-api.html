@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API NLP Chatbot</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-box { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .nlp-data { background: #f0f8ff; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        button { background: #007cba; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        .response { background: #f9f9f9; padding: 10px; border-radius: 5px; margin: 10px 0; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>🧠 Test API NLP Chatbot</h1>
+
+    <div class="test-box">
+        <h2>Test Messaggio</h2>
+        <input type="text" id="testMessage" value="La mia monstera ha le foglie gialle, aiuto!" style="width: 70%; padding: 10px;">
+        <button onclick="testChatbot()">Invia Test</button>
+    </div>
+
+    <div class="test-box">
+        <h2>Risposta API</h2>
+        <div id="response" class="response">Clicca "Invia Test" per vedere la risposta...</div>
+    </div>
+
+    <div class="test-box">
+        <h2>Dati NLP</h2>
+        <div id="nlpData" class="nlp-data">Nessun dato NLP ancora...</div>
+    </div>
+
+    <script>
+        async function testChatbot() {
+            const message = document.getElementById('testMessage').value;
+            const responseDiv = document.getElementById('response');
+            const nlpDiv = document.getElementById('nlpData');
+
+            responseDiv.textContent = 'Caricamento...';
+            nlpDiv.textContent = 'Analizzando...';
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/chatbot/botanicaverde/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        session_id: 'test_session_' + Date.now()
+                    })
+                });
+
+                const data = await response.json();
+
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+
+                if (data.nlp) {
+                    nlpDiv.innerHTML = `
+                        <h3>🧠 Analisi NLP:</h3>
+                        <p><strong>Intent:</strong> ${data.nlp.intent}</p>
+                        <p><strong>Keywords:</strong> ${data.nlp.keywords.join(', ')}</p>
+                        <p><strong>Entità:</strong> ${data.nlp.entities.length}</p>
+                        <p><strong>Fonte:</strong> ${data.nlp.source}</p>
+                        <p><strong>Suggerimenti:</strong></p>
+                        <ul>
+                            ${data.nlp.suggestions.map(s => `<li>${s}</li>`).join('')}
+                        </ul>
+                    `;
+                } else {
+                    nlpDiv.textContent = '❌ Nessun dato NLP ricevuto!';
+                }
+
+            } catch (error) {
+                responseDiv.textContent = 'Errore: ' + error.message;
+                nlpDiv.textContent = 'Errore nel caricamento dati NLP';
+            }
+        }
+    </script>
+</body>
+</html>

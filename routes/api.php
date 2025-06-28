@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\ChatbotController;
+use App\Services\PlantSitesManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,4 +31,12 @@ Route::prefix('chatbot/{store:slug}')->group(function () {
 // Store API routes (for lead collection)
 Route::prefix('stores/{store:slug}')->group(function () {
     Route::post('/save-lead', [ChatbotController::class, 'saveLead']);
+});
+
+// Sites validation API
+Route::post('/validate-sites', function () {
+    $sitesManager = new PlantSitesManager();
+    $validation = $sitesManager->validateSites();
+
+    return response()->json($validation);
 });

@@ -109,3 +109,40 @@ Route::get('/test-conversation/{sessionId}', function ($sessionId) {
 })->name('test.conversation');
 
 require __DIR__.'/auth.php';
+
+// Debug route for trends
+Route::get('/debug-trends', function () {
+    $controller = new \App\Http\Controllers\Admin\TrendsController();
+
+    // Use reflection to access private method
+    $reflection = new ReflectionClass($controller);
+    $method = $reflection->getMethod('getGoogleTrends');
+    $method->setAccessible(true);
+
+    $data = $method->invoke($controller, 30);
+
+    return response()->json([
+        'success' => true,
+        'data' => $data,
+        'has_keywords' => isset($data['keywords']),
+        'keywords_count' => isset($data['keywords']) ? count($data['keywords']) : 0,
+        'first_keyword' => isset($data['keywords'][0]) ? $data['keywords'][0] : null,
+    ]);
+});
+
+// Test route for Python scraping
+Route::get('/test-python-scraping', function () {
+    $controller = new \App\Http\Controllers\Admin\TrendsController();
+    $ecommerceData = $controller->testEcommerceData();
+
+    return response()->json([
+        'success' => true,
+        'data' => $ecommerceData,
+        'message' => 'Python scraping test completed'
+    ]);
+});
+
+// Include demo routes
+if (file_exists(__DIR__.'/demo.php')) {
+    require __DIR__.'/demo.php';
+}

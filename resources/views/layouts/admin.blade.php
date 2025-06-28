@@ -33,22 +33,27 @@
                                 <a href="{{ route('admin.dashboard') }}"
                                    class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
                                           {{ request()->routeIs('admin.dashboard') ? 'border-indigo-500 text-gray-900' : '' }}">
-                                    Dashboard
+                                    🏠 Dashboard
                                 </a>
-                                <a href="{{ route('admin.accounts.index') }}"
+                                <a href="{{ route('admin.trends.index') }}"
                                    class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
-                                          {{ request()->routeIs('admin.accounts.*') ? 'border-indigo-500 text-gray-900' : '' }}">
-                                    Accounts
+                                          {{ request()->routeIs('admin.trends.*') ? 'border-emerald-500 text-emerald-900' : '' }}">
+                                    🌱 Plant Trends
                                 </a>
                                 <a href="{{ route('admin.analytics.index') }}"
                                    class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
-                                          {{ request()->routeIs('admin.analytics.*') ? 'border-indigo-500 text-gray-900' : '' }}">
-                                    Analytics
+                                          {{ request()->routeIs('admin.analytics.*') ? 'border-teal-500 text-teal-900' : '' }}">
+                                    📊 Analytics
+                                </a>
+                                <a href="{{ route('admin.accounts.index') }}"
+                                   class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                                          {{ request()->routeIs('admin.accounts.*') ? 'border-blue-500 text-blue-900' : '' }}">
+                                    👥 Accounts
                                 </a>
                                 <a href="{{ route('admin.qr-codes.index') }}"
                                    class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
-                                          {{ request()->routeIs('admin.qr-codes.*') ? 'border-indigo-500 text-gray-900' : '' }}">
-                                    QR Codes
+                                          {{ request()->routeIs('admin.qr-codes.*') ? 'border-purple-500 text-purple-900' : '' }}">
+                                    📱 QR Codes
                                 </a>
                             </div>
                         </div>
@@ -74,6 +79,29 @@
         <main>
             @yield('content')
         </main>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t border-gray-200 mt-12">
+            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-gray-500">🌱 Plant Analytics Platform</span>
+                        <span class="text-xs text-gray-400">v1.0.0</span>
+                    </div>
+                    <div class="flex space-x-6">
+                        <a href="{{ route('admin.trends.index') }}" class="text-sm text-gray-500 hover:text-emerald-600">
+                            Trends Dashboard
+                        </a>
+                        <a href="{{ route('admin.trends.configure') }}" class="text-sm text-gray-500 hover:text-purple-600">
+                            Configure Sites
+                        </a>
+                        <a href="{{ url('/test/navigation') }}" class="text-sm text-gray-500 hover:text-blue-600">
+                            Test Navigation
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
 </body>
 </html>

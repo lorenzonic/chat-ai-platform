@@ -140,7 +140,23 @@ class Store extends Authenticatable
      */
     public function getChatSuggestions(): array
     {
-        return $this->chat_suggestions ?? $this->getDefaultSuggestions();
+        // Se chat_suggestions è null o vuoto, usa i default
+        if (!$this->chat_suggestions || empty($this->chat_suggestions)) {
+            return $this->getDefaultSuggestions();
+        }
+
+        // Se è già un array (per via del cast), restituiscilo
+        if (is_array($this->chat_suggestions)) {
+            return $this->chat_suggestions;
+        }
+
+        // Se è una stringa JSON, prova a decodificarla
+        try {
+            $decoded = json_decode($this->chat_suggestions, true);
+            return is_array($decoded) ? $decoded : $this->getDefaultSuggestions();
+        } catch (\Exception $e) {
+            return $this->getDefaultSuggestions();
+        }
     }
 
     /**

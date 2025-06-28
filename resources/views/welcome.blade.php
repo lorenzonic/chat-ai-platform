@@ -30,6 +30,12 @@
                         >
                             Dashboard
                         </a>
+                        <a
+                            href="{{ route('admin.login') }}"
+                            class="inline-block px-5 py-1.5 bg-[#1b1b18] hover:bg-black dark:bg-[#eeeeec] dark:hover:bg-white text-white dark:text-[#1C1C1A] border border-transparent rounded-sm text-sm leading-normal"
+                        >
+                            🌱 Admin Panel
+                        </a>
                     @else
                         <a
                             href="{{ route('login') }}"

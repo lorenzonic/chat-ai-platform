@@ -1,5 +1,5 @@
 <template>
-  <CompactChatbot
+  <ModernChatbot
     :store="store"
     :prefilled-question="prefilledQuestion"
     :ref-code="refCode"
@@ -7,12 +7,12 @@
 </template>
 
 <script>
-import CompactChatbot from './CompactChatbot.vue'
+import ModernChatbot from './ModernChatbot.vue'
 
 export default {
   name: 'ChatbotApp',
   components: {
-    CompactChatbot
+    ModernChatbot
   },
   props: {
     store: {

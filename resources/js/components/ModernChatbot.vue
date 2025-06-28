@@ -1,17 +1,34 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50">
-    <!-- Header moderno -->
-    <header class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg">
+  <div
+    class="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50"
+    :style="backgroundGradient"
+  >
+    <!-- Header moderno personalizzato -->
+    <header
+      class="text-white shadow-lg"
+      :style="headerStyle"
+    >
       <div class="max-w-4xl mx-auto px-6 py-6">
         <div class="flex items-center space-x-4">
-          <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+          <div
+            class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center"
+            :style="avatarStyle"
+          >
+            <img
+              v-if="store.chat_avatar_image"
+              :src="store.chat_avatar_image"
+              :alt="store.name"
+              class="w-10 h-10 rounded-full object-cover"
+            />
+            <svg v-else class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-bold">{{ store.name }}</h1>
-            <p class="text-emerald-100 text-sm">🤖 AI Assistant - Chiedi tutto quello che vuoi!</p>
+            <h1 class="text-2xl font-bold" :style="fontStyle">{{ store.name }}</h1>
+            <p class="text-white/80 text-sm" :style="fontStyle">
+             {{ store.assistant_name || 'AI Assistant' }} - {{ welcomeSubtitle }}
+            </p>
           </div>
         </div>
       </div>
@@ -20,16 +37,22 @@
     <!-- Chat Container moderno -->
     <div class="max-w-4xl mx-auto p-6">
       <div class="glass rounded-2xl shadow-2xl border border-white/20">
-        <!-- Chat Header -->
-        <div class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white p-4 rounded-t-2xl">
+        <!-- Chat Header personalizzato -->
+        <div
+          class="text-white p-4 rounded-t-2xl"
+          :style="chatHeaderStyle"
+        >
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+              <div
+                class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center"
+                :style="onlineIndicatorStyle"
+              >
                 <div class="w-2 h-2 bg-green-300 rounded-full animate-pulse"></div>
               </div>
-              <span class="font-medium">Chat AI</span>
+              <span class="font-medium" :style="fontStyle">{{ store.assistant_name || 'Chat AI' }}</span>
             </div>
-            <div class="text-xs opacity-75">Online</div>
+            <div class="text-xs opacity-75" :style="fontStyle">Online</div>
           </div>
         </div>
 
@@ -47,22 +70,37 @@
             >
               <!-- Message AI -->
               <div v-if="!message.isUser" class="flex items-start space-x-3">
-                <div class="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <div
+                  class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                  :style="aiAvatarStyle"
+                >
+                  <img
+                    v-if="store.chat_avatar_image"
+                    :src="store.chat_avatar_image"
+                    :alt="store.assistant_name"
+                    class="w-6 h-6 rounded-full object-cover"
+                  />
+                  <svg v-else class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
                 </div>
-                <div class="bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-md max-w-xs lg:max-w-md border border-gray-100">
-                  <p class="text-gray-800 text-sm leading-relaxed" v-html="formatMessage(message.text)"></p>
-                  <div class="text-xs text-gray-400 mt-2">{{ formatTime(message.timestamp) }}</div>
+                <div
+                  class="bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-md max-w-xs lg:max-w-md border"
+                  :style="aiMessageStyle"
+                >
+                  <p class="text-gray-800 text-sm leading-relaxed" :style="fontStyle" v-html="formatMessage(message.text)"></p>
+                  <div class="text-xs text-gray-400 mt-2" :style="fontStyle">{{ formatTime(message.timestamp) }}</div>
                 </div>
               </div>
 
               <!-- Message User -->
               <div v-else class="flex items-start justify-end space-x-3">
-                <div class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl rounded-tr-md px-4 py-3 shadow-md max-w-xs lg:max-w-md">
-                  <p class="text-sm leading-relaxed" v-html="formatMessage(message.text)"></p>
-                  <div class="text-xs text-emerald-100 mt-2">{{ formatTime(message.timestamp) }}</div>
+                <div
+                  class="text-white rounded-2xl rounded-tr-md px-4 py-3 shadow-md max-w-xs lg:max-w-md"
+                  :style="userMessageStyle"
+                >
+                  <p class="text-sm leading-relaxed" :style="fontStyle" v-html="formatMessage(message.text)"></p>
+                  <div class="text-xs text-white/80 mt-2" :style="fontStyle">{{ formatTime(message.timestamp) }}</div>
                 </div>
                 <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
                   <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -73,14 +111,20 @@
             </div>
           </TransitionGroup>
 
-          <!-- Loading indicator -->
+          <!-- Loading indicator personalizzato -->
           <div v-if="isLoading" class="flex items-start space-x-3 mb-4 chatbot-message-ai">
-            <div class="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full flex items-center justify-center">
+            <div
+              class="w-8 h-8 rounded-full flex items-center justify-center"
+              :style="aiAvatarStyle"
+            >
               <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
             </div>
-            <div class="bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-md border border-gray-100">
+            <div
+              class="bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-md border"
+              :style="aiMessageStyle"
+            >
               <div class="flex items-center space-x-2">
-                <span class="text-gray-500 text-sm">AI sta scrivendo</span>
+                <span class="text-gray-500 text-sm" :style="fontStyle">{{ store.assistant_name || 'AI' }} sta scrivendo</span>
                 <div class="typing-dots">
                   <span></span>
                   <span></span>
@@ -91,22 +135,75 @@
           </div>
         </div>
 
-        <!-- Quick Suggestions -->
+        <!-- Quick Suggestions personalizzate -->
         <div v-if="showSuggestions" class="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
-          <p class="text-sm text-gray-600 mb-3 font-medium">💡 Suggerimenti veloci:</p>
-          <div class="flex flex-wrap gap-2">
+          <!-- Smart Suggestions (NLP-powered) -->
+          <div v-if="smartSuggestions.length > 0" class="mb-4">
+            <p class="text-sm mb-3 font-medium flex items-center" :style="{ color: primaryColor, ...fontStyle }">
+              <span class="mr-2">🧠</span>
+              Suggerimenti intelligenti per te:
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="suggestion in smartSuggestions"
+                :key="suggestion"
+                @click="sendSuggestion(suggestion)"
+                class="px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-sm border"
+                :style="smartSuggestionStyle"
+              >
+                {{ suggestion }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Custom Store Suggestions -->
+          <div v-if="customStoreSuggestions.length > 0" class="mb-4">
+            <p class="text-sm text-gray-600 mb-3 font-medium" :style="fontStyle">⭐ Suggerimenti di {{ store.name }}:</p>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="suggestion in customStoreSuggestions"
+                :key="suggestion"
+                @click="sendSuggestion(suggestion)"
+                class="px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-sm"
+                :style="customSuggestionStyle"
+              >
+                {{ suggestion }}
+              </button>
+            </div>
+          </div>
+
+
+
+          <!-- NLP Info (dev only) -->
+          <div v-if="lastNlpData && showNlpInfo" class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p class="text-xs text-yellow-800 font-medium mb-2">🔍 Analisi NLP ultima domanda:</p>
+            <div class="text-xs text-yellow-700 space-y-1">
+              <div><strong>Intent:</strong> {{ lastNlpData.intent }} ({{ lastNlpData.intent_confidence || 0 }})</div>
+              <div v-if="lastNlpData.sentiment"><strong>Sentiment:</strong> {{ lastNlpData.sentiment.sentiment }} ({{ lastNlpData.sentiment.confidence }})</div>
+              <div v-if="lastNlpData.keywords.length"><strong>Keywords:</strong> {{ lastNlpData.keywords.join(', ') }}</div>
+              <div v-if="lastNlpData.entities && lastNlpData.entities.length"><strong>Entità:</strong> {{ formatEntities(lastNlpData.entities) }}</div>
+              <div><strong>Fonte:</strong> {{ lastNlpData.source }}</div>
+            </div>
             <button
-              v-for="suggestion in suggestions"
-              :key="suggestion"
-              @click="sendSuggestion(suggestion)"
-              class="suggestion-button text-white text-sm px-4 py-2 rounded-full shadow-lg transition-all duration-200"
+              @click="showNlpInfo = false"
+              class="mt-2 text-xs text-yellow-600 hover:text-yellow-800"
             >
-              {{ suggestion }}
+              Nascondi dettagli
+            </button>
+          </div>
+
+          <!-- Debug toggle (only in development) -->
+          <div v-if="isDevelopment" class="mt-2">
+            <button
+              @click="showNlpInfo = !showNlpInfo"
+              class="text-xs text-gray-500 hover:text-gray-700 underline"
+            >
+              {{ showNlpInfo ? 'Nascondi' : 'Mostra' }} info NLP
             </button>
           </div>
         </div>
 
-        <!-- Input Area -->
+        <!-- Input Area personalizzato -->
         <div class="p-6 border-t border-gray-100 bg-white rounded-b-2xl">
           <form @submit.prevent="sendMessage" class="flex space-x-3">
             <div class="flex-1 relative">
@@ -115,8 +212,9 @@
                 :disabled="isLoading"
                 ref="messageInput"
                 type="text"
-                placeholder="Scrivi la tua domanda..."
-                class="chat-input w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 disabled:opacity-50"
+                :placeholder="`Scrivi a ${store.assistant_name || 'AI'}...`"
+                class="chat-input w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200 disabled:opacity-50"
+                :style="{ fontFamily: fontFamily, '&:focus': { '--tw-ring-color': primaryColor } }"
               >
               <button
                 type="button"
@@ -131,7 +229,8 @@
             <button
               type="submit"
               :disabled="!newMessage.trim() || isLoading || isMessageTooLong"
-              class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              class="text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              :style="sendButtonStyle"
             >
               <svg v-if="!isLoading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
@@ -140,64 +239,69 @@
             </button>
           </form>
 
-          <!-- Character counter -->
+          <!-- Character counter personalizzato -->
           <div class="flex justify-between items-center mt-2 text-xs text-gray-500">
-            <span>💡 Suggerimento: Sii specifico per risposte più accurate</span>
-            <span :class="{ 'text-red-500': isMessageTooLong }">
+            <span :style="fontStyle">💡 Suggerimento: Sii specifico per risposte più accurate</span>
+            <span :class="{ 'text-red-500': isMessageTooLong }" :style="fontStyle">
               {{ characterCount }}/{{ maxMessageLength }}
-            </span>
-          </div>
-
-          <!-- Character count indicator -->
-          <div class="mt-2 text-right">
-            <span class="text-xs" :class="{'text-red-500': isMessageTooLong}">
-              {{ characterCount }} / {{ maxMessageLength }} caratteri
             </span>
           </div>
         </div>
       </div>
 
-      <!-- Store Info Card moderna -->
+      <!-- Store Info Card personalizzata -->
       <div class="mt-6 glass rounded-2xl shadow-xl border border-white/20 p-6">
         <div class="flex items-start space-x-4">
-          <div class="w-16 h-16 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center">
-            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
+          <!-- Avatar personalizzato dello store -->
+          <div v-if="store.chat_avatar_image" class="w-16 h-16 rounded-2xl overflow-hidden border-2 flex-shrink-0" :style="{ borderColor: primaryColor }">
+            <img :src="store.chat_avatar_image" :alt="store.name" class="w-full h-full object-cover" />
+          </div>
+          <div v-else class="w-16 h-16 rounded-2xl flex items-center justify-center" :style="storeAvatarStyle">
+            <span class="text-2xl font-bold text-white">{{ getBusinessIcon() }}</span>
           </div>
           <div class="flex-1">
-            <h2 class="text-xl font-bold text-gray-900 mb-2">{{ store.name }}</h2>
-            <p v-if="store.description" class="text-gray-600 leading-relaxed">{{ store.description }}</p>
-            <div class="mt-4 flex items-center space-x-4 text-sm text-gray-500">
-              <span class="flex items-center space-x-1">
-                <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+            <h2 class="text-xl font-bold text-gray-900 mb-2" :style="fontStyle">{{ store.name }}</h2>
+            <p v-if="store.description" class="text-gray-600 leading-relaxed mb-3" :style="fontStyle">{{ store.description }}</p>
+            <div class="mb-3">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium" :style="assistantBadgeStyle">
+                <span class="mr-1">🤖</span>
+                {{ assistantName }}
+              </span>
+            </div>
+            <div class="flex items-center space-x-4 text-sm text-gray-500">
+              <span class="flex items-center space-x-1" :style="fontStyle">
+                <div class="w-2 h-2 rounded-full" :style="{ backgroundColor: primaryColor }"></div>
                 <span>Online</span>
               </span>
-              <span>Risposta istantanea</span>
+              <span :style="fontStyle">Risposta istantanea</span>
+              <span v-if="store.chat_ai_tone" :style="fontStyle">Tono {{ store.chat_ai_tone }}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Footer informativo -->
+      <!-- Footer informativo personalizzato -->
       <div class="mt-6 text-center space-y-2">
         <div class="flex items-center justify-center space-x-4 text-sm text-gray-500">
-          <span class="flex items-center space-x-1">
+          <span class="flex items-center space-x-1" :style="fontStyle">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <span>Powered by AI</span>
           </span>
-          <span class="flex items-center space-x-1">
+          <span class="flex items-center space-x-1" :style="fontStyle">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
             </svg>
             <span>Sempre disponibile</span>
           </span>
+          <span v-if="store.assistant_name" class="flex items-center space-x-1" :style="{ color: primaryColor, ...fontStyle }">
+        <span>{{ assistantName }}</span>
+          </span>
         </div>
-        <p class="text-xs text-gray-400">
-          💡 Questo chatbot è alimentato da intelligenza artificiale e può fornire informazioni generali.
-          Per richieste specifiche, contatta direttamente il negozio.
+        <p class="text-xs text-gray-400" :style="fontStyle">
+          💡 Questo chatbot è alimentato da intelligenza artificiale e può fornire informazioni su {{ store.name }}.
+          {{ assistantName }} è qui per aiutarti!
         </p>
       </div>
     </div>
@@ -233,13 +337,234 @@ export default {
     const showSuggestions = ref(true)
     const maxMessageLength = ref(500)
 
-    const suggestions = [
-      '🌱 Che piante consigli?',
-      '🕒 Orari di apertura?',
-      '💧 Come curarle?',
-      '🌿 Piante per appartamento?',
-      '☀️ Piante per giardino?'
-    ]
+    // === NUOVO: VARIABILI NLP ===
+    const smartSuggestions = ref([])
+    const lastNlpData = ref(null)
+    const showNlpInfo = ref(false)
+    const isDevelopment = ref(process.env.NODE_ENV === 'development' || true) // Temporaneamente sempre abilitato per test
+
+    // === PERSONALIZZAZIONE STORE ===
+    const primaryColor = computed(() => props.store.chat_theme_color || '#10b981')
+    const fontFamily = computed(() => props.store.chat_font_family || 'Inter')
+
+    // Computed styles per personalizzazione
+    const fontStyle = computed(() => ({
+      fontFamily: fontFamily.value
+    }))
+
+    const backgroundGradient = computed(() => {
+      const color = primaryColor.value
+      const lightColor = adjustColor(color, 40)
+      const veryLightColor = adjustColor(color, 70)
+      return `background: linear-gradient(135deg, ${veryLightColor}10, ${lightColor}20)`
+    })
+
+    const headerStyle = computed(() => {
+      const color = primaryColor.value
+      const darkColor = adjustColor(color, -20)
+      return {
+        background: `linear-gradient(135deg, ${color}, ${darkColor})`,
+        fontFamily: fontFamily.value
+      }
+    })
+
+    const chatHeaderStyle = computed(() => {
+      const color = primaryColor.value
+      const darkColor = adjustColor(color, -10)
+      return {
+        background: `linear-gradient(135deg, ${color}, ${darkColor})`,
+        fontFamily: fontFamily.value
+      }
+    })
+
+    const aiAvatarStyle = computed(() => ({
+      background: `linear-gradient(135deg, ${primaryColor.value}, ${adjustColor(primaryColor.value, -15)})`
+    }))
+
+    const avatarStyle = computed(() => ({
+      backgroundColor: 'rgba(255, 255, 255, 0.2)'
+    }))
+
+    const onlineIndicatorStyle = computed(() => ({
+      backgroundColor: 'rgba(255, 255, 255, 0.2)'
+    }))
+
+    const aiMessageStyle = computed(() => ({
+      borderColor: `${primaryColor.value}20`,
+      fontFamily: fontFamily.value
+    }))
+
+    const userMessageStyle = computed(() => ({
+      background: `linear-gradient(135deg, ${primaryColor.value}, ${adjustColor(primaryColor.value, -15)})`,
+      fontFamily: fontFamily.value
+    }))
+
+    const smartSuggestionStyle = computed(() => ({
+      backgroundColor: `${primaryColor.value}15`,
+      color: adjustColor(primaryColor.value, -30),
+      borderColor: `${primaryColor.value}30`,
+      fontFamily: fontFamily.value
+    }))
+
+    const customSuggestionStyle = computed(() => ({
+      backgroundColor: `${primaryColor.value}25`,
+      color: adjustColor(primaryColor.value, -40),
+      fontFamily: fontFamily.value
+    }))
+
+    const sendButtonStyle = computed(() => ({
+      background: `linear-gradient(135deg, ${primaryColor.value}, ${adjustColor(primaryColor.value, -15)})`,
+      fontFamily: fontFamily.value,
+      ':hover': {
+        background: `linear-gradient(135deg, ${adjustColor(primaryColor.value, -10)}, ${adjustColor(primaryColor.value, -25)})`
+      }
+    }))
+
+    const storeAvatarStyle = computed(() => ({
+      background: `linear-gradient(135deg, ${primaryColor.value}, ${adjustColor(primaryColor.value, -15)})`
+    }))
+
+    const assistantBadgeStyle = computed(() => ({
+      backgroundColor: `${primaryColor.value}15`,
+      color: adjustColor(primaryColor.value, -40),
+      fontFamily: fontFamily.value
+    }))
+
+    // Funzione helper per modificare i colori
+    const adjustColor = (color, amount) => {
+      const usePound = color[0] === '#'
+      const col = usePound ? color.slice(1) : color
+      const num = parseInt(col, 16)
+
+      let r = (num >> 16) + amount
+      let g = (num >> 8 & 0x00FF) + amount
+      let b = (num & 0x0000FF) + amount
+
+      r = r > 255 ? 255 : r < 0 ? 0 : r
+      g = g > 255 ? 255 : g < 0 ? 0 : g
+      b = b > 255 ? 255 : b < 0 ? 0 : b
+
+      return (usePound ? '#' : '') + (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0')
+    }
+
+    // Suggestions personalizzate per lo store
+    const customStoreSuggestions = computed(() => {
+      if (props.store.chat_suggestions) {
+        try {
+          return Array.isArray(props.store.chat_suggestions)
+            ? props.store.chat_suggestions
+            : JSON.parse(props.store.chat_suggestions)
+        } catch (e) {
+          return []
+        }
+      }
+      return []
+    })
+
+    // Default suggestions personalizzate per tipo di business
+    const defaultSuggestions = computed(() => {
+      const businessType = detectBusinessType()
+      const baseIcon = getBusinessIcon()
+
+      switch (businessType) {
+        case 'garden_center':
+          return [
+            `${baseIcon} Che piante consigli?`,
+            '🕒 Orari di apertura?',
+            '💧 Come curarle?',
+            '🌿 Piante per appartamento?',
+            '☀️ Piante per giardino?'
+          ]
+        case 'flower_shop':
+          return [
+            `${baseIcon} Bouquet disponibili?`,
+            '💐 Fiori per matrimonio?',
+            '🎁 Composizioni regalo?',
+            '🕒 Orari di apertura?',
+            '🚚 Consegne a domicilio?'
+          ]
+        default:
+          return [
+            `${baseIcon} Prodotti disponibili?`,
+            '🕒 Orari di apertura?',
+            'ℹ️ Informazioni negozio?',
+            '📞 Come contattarvi?',
+            '📍 Dove siete?'
+          ]
+      }
+    })
+
+    // Rileva il tipo di business dalla descrizione/nome
+    const detectBusinessType = () => {
+      const text = `${props.store.name} ${props.store.description || ''}`.toLowerCase()
+
+      // Parole chiave per garden center
+      const gardenKeywords = ['garden', 'piante', 'vivaio', 'giardinaggio', 'verde', 'botanica', 'serra', 'coltivazione']
+      // Parole chiave per flower shop
+      const flowerKeywords = ['fiori', 'flower', 'fiorista', 'bouquet', 'rose', 'matrimonio', 'composizioni']
+
+      if (gardenKeywords.some(keyword => text.includes(keyword))) {
+        return 'garden_center'
+      } else if (flowerKeywords.some(keyword => text.includes(keyword))) {
+        return 'flower_shop'
+      }
+
+      return 'general'
+    }
+
+    // Icona basata sul business
+    const getBusinessIcon = () => {
+      const businessType = detectBusinessType()
+      switch (businessType) {
+        case 'garden_center':
+          return '🌱'
+        case 'flower_shop':
+          return '💐'
+        default:
+          return '🏪'
+      }
+    }
+
+    // Colore accent basato sul business type
+    const getBusinessAccentColor = () => {
+      const businessType = detectBusinessType()
+      const baseColor = primaryColor.value
+
+      switch (businessType) {
+        case 'garden_center':
+          return '#22c55e' // Verde natura
+        case 'flower_shop':
+          return '#f472b6' // Rosa fiori
+        default:
+          return baseColor
+      }
+    }
+
+    // Sottotitolo di benvenuto personalizzato
+    const welcomeSubtitle = computed(() => {
+      const businessType = detectBusinessType()
+      const assistantName = props.store.assistant_name || 'AI Assistant'
+
+      switch (businessType) {
+        case 'garden_center':
+          return 'Il tuo esperto di piante e giardinaggio!'
+        case 'flower_shop':
+          return 'Creiamo bouquet perfetti per te!'
+        default:
+          return 'Chiedi tutto quello che vuoi!'
+      }
+    })
+
+    // Iniziale dell'assistente per l'avatar
+    const assistantInitial = computed(() => {
+      const name = props.store.assistant_name || 'AI'
+      return name.charAt(0).toUpperCase()
+    })
+
+    // Nome dell'assistente per visualizzazione
+    const assistantName = computed(() => {
+      return props.store.assistant_name || 'Assistente AI'
+    })
 
     // Character count for input
     const characterCount = computed(() => newMessage.value.length)
@@ -277,12 +602,6 @@ export default {
       }
       messages.value.push(message)
       scrollToBottom()
-      saveChatHistory() // Auto-save chat history
-
-      // Play notification sound for AI messages
-      if (!isUser) {
-        playNotificationSound()
-      }
 
       return message
     }
@@ -296,53 +615,41 @@ export default {
         .replace(/\n/g, '<br>') // Line breaks
     }
 
-    // Generate welcome message
+    // Generate welcome message personalizzato
     const getWelcomeMessage = () => {
-      const messages = [
-        `🌱 Ciao! Sono l'assistente AI di ${props.store.name}. Come posso aiutarti oggi?`,
-        `👋 Benvenuto da ${props.store.name}! Sono qui per rispondere alle tue domande.`,
-        `🤖 Salve! Sono l'AI di ${props.store.name}. In cosa posso esserti utile?`,
-        `✨ Ciao! Sono qui per aiutarti con tutto quello che riguarda ${props.store.name}!`
-      ]
+      const assistantName = props.store.assistant_name || 'Assistente AI'
+      const storeName = props.store.name
+      const businessType = detectBusinessType()
+
+      let messages = []
+
+      switch (businessType) {
+        case 'garden_center':
+          messages = [
+            `🌱 Ciao! Sono ${assistantName} di ${storeName}. Posso aiutarti con piante, cura e giardinaggio!`,
+            `👋 Benvenuto da ${storeName}! Sono qui per rispondere a tutte le tue domande sulle piante.`,
+            `🌿 Salve! Sono ${assistantName}, il tuo esperto di piante. Come posso aiutarti oggi?`,
+            `✨ Ciao! Da ${storeName} trovi tutto per il tuo verde. Cosa ti serve?`
+          ]
+          break
+        case 'flower_shop':
+          messages = [
+            `💐 Ciao! Sono ${assistantName} di ${storeName}. Creiamo bouquet perfetti per ogni occasione!`,
+            `🌸 Benvenuto da ${storeName}! Posso aiutarti a scegliere i fiori più belli.`,
+            `🌹 Salve! Sono ${assistantName}, il tuo consulente floreale. Come posso aiutarti?`,
+            `✨ Ciao! Da ${storeName} rendiamo speciali i tuoi momenti con i fiori giusti.`
+          ]
+          break
+        default:
+          messages = [
+            `👋 Ciao! Sono ${assistantName} di ${storeName}. Come posso aiutarti oggi?`,
+            `🤖 Benvenuto da ${storeName}! Sono qui per rispondere alle tue domande.`,
+            `✨ Salve! Sono ${assistantName}. In cosa posso esserti utile?`,
+            `💬 Ciao! Da ${storeName} siamo qui per aiutarti. Cosa ti serve?`
+          ]
+      }
+
       return messages[Math.floor(Math.random() * messages.length)]
-    }
-
-    // Play notification sound
-    const playNotificationSound = () => {
-      try {
-        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEeFTOH0fPTgjMGEW7A7+OZRQ0PVqzn77BdGAg+ltryxHkpBSl+zPLZizcIGmW57+OaRAoMUKXh8LpuJAU2jdXzzn0vBSF1xe/eizEHElyx5+mjUhELTKDf87phHhU0hdDz04IzBhJwwO/hmEQODlOq5O+zYBoGPJPY88p9KwUme8rx2Ys2CRllu+3kmlAJC1Gn4fG9byMGPI7V8tGALgYeg8vw24s2CRdks+3kn08MDVSr5/C9cCUHN47U8tKCMwcSbcDv4ZlGDgxRpuPwu28kBjiO1fDPfywGJHfG8N2QQAoTXrTp66hVFAlFnt/zu2EdFDCG0fLSgzQHEW/A7eCZRg4OUarm7rJcFQk8kdXy0oEzBxFs5/nkwEHF')
-        audio.volume = 0.1
-        audio.play().catch(() => {}) // Ignore errors if audio fails
-      } catch (error) {
-        // Ignore audio errors
-      }
-    }
-
-    // Save chat history to localStorage
-    const saveChatHistory = () => {
-      const chatHistory = {
-        messages: messages.value,
-        timestamp: Date.now()
-      }
-      localStorage.setItem('chat_history_' + props.store.slug, JSON.stringify(chatHistory))
-    }
-
-    // Load chat history from localStorage
-    const loadChatHistory = () => {
-      try {
-        const saved = localStorage.getItem('chat_history_' + props.store.slug)
-        if (saved) {
-          const chatHistory = JSON.parse(saved)
-          // Only load if less than 24 hours old
-          if (Date.now() - chatHistory.timestamp < 24 * 60 * 60 * 1000) {
-            messages.value = chatHistory.messages || []
-            return true
-          }
-        }
-      } catch (error) {
-        console.log('Error loading chat history:', error)
-      }
-      return false
     }
 
     // Send message
@@ -373,7 +680,40 @@ export default {
 
         if (data.success) {
           addMessage(data.response, false)
-          playNotificationSound() // Play sound on new response
+
+          // === NUOVO: GESTIONE DATI NLP AVANZATA ===
+          console.log('🔍 Checking for NLP data...', data) // Debug log
+          if (data.nlp) {
+            console.log('✅ NLP data received!', data.nlp) // Debug log
+            lastNlpData.value = data.nlp
+
+            // Aggiorna suggerimenti intelligenti se disponibili
+            if (data.nlp.suggestions && data.nlp.suggestions.length > 0) {
+              smartSuggestions.value = data.nlp.suggestions
+              showSuggestions.value = true
+            }
+
+            // Aggiungi suggerimenti basati sul sentiment
+            if (data.nlp.sentiment) {
+              const sentimentSuggestions = handleSentimentBasedSuggestions(data.nlp.sentiment)
+              if (sentimentSuggestions.length > 0) {
+                smartSuggestions.value = [...smartSuggestions.value, ...sentimentSuggestions].slice(0, 6)
+              }
+            }
+
+            // Log delle informazioni NLP (solo in dev)
+            if (isDevelopment.value) {
+              console.log('🧠 Advanced NLP Analysis:', {
+                intent: data.nlp.intent,
+                intent_confidence: data.nlp.intent_confidence,
+                sentiment: data.nlp.sentiment,
+                keywords: data.nlp.keywords,
+                entities: data.nlp.entities,
+                source: data.nlp.source
+              })
+            }
+          }
+
           if (data.session_id) {
             sessionId.value = data.session_id
             localStorage.setItem('chatbot_session_' + props.store.slug, sessionId.value)
@@ -395,10 +735,58 @@ export default {
       sendMessage()
     }
 
+    // Format entities for display
+    const formatEntities = (entities) => {
+      if (!entities || entities.length === 0) return 'Nessuna'
+      return entities.map(ent => `${ent.text} (${ent.label})`).join(', ')
+    }
+
+    // Enhanced suggestion handling based on sentiment
+    const handleSentimentBasedSuggestions = (sentiment) => {
+      if (!sentiment) return []
+
+      let extraSuggestions = []
+
+      if (sentiment.sentiment === 'negative') {
+        extraSuggestions = [
+          '🆘 Hai un problema urgente?',
+          '📞 Vuoi parlare con un esperto?',
+          '🔍 Cerchiamo una soluzione rapida'
+        ]
+      } else if (sentiment.sentiment === 'positive') {
+        extraSuggestions = [
+          '🌱 Vuoi espandere la tua collezione?',
+          '🎁 Idee regalo per amanti delle piante?',
+          '📚 Consigli per diventare un esperto?'
+        ]
+      }
+
+      return extraSuggestions
+    }
+
+    // Auto-suggest based on typing patterns
+    const handleTypingSuggestions = (text) => {
+      const typingSuggestions = []
+      const textLower = text.toLowerCase()
+
+      // Suggest completions for common queries
+      if (textLower.includes('come') && textLower.length > 5) {
+        typingSuggestions.push('Come si cura?', 'Come si annaffia?', 'Come si pota?')
+      } else if (textLower.includes('problemi') && textLower.length > 8) {
+        typingSuggestions.push('Problemi con le foglie', 'Problemi di crescita', 'Problemi di parassiti')
+      } else if (textLower.includes('quale') && textLower.length > 5) {
+        typingSuggestions.push('Quale pianta scegliere?', 'Quale concime usare?', 'Quale posizione?')
+      }
+
+      return typingSuggestions.slice(0, 3)
+    }
+
     // Clear chat
     const clearChat = () => {
       messages.value = []
       showSuggestions.value = true
+      smartSuggestions.value = []
+      lastNlpData.value = null
       addMessage(getWelcomeMessage(), false)
     }
 
@@ -423,10 +811,8 @@ export default {
       sessionId.value = localStorage.getItem('chatbot_session_' + props.store.slug) || generateSessionId()
       localStorage.setItem('chatbot_session_' + props.store.slug, sessionId.value)
 
-      // Try to load chat history, if not found add welcome message
-      if (!loadChatHistory()) {
-        addMessage(getWelcomeMessage(), false)
-      }
+      // Always start with welcome message
+      addMessage(getWelcomeMessage(), false)
 
       // Check for pre-filled question from props
       if (props.prefilledQuestion) {
@@ -451,7 +837,6 @@ export default {
       messagesContainer,
       messageInput,
       showSuggestions,
-      suggestions,
       maxMessageLength,
       characterCount,
       isMessageTooLong,
@@ -460,8 +845,40 @@ export default {
       clearChat,
       formatTime,
       formatMessage,
-      saveChatHistory,
-      loadChatHistory
+      // === VARIABILI E FUNZIONI NLP ===
+      smartSuggestions,
+      lastNlpData,
+      showNlpInfo,
+      isDevelopment,
+      formatEntities,
+      handleSentimentBasedSuggestions,
+      handleTypingSuggestions,
+      // === PERSONALIZZAZIONE STORE ===
+      primaryColor,
+      fontFamily,
+      fontStyle,
+      backgroundGradient,
+      headerStyle,
+      chatHeaderStyle,
+      aiAvatarStyle,
+      avatarStyle,
+      onlineIndicatorStyle,
+      aiMessageStyle,
+      userMessageStyle,
+      smartSuggestionStyle,
+      customSuggestionStyle,
+      sendButtonStyle,
+      storeAvatarStyle,
+      assistantBadgeStyle,
+      customStoreSuggestions,
+      defaultSuggestions,
+      welcomeSubtitle,
+      assistantInitial,
+      assistantName,
+      detectBusinessType,
+      getBusinessIcon,
+      getBusinessAccentColor,
+      adjustColor
     }
   }
 }
@@ -491,6 +908,35 @@ export default {
   }
 }
 
+/* Typing dots animation */
+.typing-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.typing-dots span {
+  height: 4px;
+  width: 4px;
+  background-color: #9ca3af;
+  border-radius: 50%;
+  animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+.typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -508,5 +954,70 @@ export default {
 
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, #059669, #0f766e);
+}
+
+/* Glass effect */
+.glass {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Chat input focus effect - now dynamic */
+.chat-input:focus {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  transform: scale(1.01);
+}
+
+/* Hover effects for suggestions */
+button:hover {
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Enhanced animations for messages */
+.chatbot-message-ai,
+.chatbot-message-user {
+  animation: slideInMessage 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInMessage {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Pulse animation for AI thinking */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .max-w-xs {
+    max-width: 280px;
+  }
+
+  .lg\:max-w-md {
+    max-width: 320px;
+  }
+
+  .max-w-4xl {
+    max-width: 100%;
+    margin: 0 1rem;
+  }
 }
 </style>
