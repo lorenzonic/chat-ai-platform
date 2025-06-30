@@ -1,18 +1,13 @@
 <?php
 
-// Simple test route to debug the trends data
+// Simple test route to debug the trends data using refactored services
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\TrendsController;
+use App\Services\Trends\GoogleTrendsService;
 
 Route::get('/debug-trends', function () {
-    $controller = new TrendsController();
-
-    // Use reflection to access private method
-    $reflection = new ReflectionClass($controller);
-    $method = $reflection->getMethod('getGoogleTrends');
-    $method->setAccessible(true);
-
-    $data = $method->invoke($controller, 30);
+    $googleTrendsService = app(GoogleTrendsService::class);
+    
+    $data = $googleTrendsService->getTrends(30);
 
     return response()->json([
         'success' => true,

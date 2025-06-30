@@ -1,12 +1,14 @@
 <?php
 
-use App\Http\Controllers\Admin\TrendsController;
+use App\Http\Controllers\Admin\TrendsControllerRefactored;
 use Illuminate\Support\Facades\Route;
 
 // Test route for Python scraping
 Route::get('/test-python-scraping', function () {
-    $controller = new TrendsController();
-    $ecommerceData = $controller->testEcommerceData();
+    $controller = app(TrendsControllerRefactored::class);
+    // Note: Using ecommerce service directly instead of testEcommerceData method
+    $ecommerceService = app(\App\Services\Trends\EcommerceDataService::class);
+    $ecommerceData = $ecommerceService->getEcommerceData(30, [], 'simulation');
 
     return response()->json([
         'success' => true,

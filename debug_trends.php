@@ -1,18 +1,16 @@
 <?php
 
-// Simple debug script to test the TrendsController data structure
+// Simple debug script to test the refactored Trends services
 require_once 'vendor/autoload.php';
 
 // Bootstrap Laravel application
 $app = require_once 'bootstrap/app.php';
 $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
-// Create controller instance
-$controller = new \App\Http\Controllers\Admin\TrendsController();
-
-// Use reflection to access private methods
-$reflection = new ReflectionClass($controller);
-$method = $reflection->getMethod('getFallbackGoogleTrends');
+// Create service instances using dependency injection
+$googleTrendsService = $app->make(\App\Services\Trends\GoogleTrendsService::class);
+$socialMediaService = $app->make(\App\Services\Trends\SocialMediaTrendsService::class);
+$seasonalService = $app->make(\App\Services\Trends\SeasonalAnalysisService::class);
 $method->setAccessible(true);
 
 // Test the method

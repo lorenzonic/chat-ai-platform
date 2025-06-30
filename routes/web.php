@@ -112,14 +112,9 @@ require __DIR__.'/auth.php';
 
 // Debug route for trends
 Route::get('/debug-trends', function () {
-    $controller = new \App\Http\Controllers\Admin\TrendsController();
-
-    // Use reflection to access private method
-    $reflection = new ReflectionClass($controller);
-    $method = $reflection->getMethod('getGoogleTrends');
-    $method->setAccessible(true);
-
-    $data = $method->invoke($controller, 30);
+    $googleTrendsService = app(\App\Services\Trends\GoogleTrendsService::class);
+    
+    $data = $googleTrendsService->getTrends(30);
 
     return response()->json([
         'success' => true,
@@ -132,8 +127,8 @@ Route::get('/debug-trends', function () {
 
 // Test route for Python scraping
 Route::get('/test-python-scraping', function () {
-    $controller = new \App\Http\Controllers\Admin\TrendsController();
-    $ecommerceData = $controller->testEcommerceData();
+    $ecommerceService = app(\App\Services\Trends\EcommerceDataService::class);
+    $ecommerceData = $ecommerceService->getEcommerceData(30, [], 'simulation');
 
     return response()->json([
         'success' => true,
