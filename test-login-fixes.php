@@ -22,12 +22,12 @@ echo "1. VERIFICHE CONTROLLER:\n";
 try {
     $adminController = new AdminLoginController();
     echo "   ✓ AdminLoginController: istanziato correttamente\n";
-    
+
     // Verifica che il metodo login esista
     $reflection = new ReflectionClass($adminController);
     $loginMethod = $reflection->getMethod('login');
     echo "   ✓ AdminLoginController::login: metodo esistente\n";
-    
+
 } catch (Exception $e) {
     echo "   ✗ AdminLoginController: " . $e->getMessage() . "\n";
 }
@@ -36,12 +36,12 @@ try {
 try {
     $storeController = new StoreLoginController();
     echo "   ✓ StoreLoginController: istanziato correttamente\n";
-    
+
     // Verifica che il metodo login esista
     $reflection = new ReflectionClass($storeController);
     $loginMethod = $reflection->getMethod('login');
     echo "   ✓ StoreLoginController::login: metodo esistente\n";
-    
+
 } catch (Exception $e) {
     echo "   ✗ StoreLoginController: " . $e->getMessage() . "\n";
 }
@@ -52,10 +52,10 @@ echo "\n2. VERIFICHE MIDDLEWARE:\n";
 try {
     $adminMiddleware = new IsAdmin();
     echo "   ✓ IsAdmin middleware: istanziato correttamente\n";
-    
+
     $storeMiddleware = new IsStore();
     echo "   ✓ IsStore middleware: istanziato correttamente\n";
-    
+
 } catch (Exception $e) {
     echo "   ✗ Middleware: " . $e->getMessage() . "\n";
 }
@@ -117,7 +117,7 @@ echo "\n=== FINE TEST ===\n";
 
 echo "\n📋 RIASSUNTO MODIFICHE:\n";
 echo "1. ✓ AdminLoginController: migliorato gestione redirect con fallback sicuro\n";
-echo "2. ✓ StoreLoginController: migliorato gestione redirect con fallback sicuro\n"; 
+echo "2. ✓ StoreLoginController: migliorato gestione redirect con fallback sicuro\n";
 echo "3. ✓ IsAdmin middleware: aggiunta memorizzazione URL intended\n";
 echo "4. ✓ IsStore middleware: aggiunta memorizzazione URL intended\n";
 echo "5. ✓ Validazione URL per prevenire redirect esterni\n";

@@ -19,10 +19,10 @@ echo "1. VERIFICA ACCOUNT:\n";
 try {
     $admin = Admin::where('email', 'admin@test.com')->first();
     $store = Store::where('email', 'store@test.com')->first();
-    
+
     echo "   - Admin test: " . ($admin ? "✓ Trovato (ID: {$admin->id})" : "✗ Non trovato") . "\n";
     echo "   - Store test: " . ($store ? "✓ Trovato (ID: {$store->id})" : "✗ Non trovato") . "\n";
-    
+
 } catch (Exception $e) {
     echo "   ERRORE: " . $e->getMessage() . "\n";
 }
@@ -35,10 +35,10 @@ try {
         Auth::guard('admin')->login($admin);
         $isLoggedIn = Auth::guard('admin')->check();
         $user = Auth::guard('admin')->user();
-        
+
         echo "   - Login eseguito: " . ($isLoggedIn ? "✓ Successo" : "✗ Fallito") . "\n";
         echo "   - Utente autenticato: " . ($user ? "✓ {$user->email}" : "✗ Nessuno") . "\n";
-        
+
         // Logout
         Auth::guard('admin')->logout();
         echo "   - Logout eseguito: ✓\n";
@@ -57,10 +57,10 @@ try {
         Auth::guard('store')->login($store);
         $isLoggedIn = Auth::guard('store')->check();
         $user = Auth::guard('store')->user();
-        
+
         echo "   - Login eseguito: " . ($isLoggedIn ? "✓ Successo" : "✗ Fallito") . "\n";
         echo "   - Utente autenticato: " . ($user ? "✓ {$user->email}" : "✗ Nessuno") . "\n";
-        
+
         // Logout
         Auth::guard('store')->logout();
         echo "   - Logout eseguito: ✓\n";
@@ -81,7 +81,7 @@ foreach (['admin', 'store'] as $guard) {
     if ($guardConfig) {
         echo "     * Driver: {$guardConfig['driver']}\n";
         echo "     * Provider: {$guardConfig['provider']}\n";
-        
+
         $providerConfig = $authConfig['providers'][$guardConfig['provider']] ?? null;
         if ($providerConfig) {
             echo "     * Model: {$providerConfig['model']}\n";
@@ -98,11 +98,11 @@ try {
     session()->put('url.intended', route('admin.dashboard'));
     $intended = session()->pull('url.intended');
     echo "   - URL intended admin: {$intended}\n";
-    
+
     session()->put('url.intended', route('store.dashboard'));
     $intended = session()->pull('url.intended');
     echo "   - URL intended store: {$intended}\n";
-    
+
 } catch (Exception $e) {
     echo "   ERRORE: " . $e->getMessage() . "\n";
 }

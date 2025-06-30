@@ -46,7 +46,7 @@ try {
     $adminDashboardUrl = route('admin.dashboard');
     $storeLoginUrl = route('store.login');
     $storeDashboardUrl = route('store.dashboard');
-    
+
     echo "   - Admin Login: {$adminLoginUrl}\n";
     echo "   - Admin Dashboard: {$adminDashboardUrl}\n";
     echo "   - Store Login: {$storeLoginUrl}\n";

@@ -20,7 +20,7 @@ class IsAdmin
             if ($request->is('admin/*') && !$request->is('admin/login')) {
                 $request->session()->put('url.intended', $request->fullUrl());
             }
-            
+
             return redirect()->route('admin.login');
         }
 

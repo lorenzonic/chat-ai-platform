@@ -30,18 +30,18 @@ class LoginController extends Controller
 
         if (Auth::guard('store')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            
+
             // Get the intended URL or fallback to store dashboard
             $intendedUrl = $request->session()->pull('url.intended', route('store.dashboard'));
-            
+
             // Ensure we're redirecting to a safe store route on the same domain
             $currentHost = $request->getHost();
             $intendedHost = parse_url($intendedUrl, PHP_URL_HOST);
-            
+
             if ($intendedHost !== $currentHost || !str_contains($intendedUrl, '/store/')) {
                 $intendedUrl = route('store.dashboard');
             }
-            
+
             return redirect()->to($intendedUrl);
         }
 

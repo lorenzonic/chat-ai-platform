@@ -30,18 +30,18 @@ class LoginController extends Controller
 
         if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            
+
             // Get the intended URL or fallback to admin dashboard
             $intendedUrl = $request->session()->pull('url.intended', route('admin.dashboard'));
-            
+
             // Ensure we're redirecting to a safe admin route on the same domain
             $currentHost = $request->getHost();
             $intendedHost = parse_url($intendedUrl, PHP_URL_HOST);
-            
+
             if ($intendedHost !== $currentHost || !str_contains($intendedUrl, '/admin/')) {
                 $intendedUrl = route('admin.dashboard');
             }
-            
+
             return redirect()->to($intendedUrl);
         }
 

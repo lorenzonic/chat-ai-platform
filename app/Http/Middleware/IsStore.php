@@ -20,7 +20,7 @@ class IsStore
             if ($request->is('store/*') && !$request->is('store/login')) {
                 $request->session()->put('url.intended', $request->fullUrl());
             }
-            
+
             return redirect()->route('store.login');
         }
 

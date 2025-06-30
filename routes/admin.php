@@ -56,12 +56,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('analytics/export', [AnalyticsController::class, 'export'])->name('analytics.export');
         Route::get('analytics/test', [\App\Http\Controllers\Admin\TestAnalyticsController::class, 'test'])->name('analytics.test');
 
-        // Trends Analytics routes
-        Route::get('trends', [\App\Http\Controllers\Admin\TrendsController::class, 'index'])->name('trends.index');
-        Route::get('trends/advanced', [\App\Http\Controllers\Admin\TrendsController::class, 'advanced'])->name('trends.advanced');
-        Route::get('trends/configure', [\App\Http\Controllers\Admin\TrendsController::class, 'configure'])->name('trends.configure');
-        Route::post('trends/sites', [\App\Http\Controllers\Admin\TrendsController::class, 'storeSite'])->name('trends.sites.store');
-        Route::delete('trends/sites/{key}', [\App\Http\Controllers\Admin\TrendsController::class, 'destroySite'])->name('trends.sites.destroy');
+        // Trends Analytics routes (using refactored controller)
+        Route::get('trends', [\App\Http\Controllers\Admin\TrendsControllerRefactored::class, 'index'])->name('trends.index');
+        Route::get('trends/ai-predictions', [\App\Http\Controllers\Admin\TrendsControllerRefactored::class, 'getAIPredictions'])->name('trends.ai-predictions');
+        Route::get('trends/advanced', [\App\Http\Controllers\Admin\TrendsControllerRefactored::class, 'advanced'])->name('trends.advanced');
+        Route::get('trends/configure', [\App\Http\Controllers\Admin\TrendsControllerRefactored::class, 'configure'])->name('trends.configure');
+        Route::post('trends/sites', [\App\Http\Controllers\Admin\TrendsControllerRefactored::class, 'storeSite'])->name('trends.sites.store');
+        Route::delete('trends/sites/{key}', [\App\Http\Controllers\Admin\TrendsControllerRefactored::class, 'destroySite'])->name('trends.sites.destroy');
 
         // Placeholder for future features
         Route::get('placeholder', function () {

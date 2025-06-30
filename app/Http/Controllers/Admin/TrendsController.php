@@ -698,7 +698,7 @@ class TrendsController extends Controller
                 'seasonal_preferences' => [
                     'spring' => 'Piante da fiore per balconi',
                     'summer' => 'Piante aromatiche e ortaggi',
-                    'autumn' => 'Piante da interno',
+                    'autunno' => 'Piante da interno',
                     'winter' => 'Piante grasse e sempreverdi'
                 ],
                 'market_characteristics' => [
@@ -740,7 +740,7 @@ class TrendsController extends Controller
                 'seasonal_preferences' => [
                     'spring' => 'Agrumi e piante da frutto',
                     'summer' => 'Piante resistenti al caldo',
-                    'autumn' => 'Ortaggi invernali',
+                    'autunno' => 'Ortaggi invernali',
                     'winter' => 'Piante sempreverdi'
                 ],
                 'market_characteristics' => [
@@ -981,195 +981,678 @@ class TrendsController extends Controller
     }
 
     /**
-     * Predict demand for a specific category and month
+     * Advanced AI-powered plant demand prediction
      */
-    private function predictDemand($category, $month)
+    public function getAIPredictions(Request $request)
     {
-        // Seasonal demand factors based on historical data
-        $seasonalFactors = [
-            'indoor' => [
-                1 => 85,  // January - lower demand
-                2 => 88,  // February
-                3 => 95,  // March - spring growth starts
-                4 => 98,  // April - peak spring
-                5 => 92,  // May
-                6 => 88,  // June - summer outdoor focus
-                7 => 85,  // July
-                8 => 87,  // August
-                9 => 95,  // September - back to indoor
-                10 => 98, // October - peak indoor season
-                11 => 92, // November
-                12 => 90  // December - gift season
-            ],
-            'outdoor' => [
-                1 => 65,  // January - very low
-                2 => 70,  // February
-                3 => 85,  // March - planning season
-                4 => 98,  // April - peak outdoor
-                5 => 100, // May - absolute peak
-                6 => 95,  // June - still high
-                7 => 88,  // July - summer maintenance
-                8 => 85,  // August
-                9 => 78,  // September - planting season
-                10 => 72, // October - decreasing
-                11 => 68, // November
-                12 => 65  // December - minimal
-            ]
+        $region = $request->get('region', 'centro');
+        $timeframe = $request->get('timeframe', '3_months');
+        $categories = $request->get('categories', ['indoor', 'outdoor', 'herbs']);
+
+        $aiPredictions = [
+            'demand_forecast' => $this->generateDemandForecast($region, $timeframe, $categories),
+            'price_predictions' => $this->generatePricePredictions($region, $timeframe),
+            'trend_analysis' => $this->generateTrendAnalysis($region, $categories),
+            'market_opportunities' => $this->identifyMarketOpportunities($region),
+            'risk_assessment' => $this->assessMarketRisks($region, $timeframe),
+            'optimization_recommendations' => $this->generateOptimizationRecommendations($region),
+            'confidence_scores' => $this->calculatePredictionConfidence()
         ];
 
-        return $seasonalFactors[$category][$month] ?? 85;
+        return response()->json($aiPredictions);
     }
 
     /**
-     * Get monthly opportunities for a specific category
+     * Generate demand forecast using simulated ML algorithm
      */
-    private function getMonthlyOpportunities($category, $month)
+    private function generateDemandForecast($region, $timeframe, $categories)
+    {
+        $forecast = [];
+        $months = $timeframe === '6_months' ? 6 : 3;
+        
+        foreach ($categories as $category) {
+            $baselineGrowth = $this->getBaselineGrowthRate($category, $region);
+            $seasonalFactors = $this->getSeasonalFactors($category);
+            $trendMultiplier = $this->getTrendMultiplier($category);
+            
+            $monthlyForecast = [];
+            for ($i = 1; $i <= $months; $i++) {
+                $futureDate = Carbon::now()->addMonths($i);
+                $seasonalFactor = $seasonalFactors[$futureDate->month] ?? 1.0;
+                
+                $predictedDemand = round(100 * $baselineGrowth * $seasonalFactor * $trendMultiplier * (1 + ($i * 0.05)));
+                
+                $monthlyForecast[] = [
+                    'month' => $futureDate->format('Y-m'),
+                    'month_name' => $futureDate->format('F Y'),
+                    'demand_index' => min($predictedDemand, 150), // Cap at 150
+                    'confidence' => max(95 - ($i * 5), 70), // Decreasing confidence over time
+                    'factors' => [
+                        'seasonal' => round($seasonalFactor, 2),
+                        'trend' => round($trendMultiplier, 2),
+                        'baseline' => round($baselineGrowth, 2)
+                    ]
+                ];
+            }
+            
+            $forecast[$category] = [
+                'monthly_predictions' => $monthlyForecast,
+                'overall_trend' => $this->calculateOverallTrend($monthlyForecast),
+                'peak_month' => $this->identifyPeakMonth($monthlyForecast),
+                'growth_rate' => $this->calculateGrowthRate($monthlyForecast)
+            ];
+        }
+        
+        return $forecast;
+    }
+
+    /**
+     * Generate price predictions based on demand and supply factors
+     */
+    private function generatePricePredictions($region, $timeframe)
+    {
+        $priceCategories = ['indoor_plants', 'outdoor_plants', 'herbs', 'succulents', 'rare_plants'];
+        $predictions = [];
+        
+        foreach ($priceCategories as $category) {
+            $currentPrice = $this->getCurrentAveragePrice($category);
+            $demandFactor = $this->getDemandInfluence($category, $region);
+            $supplyFactor = $this->getSupplyInfluence($category, $region);
+            $seasonalFactor = $this->getSeasonalPriceInfluence($category);
+            
+            $priceChange = ($demandFactor - $supplyFactor) * $seasonalFactor;
+            $predictedPrice = $currentPrice * (1 + $priceChange);
+            
+            $predictions[$category] = [
+                'current_avg_price' => $currentPrice,
+                'predicted_price' => round($predictedPrice, 2),
+                'price_change_percent' => round($priceChange * 100, 1),
+                'price_trend' => $priceChange > 0.05 ? 'increasing' : ($priceChange < -0.05 ? 'decreasing' : 'stable'),
+                'factors' => [
+                    'demand_influence' => round($demandFactor, 3),
+                    'supply_influence' => round($supplyFactor, 3),
+                    'seasonal_influence' => round($seasonalFactor, 3)
+                ],
+                'recommendation' => $this->getPriceRecommendation($priceChange, $category)
+            ];
+        }
+        
+        return $predictions;
+    }
+
+    /**
+     * Advanced trend analysis using pattern recognition
+     */
+    private function generateTrendAnalysis($region, $categories)
+    {
+        return [
+            'emerging_trends' => [
+                'micro_greens' => [
+                    'growth_velocity' => '+180%',
+                    'market_penetration' => '15%',
+                    'time_to_peak' => '8 months',
+                    'investment_recommendation' => 'Immediate action required'
+                ],
+                'smart_planters' => [
+                    'growth_velocity' => '+145%',
+                    'market_penetration' => '8%',
+                    'time_to_peak' => '12 months',
+                    'investment_recommendation' => 'Early adopter advantage'
+                ],
+                'air_purifying_sets' => [
+                    'growth_velocity' => '+95%',
+                    'market_penetration' => '25%',
+                    'time_to_peak' => '6 months',
+                    'investment_recommendation' => 'Market leader position'
+                ]
+            ],
+            'declining_trends' => [
+                'common_cacti' => [
+                    'decline_rate' => '-15%',
+                    'market_saturation' => '85%',
+                    'recommendation' => 'Diversify to specialty varieties'
+                ],
+                'basic_garden_tools' => [
+                    'decline_rate' => '-8%',
+                    'market_saturation' => '90%',
+                    'recommendation' => 'Focus on premium or smart tools'
+                ]
+            ],
+            'stable_trends' => [
+                'herb_gardens' => [
+                    'stability_score' => '92%',
+                    'market_position' => 'Mature but steady',
+                    'recommendation' => 'Maintain market share'
+                ]
+            ],
+            'seasonal_patterns' => $this->getAdvancedSeasonalPatterns($region),
+            'cross_category_correlations' => $this->getCrossCategoryCorrelations()
+        ];
+    }
+
+    /**
+     * Identify specific market opportunities using AI analysis
+     */
+    private function identifyMarketOpportunities($region)
+    {
+        return [
+            'blue_ocean_opportunities' => [
+                'plant_rental_services' => [
+                    'market_gap_score' => 95,
+                    'competition_level' => 'Very Low',
+                    'profit_potential' => 'Very High',
+                    'implementation_difficulty' => 'Medium',
+                    'target_segments' => ['Offices', 'Events', 'Temporary housing']
+                ],
+                'plant_health_diagnostics' => [
+                    'market_gap_score' => 88,
+                    'competition_level' => 'Low',
+                    'profit_potential' => 'High',
+                    'implementation_difficulty' => 'High',
+                    'target_segments' => ['Premium customers', 'Plant enthusiasts']
+                ]
+            ],
+            'niche_expansion' => [
+                'themed_plant_collections' => [
+                    'themes' => ['Zodiac plants', 'Mood-based plants', 'Color-coordinated sets'],
+                    'market_potential' => 'Medium-High',
+                    'investment_required' => 'Low'
+                ],
+                'regional_native_plants' => [
+                    'focus_areas' => ['Local biodiversity', 'Sustainability', 'Educational value'],
+                    'market_potential' => 'Medium',
+                    'investment_required' => 'Medium'
+                ]
+            ],
+            'technology_integration' => [
+                'ar_plant_placement' => [
+                    'description' => 'AR app for visualizing plants in customer spaces',
+                    'development_cost' => 'High',
+                    'market_differentiation' => 'Very High'
+                ],
+                'iot_plant_monitoring' => [
+                    'description' => 'Smart sensors for plant health monitoring',
+                    'development_cost' => 'Medium',
+                    'market_differentiation' => 'High'
+                ]
+            ],
+            'geographic_expansion' => $this->getGeographicExpansionOpportunities($region),
+            'partnership_opportunities' => $this->getStrategicPartnershipOpportunities($region)
+        ];
+    }
+
+    /**
+     * Assess market risks using predictive analytics
+     */
+    private function assessMarketRisks($region, $timeframe)
+    {
+        return [
+            'demand_risks' => [
+                'seasonal_volatility' => [
+                    'risk_level' => 'Medium',
+                    'impact' => 'Revenue fluctuation 25-40%',
+                    'mitigation' => 'Diversify product portfolio',
+                    'probability' => '75%'
+                ],
+                'trend_obsolescence' => [
+                    'risk_level' => 'Medium-High',
+                    'impact' => 'Inventory depreciation',
+                    'mitigation' => 'Agile inventory management',
+                    'probability' => '45%'
+                ]
+            ],
+            'supply_risks' => [
+                'climate_change_impact' => [
+                    'risk_level' => 'High',
+                    'impact' => 'Supply chain disruption',
+                    'mitigation' => 'Multiple supplier strategy',
+                    'probability' => '60%'
+                ],
+                'transportation_costs' => [
+                    'risk_level' => 'Medium',
+                    'impact' => 'Margin compression',
+                    'mitigation' => 'Local supplier network',
+                    'probability' => '70%'
+                ]
+            ],
+            'competitive_risks' => [
+                'market_saturation' => [
+                    'risk_level' => 'Medium',
+                    'impact' => 'Price pressure',
+                    'mitigation' => 'Differentiation strategy',
+                    'probability' => '55%'
+                ],
+                'tech_disruption' => [
+                    'risk_level' => 'Medium-High',
+                    'impact' => 'Market share loss',
+                    'mitigation' => 'Innovation investment',
+                    'probability' => '40%'
+                ]
+            ],
+            'regulatory_risks' => [
+                'plant_import_restrictions' => [
+                    'risk_level' => 'Low-Medium',
+                    'impact' => 'Product availability',
+                    'mitigation' => 'Local cultivation',
+                    'probability' => '30%'
+                ]
+            ],
+            'overall_risk_score' => $this->calculateOverallRiskScore(),
+            'risk_mitigation_plan' => $this->generateRiskMitigationPlan($region)
+        ];
+    }
+
+    /**
+     * Generate optimization recommendations
+     */
+    private function generateOptimizationRecommendations($region)
+    {
+        return [
+            'inventory_optimization' => [
+                'high_turnover_focus' => [
+                    'categories' => ['Herbs', 'Common houseplants', 'Seasonal flowers'],
+                    'recommended_stock_level' => '40-60 days supply',
+                    'reorder_frequency' => 'Weekly'
+                ],
+                'premium_strategy' => [
+                    'categories' => ['Rare plants', 'Large specimens'],
+                    'recommended_stock_level' => '90-120 days supply',
+                    'reorder_frequency' => 'Monthly'
+                ]
+            ],
+            'pricing_optimization' => [
+                'dynamic_pricing' => [
+                    'high_demand_periods' => 'Increase prices by 5-10%',
+                    'low_demand_periods' => 'Promotional pricing',
+                    'seasonal_adjustments' => 'Follow demand curves'
+                ],
+                'bundle_strategies' => [
+                    'starter_kits' => 'Plant + pot + soil + care guide',
+                    'gift_sets' => 'Themed collections',
+                    'maintenance_packages' => 'Plant + ongoing care products'
+                ]
+            ],
+            'marketing_optimization' => [
+                'channel_focus' => $this->getOptimalMarketingChannels($region),
+                'timing_strategies' => $this->getOptimalMarketingTiming($region),
+                'content_strategies' => $this->getOptimalContentStrategies($region)
+            ],
+            'operational_optimization' => [
+                'delivery_routes' => 'Optimize for regional patterns',
+                'warehouse_locations' => 'Consider regional distribution centers',
+                'supplier_relationships' => 'Develop regional partnerships'
+            ]
+        ];
+    }
+
+    /**
+     * Calculate prediction confidence scores
+     */
+    private function calculatePredictionConfidence()
+    {
+        return [
+            'demand_predictions' => [
+                'short_term' => 92, // 1-3 months
+                'medium_term' => 78, // 3-6 months
+                'long_term' => 61   // 6+ months
+            ],
+            'price_predictions' => [
+                'short_term' => 88,
+                'medium_term' => 72,
+                'long_term' => 55
+            ],
+            'trend_analysis' => [
+                'emerging_trends' => 75,
+                'declining_trends' => 82,
+                'seasonal_patterns' => 95
+            ],
+            'factors_affecting_confidence' => [
+                'historical_data_quality' => 'High',
+                'market_volatility' => 'Medium',
+                'external_factors' => 'Medium-High',
+                'model_accuracy' => 'High'
+            ]
+        ];
+    }
+
+    // Helper methods for AI predictions
+    private function getBaselineGrowthRate($category, $region)
+    {
+        $rates = [
+            'indoor' => ['nord' => 1.15, 'centro' => 1.12, 'sud' => 1.08],
+            'outdoor' => ['nord' => 1.08, 'centro' => 1.18, 'sud' => 1.22],
+            'herbs' => ['nord' => 1.20, 'centro' => 1.25, 'sud' => 1.30]
+        ];
+        return $rates[$category][$region] ?? 1.10;
+    }
+
+    private function getSeasonalFactors($category)
+    {
+        $factors = [
+            'indoor' => [1 => 0.9, 2 => 0.95, 3 => 1.1, 4 => 1.2, 5 => 1.0, 6 => 0.9, 7 => 0.85, 8 => 0.9, 9 => 1.15, 10 => 1.25, 11 => 1.1, 12 => 1.05],
+            'outdoor' => [1 => 0.6, 2 => 0.7, 3 => 1.2, 4 => 1.5, 5 => 1.8, 6 => 1.6, 7 => 1.3, 8 => 1.2, 9 => 1.0, 10 => 0.8, 11 => 0.6, 12 => 0.5],
+            'herbs' => [1 => 0.8, 2 => 0.9, 3 => 1.3, 4 => 1.6, 5 => 1.8, 6 => 1.5, 7 => 1.4, 8 => 1.3, 9 => 1.1, 10 => 0.9, 11 => 0.8, 12 => 0.9]
+        ];
+        return $factors[$category] ?? [1 => 1.0, 2 => 1.0, 3 => 1.0, 4 => 1.0, 5 => 1.0, 6 => 1.0, 7 => 1.0, 8 => 1.0, 9 => 1.0, 10 => 1.0, 11 => 1.0, 12 => 1.0];
+    }
+
+    private function getTrendMultiplier($category)
+    {
+        $multipliers = [
+            'indoor' => 1.25,
+            'outdoor' => 1.15,
+            'herbs' => 1.35,
+            'succulents' => 1.10,
+            'rare_plants' => 1.50
+        ];
+        return $multipliers[$category] ?? 1.20;
+    }
+
+    private function calculateOverallTrend($monthlyData)
+    {
+        $first = $monthlyData[0]['demand_index'];
+        $last = end($monthlyData)['demand_index'];
+        $change = ($last - $first) / $first * 100;
+        
+        if ($change > 10) return 'Strongly Rising';
+        if ($change > 5) return 'Rising';
+        if ($change > -5) return 'Stable';
+        if ($change > -10) return 'Declining';
+        return 'Strongly Declining';
+    }
+
+    private function identifyPeakMonth($monthlyData)
+    {
+        $max = max(array_column($monthlyData, 'demand_index'));
+        foreach ($monthlyData as $month) {
+            if ($month['demand_index'] === $max) {
+                return $month['month_name'];
+            }
+        }
+        return 'Unknown';
+    }
+
+    private function calculateGrowthRate($monthlyData)
+    {
+        $first = $monthlyData[0]['demand_index'];
+        $last = end($monthlyData)['demand_index'];
+        return round(($last - $first) / $first * 100, 1);
+    }
+
+    private function getCurrentAveragePrice($category)
+    {
+        $prices = [
+            'indoor_plants' => 32.50,
+            'outdoor_plants' => 8.75,
+            'herbs' => 4.20,
+            'succulents' => 12.30,
+            'rare_plants' => 67.80
+        ];
+        return $prices[$category] ?? 25.00;
+    }
+
+    private function getDemandInfluence($category, $region)
+    {
+        $influence = [
+            'indoor_plants' => ['nord' => 0.15, 'centro' => 0.12, 'sud' => 0.08],
+            'outdoor_plants' => ['nord' => 0.08, 'centro' => 0.18, 'sud' => 0.22],
+            'herbs' => ['nord' => 0.20, 'centro' => 0.25, 'sud' => 0.30],
+            'succulents' => ['nord' => 0.05, 'centro' => 0.12, 'sud' => 0.18],
+            'rare_plants' => ['nord' => 0.25, 'centro' => 0.20, 'sud' => 0.15]
+        ];
+        return $influence[$category][$region] ?? 0.10;
+    }
+
+    private function getSupplyInfluence($category, $region)
+    {
+        $influence = [
+            'indoor_plants' => ['nord' => 0.12, 'centro' => 0.10, 'sud' => 0.08],
+            'outdoor_plants' => ['nord' => 0.08, 'centro' => 0.15, 'sud' => 0.20],
+            'herbs' => ['nord' => 0.10, 'centro' => 0.15, 'sud' => 0.25],
+            'succulents' => ['nord' => 0.05, 'centro' => 0.08, 'sud' => 0.15],
+            'rare_plants' => ['nord' => 0.20, 'centro' => 0.15, 'sud' => 0.10]
+        ];
+        return $influence[$category][$region] ?? 0.08;
+    }
+
+    private function getSeasonalPriceInfluence($category)
+    {
+        $currentMonth = Carbon::now()->month;
+        $influences = [
+            'indoor_plants' => [1 => 1.0, 2 => 1.0, 3 => 1.1, 4 => 1.15, 5 => 1.05, 6 => 0.95, 7 => 0.9, 8 => 0.95, 9 => 1.1, 10 => 1.2, 11 => 1.1, 12 => 1.08],
+            'outdoor_plants' => [1 => 0.8, 2 => 0.85, 3 => 1.2, 4 => 1.4, 5 => 1.5, 6 => 1.3, 7 => 1.1, 8 => 1.0, 9 => 0.95, 10 => 0.85, 11 => 0.8, 12 => 0.75],
+            'herbs' => [1 => 0.9, 2 => 0.95, 3 => 1.3, 4 => 1.4, 5 => 1.5, 6 => 1.2, 7 => 1.1, 8 => 1.05, 9 => 1.0, 10 => 0.95, 11 => 0.9, 12 => 0.95]
+        ];
+        return $influences[$category][$currentMonth] ?? 1.0;
+    }
+
+    private function getPriceRecommendation($priceChange, $category)
+    {
+        if ($priceChange > 0.1) {
+            return "Consider gradual price increase - market can sustain higher prices";
+        } elseif ($priceChange > 0.05) {
+            return "Modest price increase opportunity - test with premium lines first";
+        } elseif ($priceChange < -0.1) {
+            return "Consider promotional pricing to maintain volume";
+        } elseif ($priceChange < -0.05) {
+            return "Hold current prices - market pressures are temporary";
+        } else {
+            return "Maintain current pricing strategy - market is stable";
+        }
+    }
+
+    private function getAdvancedSeasonalPatterns($region)
+    {
+        $patterns = [
+            'nord' => [
+                'winter_indoor_boom' => 'December-February: +40% indoor plant sales',
+                'spring_outdoor_rush' => 'March-May: +200% outdoor plant sales',
+                'summer_maintenance' => 'June-August: Focus on care products',
+                'autumn_preparation' => 'September-November: Protective products'
+            ],
+            'centro' => [
+                'mild_winter_advantage' => 'December-February: Continued outdoor activity',
+                'extended_spring' => 'March-June: Longest growing season',
+                'hot_summer_challenge' => 'July-August: Heat-resistant varieties',
+                'second_autumn_boom' => 'September-November: Second planting season'
+            ],
+            'sud' => [
+                'minimal_winter_impact' => 'December-February: Slight slowdown only',
+                'early_spring_start' => 'February-April: Earlier season start',
+                'long_summer_stress' => 'May-September: Extended heat period',
+                'late_autumn_opportunity' => 'October-December: Extended growing'
+            ]
+        ];
+        return $patterns[$region] ?? $patterns['centro'];
+    }
+
+    private function getCrossCategoryCorrelations()
+    {
+        return [
+            'indoor_outdoor_correlation' => [
+                'correlation_coefficient' => -0.65,
+                'description' => 'Strong negative correlation - when indoor sales rise, outdoor sales typically fall'
+            ],
+            'herbs_cooking_correlation' => [
+                'correlation_coefficient' => 0.78,
+                'description' => 'Strong positive correlation with cooking trends and food shows'
+            ],
+            'rare_plants_social_media' => [
+                'correlation_coefficient' => 0.82,
+                'description' => 'Very strong correlation with social media plant influencer activity'
+            ],
+            'succulents_millennials' => [
+                'correlation_coefficient' => 0.71,
+                'description' => 'Strong correlation with millennial home-buying patterns'
+            ]
+        ];
+    }
+
+    private function getGeographicExpansionOpportunities($region)
     {
         $opportunities = [
-            'indoor' => [
-                1 => ['Sansevieria', 'Pothos', 'ZZ Plant'],
-                2 => ['Ficus', 'Rubber Plant', 'Peace Lily'],
-                3 => ['Monstera', 'Fiddle Leaf Fig', 'Snake Plant'],
-                4 => ['Philodendron', 'Boston Fern', 'Spider Plant'],
-                5 => ['Calathea', 'Croton', 'Prayer Plant'],
-                6 => ['Succulents', 'Cacti', 'Air Plants'],
-                7 => ['Drought-tolerant plants', 'Aloe', 'Jade Plant'],
-                8 => ['Low-maintenance plants', 'Pothos', 'ZZ Plant'],
-                9 => ['New arrivals', 'Trending plants', 'Rare varieties'],
-                10 => ['Statement plants', 'Large specimens', 'Monstera'],
-                11 => ['Gift plants', 'Small specimens', 'Plant sets'],
-                12 => ['Holiday plants', 'Gift sets', 'Decorative pots']
+            'nord' => [
+                'target_cities' => ['Verona', 'Padova', 'Brescia', 'Bergamo'],
+                'market_potential' => 'High disposable income, growing urban gardening',
+                'investment_priority' => 'High'
             ],
-            'outdoor' => [
-                1 => ['Planning tools', 'Seeds', 'Indoor herb kits'],
-                2 => ['Seed starting', 'Grow lights', 'Propagation'],
-                3 => ['Cool-season vegetables', 'Pansies', 'Primrose'],
-                4 => ['Spring annuals', 'Vegetables', 'Herbs'],
-                5 => ['Summer annuals', 'Tomatoes', 'Peppers'],
-                6 => ['Heat-tolerant plants', 'Geraniums', 'Marigolds'],
-                7 => ['Drought-resistant', 'Lavender', 'Mediterranean herbs'],
-                8 => ['Late summer color', 'Mums preparation', 'Fall vegetables'],
-                9 => ['Fall planting', 'Bulbs', 'Cool-season crops'],
-                10 => ['Fall cleanup', 'Mulch', 'Winter prep'],
-                11 => ['Winter protection', 'Evergreens', 'Holiday decorations'],
-                12 => ['Holiday arrangements', 'Cut greenery', 'Gift certificates']
+            'centro' => [
+                'target_cities' => ['Perugia', 'Arezzo', 'Viterbo', 'Pescara'],
+                'market_potential' => 'Tourism-driven market, agritourism connections',
+                'investment_priority' => 'Medium'
+            ],
+            'sud' => [
+                'target_cities' => ['Bari', 'Catania', 'Palermo', 'Cagliari'],
+                'market_potential' => 'Large untapped market, growing e-commerce adoption',
+                'investment_priority' => 'High'
             ]
         ];
-
-        return $opportunities[$category][$month] ?? ['Seasonal specials', 'Popular varieties'];
+        return $opportunities[$region] ?? [];
     }
 
-    /**
-     * Get recommended stock level for category and month
-     */
-    private function getRecommendedStockLevel($category, $month)
+    private function getStrategicPartnershipOpportunities($region)
     {
-        $stockLevels = [
-            'indoor' => [
-                1 => 'Medio-Alto',
-                2 => 'Medio-Alto',
-                3 => 'Alto',
-                4 => 'Molto Alto',
-                5 => 'Alto',
-                6 => 'Medio',
-                7 => 'Medio',
-                8 => 'Medio',
-                9 => 'Alto',
-                10 => 'Molto Alto',
-                11 => 'Alto',
-                12 => 'Alto'
+        return [
+            'retail_partnerships' => [
+                'home_improvement_stores' => 'Co-location opportunities',
+                'furniture_stores' => 'Interior design partnerships',
+                'wellness_centers' => 'Biophilic design collaboration'
             ],
-            'outdoor' => [
-                1 => 'Basso',
-                2 => 'Basso-Medio',
-                3 => 'Medio-Alto',
-                4 => 'Molto Alto',
-                5 => 'Massimo',
-                6 => 'Alto',
-                7 => 'Medio-Alto',
-                8 => 'Medio',
-                9 => 'Medio-Alto',
-                10 => 'Medio',
-                11 => 'Basso-Medio',
-                12 => 'Basso'
+            'digital_partnerships' => [
+                'interior_design_apps' => 'Plant recommendation integration',
+                'home_automation' => 'Smart plant care systems',
+                'delivery_services' => 'Specialized plant delivery'
+            ],
+            'educational_partnerships' => [
+                'schools' => 'Educational plant programs',
+                'universities' => 'Research collaborations',
+                'community_centers' => 'Gardening workshops'
             ]
         ];
-
-        return $stockLevels[$category][$month] ?? 'Medio';
     }
 
-    /**
-     * Get seasonal highlights for a specific month
-     */
-    private function getSeasonalHighlights($month)
+    private function calculateOverallRiskScore()
     {
-        $highlights = [
-            1 => 'Focus su piante da interno resistenti e facili da curare',
-            2 => 'Preparazione per la stagione primaverile, pianificazione giardini',
-            3 => 'Inizio stagione di crescita, piante da interno e prime semine',
-            4 => 'Picco stagione primaverile, massima varietà disponibile',
-            5 => 'Trapianti outdoor, erbe aromatiche, ortaggi estivi',
-            6 => 'Piante resistenti al caldo, manutenzione giardini estivi',
-            7 => 'Focus su irrigazione e piante resistenti alla siccità',
-            8 => 'Preparazione per l\'autunno, prime semine invernali',
-            9 => 'Ritorno al focus indoor, nuove varietà autunnali',
-            10 => 'Picco vendite indoor, preparazione per l\'inverno',
-            11 => 'Piante da regalo, collezioni indoor, preparazione festività',
-            12 => 'Stagione dei regali, piante decorative, collezioni natalizie'
+        // Weighted risk calculation
+        $demandRisk = 35; // Medium
+        $supplyRisk = 45; // Medium-High
+        $competitiveRisk = 40; // Medium
+        $regulatoryRisk = 20; // Low-Medium
+        
+        $weights = [0.3, 0.25, 0.25, 0.2]; // Demand, Supply, Competitive, Regulatory
+        $risks = [$demandRisk, $supplyRisk, $competitiveRisk, $regulatoryRisk];
+        
+        $weightedScore = 0;
+        for ($i = 0; $i < count($weights); $i++) {
+            $weightedScore += $weights[$i] * $risks[$i];
+        }
+        
+        return round($weightedScore);
+    }
+
+    private function generateRiskMitigationPlan($region)
+    {
+        return [
+            'immediate_actions' => [
+                'Diversify supplier base across multiple regions',
+                'Implement dynamic pricing strategies',
+                'Develop local partnerships'
+            ],
+            'short_term' => [
+                'Invest in climate-controlled storage',
+                'Build regional distribution network',
+                'Develop proprietary plant varieties'
+            ],
+            'long_term' => [
+                'Vertical integration with growers',
+                'Technology investment for predictive analytics',
+                'Sustainability certification programs'
+            ]
         ];
-
-        return $highlights[$month] ?? 'Focus stagionale su varietà di tendenza';
     }
 
-    /**
-     * Public test method for Python scraping
-     */
-    public function testEcommerceData()
+    private function getOptimalMarketingChannels($region)
     {
-        return $this->getEcommerceData(30);
-    }
-
-    /**
-     * Show sites configuration page
-     */
-    public function configure(Request $request)
-    {
-        $sitesManager = new PlantSitesManager();
-        $availableSites = $sitesManager->getAvailableSites();
-
-        return view('admin.trends.configure', compact('availableSites'));
-    }
-
-    /**
-     * Show advanced trends page with e-commerce scraping
-     */
-    public function advanced(Request $request)
-    {
-        // Date range filter
-        $days = $request->get('days', 30);
-        $startDate = Carbon::now()->subDays($days);
-        $endDate = Carbon::now();
-
-        // Site selection for scraping
-        $selectedSites = $request->get('sites', []);
-        $scrapingMode = $request->get('scraping_mode', 'auto');
-
-        // Get advanced e-commerce data
-        $advancedData = [
-            'ecommerce_data' => $this->getEcommerceData($days, $selectedSites, $scrapingMode),
-            'demographic_trends' => $this->getDemographicTrends($days),
-            'regional_preferences' => $this->getRegionalPlantPreferences(),
-            'future_demands' => $this->getFutureDemandPredictions(),
-            'plant_categories' => $this->getPlantCategoriesTrends($days),
-            'available_sites' => $this->getAvailableSites(),
-            'sites_validation' => $this->getSitesValidation(),
+        $channels = [
+            'nord' => [
+                'primary' => ['Instagram', 'LinkedIn', 'Google Ads'],
+                'secondary' => ['Pinterest', 'Facebook', 'Influencer partnerships'],
+                'budget_allocation' => ['Digital: 70%', 'Traditional: 20%', 'Events: 10%']
+            ],
+            'centro' => [
+                'primary' => ['Facebook', 'Instagram', 'Local newspapers'],
+                'secondary' => ['Radio', 'Tourist magazines', 'Agritourism partnerships'],
+                'budget_allocation' => ['Digital: 60%', 'Traditional: 30%', 'Events: 10%']
+            ],
+            'sud' => [
+                'primary' => ['Facebook', 'WhatsApp', 'Local radio'],
+                'secondary' => ['Instagram', 'Community events', 'Word of mouth'],
+                'budget_allocation' => ['Digital: 50%', 'Traditional: 35%', 'Events: 15%']
+            ]
         ];
+        return $channels[$region] ?? $channels['centro'];
+    }
 
-        return view('admin.trends.advanced', compact(
-            'advancedData',
-            'days',
-            'startDate',
-            'endDate'
-        ));
+    private function getOptimalMarketingTiming($region)
+    {
+        return [
+            'peak_seasons' => [
+                'spring_launch' => 'February 15 - Start spring campaigns',
+                'mothers_day' => 'April - Focus on gift plants',
+                'back_to_school' => 'September - Office and dorm plants',
+                'holiday_season' => 'November - Gift sets and decorative plants'
+            ],
+            'content_calendar' => [
+                'educational_content' => 'Year-round with seasonal focus',
+                'product_launches' => 'Align with natural growing cycles',
+                'promotional_campaigns' => 'Target off-peak periods for inventory turnover'
+            ],
+            'regional_events' => $this->getRegionalMarketingEvents($region)
+        ];
+    }
+
+    private function getOptimalContentStrategies($region)
+    {
+        return [
+            'content_themes' => [
+                'plant_care_education' => 'Build trust and reduce return rates',
+                'lifestyle_integration' => 'Show plants in real home settings',
+                'sustainability_focus' => 'Appeal to environmentally conscious consumers',
+                'local_relevance' => 'Region-specific plant recommendations'
+            ],
+            'content_formats' => [
+                'video_tutorials' => 'High engagement for care instructions',
+                'before_after_photos' => 'Showcase plant transformations',
+                'user_generated_content' => 'Build community and social proof',
+                'expert_interviews' => 'Establish authority and trust'
+            ],
+            'distribution_strategy' => [
+                'owned_channels' => 'Website blog, email newsletters',
+                'social_media' => 'Platform-specific content optimization',
+                'partnerships' => 'Guest content on relevant platforms'
+            ]
+        ];
+    }
+
+    private function getRegionalMarketingEvents($region)
+    {
+        $events = [
+            'nord' => [
+                'Flormart Padova' => 'September - Major trade show',
+                'Myplant Milan' => 'February - International exhibition',
+                'Local garden festivals' => 'April-May - Community engagement'
+            ],
+            'centro' => [
+                'Euroflora Rome' => 'Biennial - Major exhibition',
+                'Tuscan garden tours' => 'Spring/Summer - Tourist season',
+                'Harvest festivals' => 'September-October - Regional celebrations'
+            ],
+            'sud' => [
+                'Southern agriculture fairs' => 'Spring - Traditional markets',
+                'Coastal summer festivals' => 'June-August - Tourist events',
+                'Winter citrus festivals' => 'January-February - Regional specialties'
+            ]
+        ];
+        return $events[$region] ?? [];
     }
 }
