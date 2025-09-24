@@ -19,6 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->group(base_path('routes/store.php'));
 
             Route::middleware('web')
+                ->group(base_path('routes/grower.php'));
+
+            Route::middleware('web')
                 ->group(base_path('routes/test.php'));
 
             Route::middleware('web')
@@ -29,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'isAdmin' => \App\Http\Middleware\IsAdmin::class,
             'isStore' => \App\Http\Middleware\IsStore::class,
+            'growerAuth' => \App\Http\Middleware\GrowerAuth::class,
         ]);
 
         // Trust Railway proxies

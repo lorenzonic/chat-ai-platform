@@ -1,0 +1,6 @@
+Fornitore,Prodotto,Quantità,CODE,CODICE,EAN,H,Categoria,Cliente,CC,PIA,PRO,Trasporto,Data,Note,€ Vendita,Indirizzo,Telefono
+"Vivai Rossi","Rosa Rossa Premium",25,"CLI001","ROSE001","1234567890123",30.5,"Roses","Garden Center Milano","CC001","PIA001","PRO001","Corriere espresso","2025-08-01","Premium quality roses","18.99","Via Roma 123, Milano","123-456-789"
+"Vivai Verdi","Tulipano Giallo",30,"CLI001","TUL001","9876543210987",20.0,"Tulips","Garden Center Milano","CC001","PIA001","PRO001","Corriere espresso","2025-08-01","Standard tulips","15.50","Via Roma 123, Milano","123-456-789"
+"Vivai Blu","Orchidea Bianca",10,"CLI001","ORC001","1122334455667",25.0,"Orchids","Garden Center Milano","CC001","PIA001","PRO001","Corriere espresso","2025-08-01","Exotic orchids","45.00","Via Roma 123, Milano","123-456-789"
+"Vivai Rossi","Geranio Rosso",50,"CLI002","GER001","5544332211009",15.0,"Geraniums","Florist Rome","CC002","PIA002","PRO002","Trasporto standard","2025-08-05","Bulk order","8.99","Via Torino 456, Roma","987-654-321"
+"Vivai Verdi","Girasole",20,"CLI002","GIR001","1122334455668",35.0,"Sunflowers","Florist Rome","CC002","PIA002","PRO002","Trasporto standard","2025-08-05","Summer flowers","12.50","Via Torino 456, Roma","987-654-321"

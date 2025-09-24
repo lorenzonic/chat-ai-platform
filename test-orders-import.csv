@@ -1,0 +1,6 @@
+Numero Ordine,Nome Cliente,Codice CC,Codice PIA,Codice PRO,Metodo Trasporto,Costo Trasporto,Data Consegna,Telefono,Note
+ORD-2025-001,Vivaio Verde Srl,CC001,PIA123,PRO456,Camion,25.50,2025-01-15,+39 123 456 789,Consegna mattutina preferita
+ORD-2025-002,Garden Center Milano,CC002,PIA124,PRO457,Furgone,15.00,2025-01-16,+39 987 654 321,Attenzione: ingresso laterale
+ORD-2025-003,Floricultura Roma,CC003,PIA125,PRO458,Corriere,35.75,2025-01-17,+39 555 666 777,Chiamare prima della consegna
+ORD-2025-004,Vivaio Verde Srl,CC004,PIA126,PRO459,Camion,28.00,2025-01-18,+39 123 456 789,Seconda consegna per questo cliente
+ORD-2025-005,Nuovo Cliente Test,,PIA127,,Furgone,20.00,2025-01-19,+39 111 222 333,Cliente nuovo - verificare indirizzo

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\ChatbotController;
+use App\Http\Controllers\Api\OrderController;
 use App\Services\PlantSitesManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -39,4 +40,9 @@ Route::post('/validate-sites', function () {
     $validation = $sitesManager->validateSites();
 
     return response()->json($validation);
+});
+
+// Admin API routes for orders (temporaneamente senza auth per debug)
+Route::prefix('admin')->group(function () {
+    Route::get('/orders/{order}', [OrderController::class, 'show']);
 });

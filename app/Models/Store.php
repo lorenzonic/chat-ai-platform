@@ -18,6 +18,7 @@ class Store extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'logo',
         'slug',
         'email',
         'password',
@@ -125,6 +126,22 @@ class Store extends Authenticatable
     public function interactions(): HasMany
     {
         return $this->hasMany(\App\Models\Interaction::class);
+    }
+
+    /**
+     * Get the products for this store.
+     */
+    public function products(): HasMany
+    {
+        return $this->hasMany(\App\Models\Product::class);
+    }
+
+    /**
+     * Get the order items for this store.
+     */
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(\App\Models\OrderItem::class);
     }
 
     /**

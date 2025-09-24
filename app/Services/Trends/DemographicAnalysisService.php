@@ -109,7 +109,7 @@ class DemographicAnalysisService
                 'plant_buyer_profile' => 'Famiglie tradizionali'
             ]
         ];
-        
+
         return $demographics[$city] ?? [
             'population' => 100000,
             'plant_buyer_profile' => 'Misto'

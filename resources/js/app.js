@@ -4,6 +4,8 @@ import Alpine from 'alpinejs';
 import { createApp } from 'vue';
 import ChatbotApp from './components/ChatbotApp.vue';
 import AnalyticsDashboard from './components/AnalyticsDashboard.vue';
+import TrendsDashboard from './components/TrendsDashboard.vue';
+import TrendsDetail from './components/TrendsDetail.vue';
 
 window.Alpine = Alpine;
 
@@ -49,6 +51,44 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Vue analytics app mounted successfully');
         } catch (error) {
             console.error('Error mounting Vue analytics app:', error);
+        }
+    }
+
+    // Trends dashboard component
+    const trendsElement = document.getElementById('trends-dashboard-app');
+    if (trendsElement) {
+        console.log('Mounting Vue trends dashboard app...');
+        try {
+            const initialData = trendsElement.dataset.initialData ? JSON.parse(trendsElement.dataset.initialData) : {};
+
+            const app = createApp(TrendsDashboard, {
+                initialData: initialData
+            });
+
+            app.mount('#trends-dashboard-app');
+            console.log('Vue trends dashboard app mounted successfully');
+        } catch (error) {
+            console.error('Error mounting Vue trends dashboard app:', error);
+        }
+    }
+
+    // Trends detail component
+    const trendsDetailElement = document.getElementById('trends-detail-app');
+    if (trendsDetailElement) {
+        console.log('Mounting Vue trends detail app...');
+        try {
+            const keyword = trendsDetailElement.dataset.keyword;
+            const initialData = trendsDetailElement.dataset.initialData ? JSON.parse(trendsDetailElement.dataset.initialData) : {};
+
+            const app = createApp(TrendsDetail, {
+                keyword: keyword,
+                initialData: initialData
+            });
+
+            app.mount('#trends-detail-app');
+            console.log('Vue trends detail app mounted successfully');
+        } catch (error) {
+            console.error('Error mounting Vue trends detail app:', error);
         }
     }
 });

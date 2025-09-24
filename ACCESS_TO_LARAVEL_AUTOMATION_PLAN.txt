@@ -1,0 +1,59 @@
+# Piano Automazione Access → Laravel (QR Code & Etichette)
+
+## Obiettivo
+Automatizzare la generazione di QR code e la stampa di etichette a partire da ordini/prodotti gestiti in Microsoft Access, senza passaggi manuali di file.
+
+---
+
+## Flusso Operativo
+1. **In Access**
+   - Un pulsante/macro VBA raccoglie i dati dell’ordine/prodotti.
+   - Invia i dati (via HTTP POST, formato JSON) a una API Laravel.
+
+2. **In Laravel**
+   - Riceve i dati, crea i QR code e le etichette per ogni prodotto.
+   - Salva tutto nel database.
+   - Rende disponibili le etichette per la stampa (es. pagina HTML o PDF multipagina).
+
+3. **Stampa**
+   - Da qualsiasi PC/terminale, accedi all’area etichette e stampi tutto in un click.
+
+---
+
+## Componenti da implementare
+
+### 1. API endpoint in Laravel
+- Rotta tipo `/api/bulk-import`
+- Accetta dati prodotti (nome, EAN, domanda, cliente, ecc.)
+- Crea QR code e prepara etichette
+
+### 2. Script VBA in Access
+- Bottone che invia i dati via HTTP POST (usando MSXML2.ServerXMLHTTP o WinHttpRequest)
+- Formatta i dati in JSON
+
+### 3. Pagina di stampa etichette
+- Visualizza tutte le etichette generate per quell’ordine/cliente
+- Pulsante “Stampa tutte”
+
+---
+
+## Note tecniche
+- Il sistema Laravel deve esporre una API protetta (token o IP whitelist)
+- Il formato dati consigliato è JSON (più semplice da gestire in VBA e PHP)
+- Possibilità di inviare anche dati cliente, note ordine, ecc.
+- Possibilità di ricevere in risposta l’URL della pagina di stampa etichette
+
+---
+
+## Vantaggi
+- Nessun passaggio manuale di file
+- Automazione completa e scalabile
+- Stampa etichette da qualsiasi terminale/browser
+
+---
+
+## Da implementare in futuro
+- Endpoint API Laravel
+- Script VBA di esempio
+- Gestione errori e conferme
+- UI per selezione/stampa etichette in bulk

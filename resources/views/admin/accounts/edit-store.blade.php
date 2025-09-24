@@ -30,7 +30,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('admin.accounts.stores.update', $store) }}" class="space-y-6">
+                <form method="POST" action="{{ route('admin.accounts.stores.update', $store) }}" class="space-y-6" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -56,6 +56,20 @@
                                        value="{{ old('email', $store->email) }}"
                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                        required>
+                            </div>
+
+                            <div>
+                                <label for="logo" class="block text-sm font-medium text-gray-700 mb-2">Logo Store</label>
+                                @if($store->logo)
+                                    <div class="mb-2">
+                                        <img src="{{ asset('storage/' . $store->logo) }}" alt="Logo attuale" style="max-width: 80px; max-height: 80px; border-radius: 8px;">
+                                    </div>
+                                @endif
+                                <input type="file" name="logo" id="logo" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                @error('logo')
+                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+                                <p class="text-xs text-gray-500 mt-1">Carica un logo quadrato, PNG o JPEG, max 1MB. Lascia vuoto per non cambiare.</p>
                             </div>
 
                             <div>

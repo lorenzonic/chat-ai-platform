@@ -8,15 +8,15 @@ require_once __DIR__ . '/vendor/autoload.php';
 try {
     $app = require_once __DIR__ . '/bootstrap/app.php';
     $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
-    
+
     echo "<div style='background: #f0f8ff; padding: 15px; border-radius: 5px; margin-bottom: 20px;'>";
     echo "<h2>📊 Test Compatibilità Dati</h2>";
     echo "<p>Verifichiamo che il nuovo controller refactorizzato produca gli stessi dati del controller originale...</p>";
     echo "</div>";
-    
+
     // Test 1: Istanziazione servizi individuali
     echo "<h3>1. Test Istanziazione Servizi</h3>";
-    
+
     $services = [
         'GoogleTrendsService' => \App\Services\Trends\GoogleTrendsService::class,
         'SocialMediaTrendsService' => \App\Services\Trends\SocialMediaTrendsService::class,
@@ -25,9 +25,9 @@ try {
         'PerformanceMetricsService' => \App\Services\Trends\PerformanceMetricsService::class,
         'EcommerceDataService' => \App\Services\Trends\EcommerceDataService::class,
     ];
-    
+
     $serviceInstances = [];
-    
+
     foreach ($services as $name => $class) {
         try {
             $instance = $app->make($class);
@@ -37,29 +37,29 @@ try {
             echo "❌ $name: Errore - " . $e->getMessage() . "<br>";
         }
     }
-    
+
     // Test 2: Validazione struttura dati
     echo "<h3>2. Test Struttura Dati Servizi</h3>";
-    
+
     // Test GoogleTrendsService
     if (isset($serviceInstances['GoogleTrendsService'])) {
         try {
             $googleData = $serviceInstances['GoogleTrendsService']->getTrends(7);
             $expectedKeys = ['keywords', 'average_interest', 'trend'];
-            
+
             $missingKeys = [];
             foreach ($expectedKeys as $key) {
                 if (!array_key_exists($key, $googleData)) {
                     $missingKeys[] = $key;
                 }
             }
-            
+
             if (empty($missingKeys)) {
                 echo "✅ GoogleTrendsService: Struttura dati corretta<br>";
             } else {
                 echo "⚠️ GoogleTrendsService: Chiavi mancanti: " . implode(', ', $missingKeys) . "<br>";
             }
-            
+
             // Test plant keywords
             $keywords = $serviceInstances['GoogleTrendsService']->getPlantKeywords();
             if (isset($keywords['high_volume']) && isset($keywords['trending'])) {
@@ -67,7 +67,7 @@ try {
             } else {
                 echo "⚠️ GoogleTrendsService: Plant keywords struttura incorretta<br>";
             }
-            
+
             // Test marketplace trends
             $marketplace = $serviceInstances['GoogleTrendsService']->getMarketplaceTrends(7);
             if (isset($marketplace['amazon']) && isset($marketplace['ebay'])) {
@@ -75,12 +75,12 @@ try {
             } else {
                 echo "⚠️ GoogleTrendsService: Marketplace trends struttura incorretta<br>";
             }
-            
+
         } catch (Exception $e) {
             echo "❌ GoogleTrendsService data test: " . $e->getMessage() . "<br>";
         }
     }
-    
+
     // Test SocialMediaTrendsService
     if (isset($serviceInstances['SocialMediaTrendsService'])) {
         try {
@@ -90,7 +90,7 @@ try {
             } else {
                 echo "⚠️ SocialMediaTrendsService: Struttura social trends incorretta<br>";
             }
-            
+
             $hashtagData = $serviceInstances['SocialMediaTrendsService']->getHashtagTrends(7);
             if (isset($hashtagData['trending_up']) && isset($hashtagData['trending_down'])) {
                 echo "✅ SocialMediaTrendsService: Struttura hashtag trends corretta<br>";
@@ -101,7 +101,7 @@ try {
             echo "❌ SocialMediaTrendsService data test: " . $e->getMessage() . "<br>";
         }
     }
-    
+
     // Test SeasonalAnalysisService
     if (isset($serviceInstances['SeasonalAnalysisService'])) {
         try {
@@ -111,14 +111,14 @@ try {
             } else {
                 echo "⚠️ SeasonalAnalysisService: Struttura seasonal trends incorretta<br>";
             }
-            
+
             $futureData = $serviceInstances['SeasonalAnalysisService']->getFutureDemandPredictions(3);
             if (is_array($futureData) && isset($futureData['monthly_predictions'])) {
                 echo "✅ SeasonalAnalysisService: Struttura future predictions corretta<br>";
             } else {
                 echo "⚠️ SeasonalAnalysisService: Struttura future predictions incorretta<br>";
             }
-            
+
             $categoriesData = $serviceInstances['SeasonalAnalysisService']->getPlantCategoriesTrends(7);
             if (isset($categoriesData['indoor_plants']) && isset($categoriesData['outdoor_plants'])) {
                 echo "✅ SeasonalAnalysisService: Struttura plant categories corretta<br>";
@@ -129,7 +129,7 @@ try {
             echo "❌ SeasonalAnalysisService data test: " . $e->getMessage() . "<br>";
         }
     }
-    
+
     // Test DemographicAnalysisService
     if (isset($serviceInstances['DemographicAnalysisService'])) {
         try {
@@ -139,7 +139,7 @@ try {
             } else {
                 echo "⚠️ DemographicAnalysisService: Struttura demographic trends incorretta<br>";
             }
-            
+
             $regionalData = $serviceInstances['DemographicAnalysisService']->getRegionalPlantPreferences();
             if (isset($regionalData['nord_italia']) && isset($regionalData['centro_italia'])) {
                 echo "✅ DemographicAnalysisService: Struttura regional preferences corretta<br>";
@@ -150,19 +150,19 @@ try {
             echo "❌ DemographicAnalysisService data test: " . $e->getMessage() . "<br>";
         }
     }
-    
+
     // Test PerformanceMetricsService
     if (isset($serviceInstances['PerformanceMetricsService'])) {
         try {
             $mockTrendsData = ['google_trends' => ['average_interest' => 75]];
-            
+
             $trendingScore = $serviceInstances['PerformanceMetricsService']->calculateTrendingScore($mockTrendsData);
             if (isset($trendingScore['total_score']) && isset($trendingScore['rating'])) {
                 echo "✅ PerformanceMetricsService: Struttura trending score corretta<br>";
             } else {
                 echo "⚠️ PerformanceMetricsService: Struttura trending score incorretta<br>";
             }
-            
+
             $growthRate = $serviceInstances['PerformanceMetricsService']->calculateGrowthRate(7);
             if (isset($growthRate['rate']) && isset($growthRate['trend'])) {
                 echo "✅ PerformanceMetricsService: Struttura growth rate corretta<br>";
@@ -173,7 +173,7 @@ try {
             echo "❌ PerformanceMetricsService data test: " . $e->getMessage() . "<br>";
         }
     }
-    
+
     // Test EcommerceDataService
     if (isset($serviceInstances['EcommerceDataService'])) {
         try {
@@ -183,7 +183,7 @@ try {
             } else {
                 echo "⚠️ EcommerceDataService: Available sites non restituisce array<br>";
             }
-            
+
             $ecomData = $serviceInstances['EcommerceDataService']->getEcommerceData(7, [], 'simulation');
             if (isset($ecomData['products']) && isset($ecomData['insights'])) {
                 echo "✅ EcommerceDataService: Struttura ecommerce data corretta<br>";
@@ -194,73 +194,73 @@ try {
             echo "❌ EcommerceDataService data test: " . $e->getMessage() . "<br>";
         }
     }
-    
+
     // Test 3: Test Controller Refactorizzato
     echo "<h3>3. Test TrendsControllerRefactored</h3>";
-    
+
     try {
         $controller = $app->make(\App\Http\Controllers\Admin\TrendsControllerRefactored::class);
         echo "✅ TrendsControllerRefactored: Istanziato correttamente con dependency injection<br>";
-        
+
         // Test che tutti i servizi siano iniettati
         $reflection = new ReflectionClass($controller);
         $properties = $reflection->getProperties(ReflectionProperty::IS_PROTECTED);
-        
+
         $expectedServices = [
             'googleTrendsService',
-            'socialMediaService', 
+            'socialMediaService',
             'seasonalAnalysisService',
             'demographicService',
             'performanceService',
             'ecommerceService'
         ];
-        
+
         $injectedServices = [];
         foreach ($properties as $property) {
             $injectedServices[] = $property->getName();
         }
-        
+
         $missingServices = array_diff($expectedServices, $injectedServices);
-        
+
         if (empty($missingServices)) {
             echo "✅ TrendsControllerRefactored: Tutti i servizi iniettati correttamente<br>";
         } else {
             echo "⚠️ TrendsControllerRefactored: Servizi mancanti: " . implode(', ', $missingServices) . "<br>";
         }
-        
+
     } catch (Exception $e) {
         echo "❌ TrendsControllerRefactored instantiation: " . $e->getMessage() . "<br>";
     }
-    
+
     // Test 4: Compatibilità Routes
     echo "<h3>4. Test Compatibilità Routes</h3>";
-    
+
     try {
         $router = $app->make('router');
         $routes = $router->getRoutes();
-        
+
         $expectedRoutes = [
             'admin.trends.index',
             'admin.trends.ai-predictions',
             'admin.trends.advanced',
             'admin.trends.configure'
         ];
-        
+
         $existingRoutes = [];
         foreach ($routes as $route) {
             if ($route->getName()) {
                 $existingRoutes[] = $route->getName();
             }
         }
-        
+
         $missingRoutes = array_diff($expectedRoutes, $existingRoutes);
-        
+
         if (empty($missingRoutes)) {
             echo "✅ Routes: Tutte le routes trends presenti<br>";
         } else {
             echo "⚠️ Routes: Routes mancanti: " . implode(', ', $missingRoutes) . "<br>";
         }
-        
+
         // Check that routes point to correct controller
         foreach ($routes as $route) {
             if (strpos($route->getName() ?? '', 'admin.trends.') === 0) {
@@ -272,15 +272,15 @@ try {
                 }
             }
         }
-        
+
     } catch (Exception $e) {
         echo "❌ Routes test: " . $e->getMessage() . "<br>";
     }
-    
+
     // Summary
     echo "<div style='background: #f0fff0; padding: 15px; border-radius: 5px; margin-top: 20px;'>";
     echo "<h2>📊 Riepilogo Test Refactor</h2>";
-    
+
     echo "<h3>✅ Successi del Refactor:</h3>";
     echo "<ul>";
     echo "<li>🏗️ <strong>Architettura Modulare</strong>: 6 servizi specializzati creati</li>";
@@ -290,7 +290,7 @@ try {
     echo "<li>🧪 <strong>Testabilità</strong>: Ogni servizio testabile individualmente</li>";
     echo "<li>📈 <strong>Scalabilità</strong>: Facile aggiungere nuovi servizi</li>";
     echo "</ul>";
-    
+
     echo "<h3>📈 Metriche di Miglioramento:</h3>";
     echo "<ul>";
     echo "<li><strong>Complessità Controller</strong>: -85% (da 1382 a ~200 righe)</li>";
@@ -299,7 +299,7 @@ try {
     echo "<li><strong>Riusabilità</strong>: +∞ (servizi riutilizzabili)</li>";
     echo "<li><strong>SOLID Compliance</strong>: ✅ Rispettato</li>";
     echo "</ul>";
-    
+
     echo "<h3>🎯 Ready for Production:</h3>";
     echo "<ul>";
     echo "<li>✅ Tutti i servizi funzionanti</li>";
@@ -309,10 +309,10 @@ try {
     echo "<li>✅ Compatibilità mantenuta con frontend</li>";
     echo "<li>✅ Testing completo eseguito</li>";
     echo "</ul>";
-    
+
     echo "<p><strong>🚀 Il refactor è completo e ready per il deploy in produzione!</strong></p>";
     echo "</div>";
-    
+
 } catch (Exception $e) {
     echo "<div style='background: #ffe6e6; padding: 15px; border-radius: 5px;'>";
     echo "<h2>❌ Errore durante test</h2>";

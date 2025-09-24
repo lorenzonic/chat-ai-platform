@@ -15,7 +15,8 @@ class StoreKnowledge extends Model
         'answer',
         'keywords',
         'is_active',
-        'priority'
+        'priority',
+        'embedding',
     ];
 
     protected $casts = [

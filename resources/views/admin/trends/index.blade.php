@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Analisi Tendenze Piante')
+@section('title', __('admin.trends_analysis'))
 
 @section('content')
 <div class="py-6" id="trendsApp">
@@ -9,22 +9,22 @@
         <div class="mb-6">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">🌱 Analisi Tendenze Piante</h1>
-                    <p class="mt-2 text-gray-600">Panoramica dei trend principali nel settore delle piante e giardinaggio</p>
+                    <h1 class="text-3xl font-bold text-gray-900">🌱 {{ __('admin.trends_analysis') }}</h1>
+                    <p class="mt-2 text-gray-600">{{ __('admin.trends_overview') }}</p>
                 </div>
                 <div class="text-right">
-                    <div class="text-sm text-gray-500">Ultimo aggiornamento:</div>
+                    <div class="text-sm text-gray-500">{{ __('admin.last_update') }}:</div>
                     <div class="text-sm font-medium">@{{ formatLastUpdate() }}</div>
                     <div class="flex items-center mt-1">
                         <div :class="realTimeUpdates ? 'bg-green-400' : 'bg-gray-400'"
                              class="w-2 h-2 rounded-full mr-2"></div>
                         <span class="text-xs text-gray-600">
-                            @{{ realTimeUpdates ? 'Aggiornamento automatico attivo' : 'Aggiornamento automatico in pausa' }}
+                            @{{ realTimeUpdates ? '{{ __('admin.auto_update_active') }}' : '{{ __('admin.auto_update_paused') }}' }}
                         </span>
                     </div>
                     <!-- Indicatore fonte dati -->
                     <div class="mt-2 text-xs px-2 py-1 rounded-full {{ isset($dataSource) && $dataSource === 'real' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                        {{ isset($dataSource) && $dataSource === 'real' ? '📡 Dati Google Trends Reali' : '🎭 Dati Simulati (Demo)' }}
+                        {{ isset($dataSource) && $dataSource === 'real' ? '📡 ' . __('admin.google_trends_real') : '🎭 ' . __('admin.simulated_data') }}
                     </div>
                 </div>
             </div>
@@ -50,174 +50,164 @@
             </div>
         </div>
 
-        <!-- Filters and Controls -->
+        {{-- FILTRI AVANZATI --}}
         <div class="bg-white shadow-sm rounded-lg mb-6">
             <div class="p-6">
-                <div class="flex flex-wrap items-center justify-between gap-4">
-                    <div class="flex items-center space-x-4">
-                        <div>
-                            <label for="periodFilter" class="block text-sm font-medium text-gray-700 mb-1">Periodo</label>
-                            <select v-model="filters.period" @change="updateData"
-                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                <option value="7">Ultimi 7 giorni</option>
-                                <option value="30">Ultimi 30 giorni</option>
-                                <option value="90">Ultimi 90 giorni</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="categoryFilter" class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
-                            <select v-model="filters.category" @change="filterData"
-                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                <option value="all">Tutte le categorie</option>
-                                <option value="indoor">Piante da interno</option>
-                                <option value="outdoor">Piante da esterno</option>
-                                <option value="herbs">Erbe aromatiche</option>
-                                <option value="succulents">Piante grasse</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-1">Cerca</label>
-                            <input v-model="filters.search" @input="filterData" type="text"
-                                   placeholder="Cerca piante..."
-                                   class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        </div>
+                <form method="GET" action="" class="flex flex-wrap gap-4 items-end">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Periodo</label>
+                        <select name="days" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="7" {{ $days == 7 ? 'selected' : '' }}>Ultimi 7 giorni</option>
+                            <option value="30" {{ $days == 30 ? 'selected' : '' }}>Ultimi 30 giorni</option>
+                            <option value="90" {{ $days == 90 ? 'selected' : '' }}>Ultimi 90 giorni</option>
+                        </select>
                     </div>
-                    <div class="flex items-end space-x-2">
-                        <button @click="refreshData" :disabled="loading"
-                                class="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded text-sm font-medium transition-colors">
-                            <span v-if="loading">⏳ Caricamento...</span>
-                            <span v-else>🔄 Aggiorna</span>
-                        </button>
-                        <button @click="exportData"
-                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors">
-                            📊 Esporta
-                        </button>
-                        <button @click="toggleRealTimeUpdates"
-                                :class="realTimeUpdates ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-600 hover:bg-gray-700'"
-                                class="text-white px-4 py-2 rounded text-sm font-medium transition-colors">
-                            <span v-if="realTimeUpdates">⏸️ Pausa Auto-refresh</span>
-                            <span v-else>▶️ Avvia Auto-refresh</span>
-                        </button>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Regione</label>
+                        <select name="region" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="">Tutte</option>
+                            @foreach($availableRegions as $reg)
+                                <option value="{{ $reg }}" {{ $region == $reg ? 'selected' : '' }}>{{ $reg }}</option>
+                            @endforeach
+                        </select>
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Keyword</label>
+                        <select name="keyword" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="">Tutte</option>
+                            @foreach($availableKeywords as $kw)
+                                <option value="{{ $kw }}" {{ $keyword == $kw ? 'selected' : '' }}>{{ $kw }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium">Filtra</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- TABELLA DETTAGLIATA --}}
+        <div class="bg-white shadow-sm rounded-lg mb-6">
+            <div class="p-6">
+                <h2 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="text-2xl mr-2">📊</span> Trending Keywords (Database Reale)
+                </h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-xs">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left">Keyword</th>
+                                <th class="px-3 py-2 text-left">Score</th>
+                                <th class="px-3 py-2 text-left">Regione</th>
+                                <th class="px-3 py-2 text-left">Data</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach($trendsData['google_trends'] as $trend)
+                                <tr>
+                                    <td class="px-3 py-2 font-medium">{{ $trend->keyword }}</td>
+                                    <td class="px-3 py-2">{{ $trend->score }}</td>
+                                    <td class="px-3 py-2">{{ $trend->region }}</td>
+                                    <td class="px-3 py-2">{{ $trend->collected_at->format('Y-m-d') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <!-- Key Metrics -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-300"
-                 v-for="metric in keyMetrics" :key="metric.key">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div :class="metric.iconClass"
-                             class="w-10 h-10 rounded-md flex items-center justify-center transition-transform duration-300 hover:scale-110">
-                            <span v-html="metric.icon" class="text-white text-lg"></span>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">@{{ metric.label }}</h3>
-                        <p class="text-2xl font-bold text-gray-900 transition-all duration-500">@{{ metric.value }}</p>
-                        <p class="text-sm transition-all duration-300" :class="metric.trendClass">@{{ metric.trend }}</p>
-                    </div>
-                </div>
+        {{-- GRAFICO TOP KEYWORDS --}}
+        <div class="bg-white shadow-sm rounded-lg mb-6">
+            <div class="p-6">
+                <h2 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="text-2xl mr-2">📈</span> Andamento Top Keywords
+                </h2>
+                <canvas id="trendsChart" height="120"></canvas>
             </div>
         </div>
 
-        <!-- Main Content Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <!-- Google Trends -->
-            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
-                <div class="p-6">
-                    <h2 class="text-xl font-semibold mb-4 flex items-center justify-between">
-                        <div class="flex items-center">
-                            <span class="text-2xl mr-2">📈</span>
-                            Google Trends - Italia
-                            <span v-if="loading" class="ml-2 text-sm text-gray-500">
-                                <svg class="animate-spin h-4 w-4 text-blue-500 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                            </span>
-                        </div>
-                        <!-- Data Source Indicator -->
-                        <div class="text-xs px-3 py-1 rounded-full {{ isset($trendsData['google_trends']['source']) && $trendsData['google_trends']['source'] === 'real' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                            {{ isset($trendsData['google_trends']['source']) && $trendsData['google_trends']['source'] === 'real' ? '📡 Dati Reali' : '🎭 Demo' }}
-                        </div>
-                    </h2>
+        @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchTopTrendsChart();
+            function fetchTopTrendsChart() {
+                fetch("{{ route('admin.trends.api-google-trends', ['days' => $days, 'region' => $region, 'keyword' => $keyword]) }}")
+                    .then(res => res.json())
+                    .then(data => {
+                        const ctx = document.getElementById('trendsChart').getContext('2d');
+                        const labels = data.topTrends.map(t => t.keyword + ' (' + t.region + ')');
+                        const scores = data.topTrends.map(t => t.avg_score);
+                        new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Score medio',
+                                    data: scores,
+                                    backgroundColor: 'rgba(16, 185, 129, 0.7)'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: { display: false },
+                                },
+                                scales: {
+                                    y: { beginAtZero: true }
+                                }
+                            }
+                        });
+                    });
+            }
+        });
+        </script>
+        @endpush
 
-                    <div class="space-y-4">
-                        <transition-group name="fade" tag="div">
-                            <div v-for="keyword in filteredGoogleTrends" :key="keyword.term"
-                                 class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-300">
-                                <div class="flex-1">
-                                    <span class="font-medium">@{{ keyword.term }}</span>
-                                    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-                                        <div class="bg-blue-600 h-2 rounded-full transition-all duration-1000"
-                                             :style="`width: ${keyword.interest}%`"></div>
-                                    </div>
-                                </div>
-                                <div class="ml-4 text-right">
-                                    <span class="text-sm font-medium">@{{ keyword.interest }}%</span>
-                                    <div :class="getTrendClass(keyword.trend)" class="text-xs transition-colors duration-300">
-                                        @{{ getTrendLabel(keyword.trend) }}
-                                    </div>
-                                </div>
+        <!-- Social Media Trends -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <span class="text-2xl mr-2">📱</span>
+                    Tendenze Social Media
+                </h2>
+
+                <div class="space-y-4">
+                    <div v-for="(platform, key) in socialTrends" :key="key"
+                         class="border rounded-lg p-4">
+                        <h3 class="font-semibold capitalize mb-3 flex items-center">
+                            <span :class="getPlatformColor(key)" class="w-3 h-3 rounded-full mr-2"></span>
+                            @{{ getPlatformName(key) }}
+                        </h3>
+
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div v-if="platform.engagement_rate">
+                                <span class="text-gray-600">Engagement:</span>
+                                <span class="font-semibold ml-1">@{{ platform.engagement_rate }}%</span>
                             </div>
-                        </transition-group>
-                    </div>
-
-                    <div class="mt-4 pt-4 border-t border-gray-200">
-                        <p class="text-sm text-gray-500">
-                            📍 <strong>Insight:</strong> Le ricerche per "@{{ topKeyword }}" sono aumentate del
-                            <span class="text-green-600 font-semibold">@{{ topGrowthPercentage }}%</span> questo mese.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Social Media Trends -->
-            <div class="bg-white rounded-lg shadow-sm">
-                <div class="p-6">
-                    <h2 class="text-xl font-semibold mb-4 flex items-center">
-                        <span class="text-2xl mr-2">📱</span>
-                        Tendenze Social Media
-                    </h2>
-
-                    <div class="space-y-4">
-                        <div v-for="(platform, key) in socialTrends" :key="key"
-                             class="border rounded-lg p-4">
-                            <h3 class="font-semibold capitalize mb-3 flex items-center">
-                                <span :class="getPlatformColor(key)" class="w-3 h-3 rounded-full mr-2"></span>
-                                @{{ getPlatformName(key) }}
-                            </h3>
-
-                            <div class="grid grid-cols-2 gap-4 text-sm">
-                                <div v-if="platform.engagement_rate">
-                                    <span class="text-gray-600">Engagement:</span>
-                                    <span class="font-semibold ml-1">@{{ platform.engagement_rate }}%</span>
-                                </div>
-                                <div v-if="platform.mentions">
-                                    <span class="text-gray-600">Mentions:</span>
-                                    <span class="font-semibold ml-1">@{{ formatNumber(platform.mentions) }}</span>
-                                </div>
-                                <div v-if="platform.viral_videos">
-                                    <span class="text-gray-600">Video Virali:</span>
-                                    <span class="font-semibold ml-1">@{{ platform.viral_videos }}</span>
-                                </div>
-                                <div v-if="platform.sentiment">
-                                    <span class="text-gray-600">Sentiment:</span>
-                                    <span class="font-semibold ml-1 text-green-600">@{{ platform.sentiment }}% positivo</span>
-                                </div>
+                            <div v-if="platform.mentions">
+                                <span class="text-gray-600">Mentions:</span>
+                                <span class="font-semibold ml-1">@{{ formatNumber(platform.mentions) }}</span>
                             </div>
+                            <div v-if="platform.viral_videos">
+                                <span class="text-gray-600">Video Virali:</span>
+                                <span class="font-semibold ml-1">@{{ platform.viral_videos }}</span>
+                            </div>
+                            <div v-if="platform.sentiment">
+                                <span class="text-gray-600">Sentiment:</span>
+                                <span class="font-semibold ml-1 text-green-600">@{{ platform.sentiment }}% positivo</span>
+                            </div>
+                        </div>
 
-                            <div v-if="platform.hashtags && platform.hashtags.length > 0" class="mt-3">
-                                <div class="text-xs text-gray-600 mb-2">Top Hashtags:</div>
-                                <div class="flex flex-wrap gap-1">
-                                    <span v-for="hashtag in platform.hashtags.slice(0, 3)" :key="hashtag.tag"
-                                          class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
-                                        #@{{ hashtag.tag }}
-                                    </span>
-                                </div>
+                        <div v-if="platform.hashtags && platform.hashtags.length > 0" class="mt-3">
+                            <div class="text-xs text-gray-600 mb-2">Top Hashtags:</div>
+                            <div class="flex flex-wrap gap-1">
+                                <span v-for="hashtag in platform.hashtags.slice(0, 3)" :key="hashtag.tag"
+                                      class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                                    #@{{ hashtag.tag }}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -687,7 +677,7 @@ createApp({
             const months = {
                 '1': 'Gen', '2': 'Feb', '3': 'Mar', '4': 'Apr',
                 '5': 'Mag', '6': 'Giu', '7': 'Lug', '8': 'Ago',
-                '9': 'Set', '10': 'Ott', '11': 'Nov', '12': 'Dic'
+                '9': 'Set', '10': 'Ott', '11': 'Nov', '12': { factor: 1.2 },
             };
             return months[month] || month;
         },

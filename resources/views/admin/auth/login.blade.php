@@ -1,16 +1,16 @@
 @extends('layouts.admin')
 
-@section('title', 'Admin Login')
+@section('title', __('auth.admin_login'))
 
 @section('content')
 <div class="min-h-screen flex items-center justify-center bg-gray-50">
     <div class="max-w-md w-full space-y-8">
         <div>
             <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                Admin Panel Access
+                {{ __('auth.admin_panel_access') }}
             </h2>
             <p class="mt-2 text-center text-sm text-gray-600">
-                Sign in to your admin account
+                {{ __('auth.sign_in_admin') }}
             </p>
         </div>
 
@@ -19,16 +19,16 @@
 
             <div class="rounded-md shadow-sm -space-y-px">
                 <div>
-                    <label for="email" class="sr-only">Email address</label>
+                    <label for="email" class="sr-only">{{ __('common.email') }}</label>
                     <input id="email" name="email" type="email" autocomplete="email" required
                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                           placeholder="Email address" value="{{ old('email') }}">
+                           placeholder="{{ __('common.email') }}" value="{{ old('email') }}">
                 </div>
                 <div>
-                    <label for="password" class="sr-only">Password</label>
+                    <label for="password" class="sr-only">{{ __('common.password') }}</label>
                     <input id="password" name="password" type="password" autocomplete="current-password" required
                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                           placeholder="Password">
+                           placeholder="{{ __('common.password') }}">
                 </div>
             </div>
 
@@ -45,7 +45,7 @@
                     <input id="remember" name="remember" type="checkbox"
                            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
                     <label for="remember" class="ml-2 block text-sm text-gray-900">
-                        Remember me
+                        {{ __('auth.remember_me') }}
                     </label>
                 </div>
             </div>

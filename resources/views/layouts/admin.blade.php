@@ -13,6 +13,9 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="font-sans antialiased">
     <div class="min-h-screen bg-gray-100">
@@ -40,6 +43,11 @@
                                           {{ request()->routeIs('admin.trends.*') ? 'border-emerald-500 text-emerald-900' : '' }}">
                                     🌱 Plant Trends
                                 </a>
+                                <a href="{{ route('admin.trending-keywords.index') }}"
+                                   class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                                          {{ request()->routeIs('admin.trending-keywords.*') ? 'border-green-500 text-green-900' : '' }}">
+                                    🔍 Google Trends
+                                </a>
                                 <a href="{{ route('admin.analytics.index') }}"
                                    class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
                                           {{ request()->routeIs('admin.analytics.*') ? 'border-teal-500 text-teal-900' : '' }}">
@@ -54,6 +62,21 @@
                                    class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
                                           {{ request()->routeIs('admin.qr-codes.*') ? 'border-purple-500 text-purple-900' : '' }}">
                                     📱 QR Codes
+                                </a>
+                                <a href="{{ route('admin.products.index') }}"
+                                   class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                                          {{ request()->routeIs('admin.products.*') ? 'border-orange-500 text-orange-900' : '' }}">
+                                    🏷️ Products-Stickers
+                                </a>
+                                <a href="{{ route('admin.orders.index') }}"
+                                   class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                                          {{ request()->routeIs('admin.orders.*') ? 'border-red-500 text-red-900' : '' }}">
+                                    📦 Orders
+                                </a>
+                                <a href="{{ route('admin.growers.index') }}"
+                                   class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                                          {{ request()->routeIs('admin.growers.*') ? 'border-green-500 text-green-900' : '' }}">
+                                    🌱 Growers
                                 </a>
                             </div>
                         </div>
@@ -103,5 +126,7 @@
             </div>
         </footer>
     </div>
+
+    @yield('scripts')
 </body>
 </html>

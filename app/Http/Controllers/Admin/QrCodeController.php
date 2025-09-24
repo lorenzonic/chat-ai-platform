@@ -20,7 +20,7 @@ class QrCodeController extends Controller
      */
     public function index(): View
     {
-        $qrCodes = QrCode::with('store')
+        $qrCodes = QrCode::with(['store', 'product', 'order'])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
@@ -48,6 +48,7 @@ class QrCodeController extends Controller
             'store_id' => 'required|exists:stores,id',
             'name' => 'required|string|max:255',
             'question' => 'nullable|string|max:500',
+            'ean_code' => 'nullable|string|size:13|unique:qr_codes,ean_code',
         ]);
 
         // Generate reference code
@@ -59,6 +60,7 @@ class QrCodeController extends Controller
             'name' => $request->name,
             'question' => $request->question,
             'ref_code' => $refCode,
+            'ean_code' => $request->ean_code,
         ]);
 
         // Generate the QR code image
@@ -108,12 +110,14 @@ class QrCodeController extends Controller
             'store_id' => 'required|exists:stores,id',
             'name' => 'required|string|max:255',
             'question' => 'nullable|string|max:500',
+            'ean_code' => 'nullable|string|size:13|unique:qr_codes,ean_code,' . $qrCode->id,
         ]);
 
         $qrCode->update([
             'store_id' => $request->store_id,
             'name' => $request->name,
             'question' => $request->question,
+            'ean_code' => $request->ean_code,
         ]);
 
         // Regenerate QR code image when updated
@@ -165,64 +169,50 @@ class QrCodeController extends Controller
             Storage::disk('public')->delete($qrCode->qr_code_image);
         }
 
-        // Generate QR code URL
-        $qrUrl = $qrCode->getQrUrl();
+        // Genera link personalizzato se ean_code è presente, altrimenti fallback
+        $qrContentString = $qrCode->ean_code
+            ? rtrim(config('app.url'), '/') . '/qr/' . $qrCode->ean_code
+            : $qrCode->getQrUrl();
+
+        // Recupera logo store se esiste
+        $storeLogoPath = $qrCode->store && $qrCode->store->logo ? storage_path('app/public/' . $qrCode->store->logo) : null;
+        $hasLogo = $storeLogoPath && file_exists($storeLogoPath);
 
         try {
-            // Try the simple-qrcode package first
-            $qrContent = QrCodeGenerator::size(300)
+            $qr = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
+                ->size(300)
                 ->margin(1)
-                ->errorCorrection('M')
-                ->generate($qrUrl);
-
-            // Save the QR code content (should be SVG by default)
+                ->errorCorrection('H')
+                ->color(0,0,0)
+                ->backgroundColor(255,255,255);
+            $qrContent = $qr->generate($qrContentString);
             $fileName = 'qr-codes/' . $qrCode->ref_code . '.svg';
             Storage::disk('public')->put($fileName, $qrContent);
-
-            // Update QR code record
             $qrCode->update(['qr_code_image' => $fileName]);
 
         } catch (\Exception $e) {
             // Log the error for debugging
-            Log::error('QR Code generation failed with simple-qrcode', [
+            \Log::error('QR Code generation failed', [
                 'qr_code_id' => $qrCode->id,
                 'error' => $e->getMessage(),
-                'url' => $qrUrl
+                'url' => $qrContentString
             ]);
-
-            // Fallback: Use an external QR code service
+            // Fallback: Use an external QR code service (no logo)
             try {
-                $externalQrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . urlencode($qrUrl);
+                $externalQrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . urlencode($qrContentString) . "&color=000000&bgcolor=FFFFFF";
                 $qrImageContent = file_get_contents($externalQrUrl);
-
                 if ($qrImageContent) {
                     $fileName = 'qr-codes/' . $qrCode->ref_code . '.png';
                     Storage::disk('public')->put($fileName, $qrImageContent);
                     $qrCode->update(['qr_code_image' => $fileName]);
-                    return;
                 }
-            } catch (\Exception $externalError) {
-                Log::error('External QR Code service failed', [
+            } catch (\Exception $e2) {
+                \Log::error('QR fallback generation failed', [
                     'qr_code_id' => $qrCode->id,
-                    'error' => $externalError->getMessage()
+                    'error' => $e2->getMessage(),
+                    'url' => $qrContentString
                 ]);
             }
-
-            // Final fallback: Generate a simple placeholder SVG
-            $placeholderSvg = '<?xml version="1.0" encoding="UTF-8"?>
-<svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
-    <rect width="300" height="300" fill="white" stroke="#ccc" stroke-width="2"/>
-    <rect x="20" y="20" width="260" height="260" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1"/>
-    <circle cx="150" cy="120" r="30" fill="#6c757d"/>
-    <text x="150" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#495057">QR Code</text>
-    <text x="150" y="190" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#6c757d">' . htmlspecialchars($qrCode->name) . '</text>
-    <text x="150" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#adb5bd">Generazione fallita</text>
-    <text x="150" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#adb5bd">Prova a rigenerare</text>
-</svg>';
-
-            $fileName = 'qr-codes/' . $qrCode->ref_code . '.svg';
-            Storage::disk('public')->put($fileName, $placeholderSvg);
-            $qrCode->update(['qr_code_image' => $fileName]);
         }
     }
 
@@ -247,5 +237,14 @@ class QrCodeController extends Controller
                 ->route('admin.qr-codes.show', $qrCode)
                 ->with('error', 'Failed to regenerate QR Code. Please try again.');
         }
+    }
+
+    /**
+     * Show a printable label for the QR code (etichetta per vaso).
+     */
+    public function label(QrCode $qrCode)
+    {
+        $qrCode->load('store');
+        return view('admin.qr-codes.label', compact('qrCode'));
     }
 }

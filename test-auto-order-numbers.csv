@@ -1,0 +1,4 @@
+store_name,product_name,product_code,grower_name,quantity,price,cc,pia,pro,transport,data_consegna,telefono,note,ean,height,transport_cost,indirizzo,vaso,descrizione
+Garden Center Test,Rosa Rossa,R001,Green Growers Ltd,10,5.50,CC001,PIA001,PRO001,Camion,2024-01-15,1234567890,Consegna urgente,1234567890123,30,15.00,Via Roma 123,Vaso 14cm,Rosa rossa profumata
+Garden Center Test,Tulipano Giallo,T002,Green Growers Ltd,20,3.25,CC001,PIA001,PRO001,Camion,2024-01-15,1234567890,Consegna urgente,1234567890124,25,15.00,Via Roma 123,Vaso 12cm,Tulipano giallo brillante
+Garden Center Test,Margherita Bianca,M003,Flower Paradise,15,4.00,CC002,PIA002,PRO002,Furgone,2024-01-16,0987654321,Fragile,1234567890125,20,10.00,Piazza Centrale 45,Vaso 10cm,Margherita bianca classica

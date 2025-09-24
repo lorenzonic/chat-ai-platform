@@ -1,0 +1,101 @@
+@extends('layouts.admin')
+
+@section('title', 'Edit QR Code')
+
+@section('content')
+<div class="py-12">
+    <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold text-gray-900">Edit QR Code</h1>
+                    <a href="{{ route('admin.qr-codes.index') }}"
+                       class="text-gray-600 hover:text-gray-900">
+                        &larr; Back to QR Codes
+                    </a>
+                </div>
+
+                <form action="{{ route('admin.qr-codes.update', $qrCode) }}" method="POST" class="space-y-6">
+                    @csrf
+                    @method('PATCH')
+
+                    <div>
+                        <label for="store_id" class="block text-sm font-medium text-gray-700">
+                            Store *
+                        </label>
+                        <select id="store_id" name="store_id" required
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select a store</option>
+                            @foreach($stores as $store)
+                                <option value="{{ $store->id }}" {{ (old('store_id', $qrCode->store_id) == $store->id) ? 'selected' : '' }}>
+                                    {{ $store->name }} ({{ $store->slug }})
+                                    @if($store->is_premium)
+                                        - Premium
+                                    @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('store_id')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700">
+                            QR Code Name *
+                        </label>
+                        <input type="text" id="name" name="name" value="{{ old('name', $qrCode->name) }}" required
+                               placeholder="e.g., Store Entrance QR, Product Catalog QR"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        @error('name')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-1 text-sm text-gray-500">
+                            Give this QR code a descriptive name for internal reference.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label for="ean_code" class="block text-sm font-medium text-gray-700">
+                            EAN/GTIN (GS1) <span class="text-xs text-gray-400">Optional</span>
+                        </label>
+                        <input type="text" id="ean_code" name="ean_code" value="{{ old('ean_code', $qrCode->ean_code) }}" maxlength="13" pattern="[0-9]{13}" placeholder="e.g., 8057014050036" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        @error('ean_code')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-1 text-sm text-gray-500">
+                            Inserisci un codice EAN-13 valido per generare un QR GS1 compatibile con scanner da negozio.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label for="question" class="block text-sm font-medium text-gray-700">
+                            Pre-filled Question (Optional)
+                        </label>
+                        <textarea id="question" name="question" rows="3"
+                                  placeholder="e.g., Che piante consigli per un appartamento poco luminoso?"
+                                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">{{ old('question', $qrCode->question) }}</textarea>
+                        @error('question')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-1 text-sm text-gray-500">
+                            If set, this question will be automatically loaded when users scan the QR code.
+                        </p>
+                    </div>
+
+                    <div class="flex items-center justify-end space-x-4">
+                        <a href="{{ route('admin.qr-codes.index') }}"
+                           class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            Update QR Code
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

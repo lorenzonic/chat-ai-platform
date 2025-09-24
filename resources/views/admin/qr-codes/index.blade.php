@@ -29,6 +29,9 @@
                                     Name & Store
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Product
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Question
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -39,6 +42,9 @@
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Status
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    EAN/GTIN
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Actions
@@ -53,6 +59,21 @@
                                         <div class="text-sm font-medium text-gray-900">{{ $qrCode->name }}</div>
                                         <div class="text-sm text-gray-500">{{ $qrCode->store->name }}</div>
                                     </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($qrCode->product)
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">{{ $qrCode->product->name }}</div>
+                                            <div class="text-sm text-gray-500">ID: {{ $qrCode->product->id }}</div>
+                                        </div>
+                                    @elseif($qrCode->order)
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-600">Order Based</div>
+                                            <div class="text-sm text-gray-500">Order #{{ $qrCode->order->id }}</div>
+                                        </div>
+                                    @else
+                                        <span class="text-sm text-gray-400">—</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="text-sm text-gray-900 max-w-xs truncate">
@@ -70,6 +91,9 @@
                                                {{ $qrCode->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                         {{ $qrCode->is_active ? 'Active' : 'Inactive' }}
                                     </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+                                    {{ $qrCode->ean_code ?: '—' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 space-x-2">
                                     <a href="{{ route('admin.qr-codes.show', $qrCode) }}"

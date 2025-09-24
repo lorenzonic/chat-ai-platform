@@ -23,6 +23,9 @@ class QrCode extends Model
         'qr_code_image',
         'ref_code',
         'is_active',
+        'ean_code',
+        'order_id',   // Add order_id for order-specific QR codes
+        'product_id', // Add product_id for product-specific QR codes
     ];
 
     /**
@@ -43,6 +46,22 @@ class QrCode extends Model
     public function store(): BelongsTo
     {
         return $this->belongsTo(Store::class);
+    }
+
+    /**
+     * Get the order that this QR code belongs to (if any).
+     */
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class);
+    }
+
+    /**
+     * Get the product that this QR code belongs to (if any).
+     */
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
     }
 
     /**

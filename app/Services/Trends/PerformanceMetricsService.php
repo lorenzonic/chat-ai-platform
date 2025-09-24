@@ -14,10 +14,10 @@ class PerformanceMetricsService
      */
     public function calculateTrendingScore($trendsData)
     {
-        $googleScore = isset($trendsData['google_trends']['average_interest']) 
-            ? $trendsData['google_trends']['average_interest'] 
+        $googleScore = isset($trendsData['google_trends']['average_interest'])
+            ? $trendsData['google_trends']['average_interest']
             : 50;
-        
+
         $socialScore = $this->calculateSocialScore($trendsData['social_trends'] ?? []);
         $marketplaceScore = $this->calculateMarketplaceScore($trendsData['marketplace_trends'] ?? []);
 

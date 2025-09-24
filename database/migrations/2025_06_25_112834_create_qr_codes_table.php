@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('question')->nullable(); // Domanda precompilata
             $table->string('qr_code_image')->nullable(); // Path immagine QR
             $table->string('ref_code')->unique(); // Codice univoco per tracking (es. qr123)
+            $table->string('ean_code')->nullable()->unique(); // EAN/GTIN for GS1 QR
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

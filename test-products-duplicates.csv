@@ -1,0 +1,7 @@
+CODE,PRODOTTO,CODICE,QUANTITA,EUR_VENDITA,H,FORNITORE,CATEGORIA,CLIENTE,CC,PIA,PRO,TRASPORTO,DATA,NOTE,INDIRIZZO,TELEFONO,EAN
+STORE01,Rosa rossa,TEST001,10,5.50,30,Vivai Rossi,Piante,Cliente Test,CC001,PIA001,PRO001,Camion,15/09/2025,Note test,Via Roma 1,123456789,
+STORE01,Tulipano giallo,TEST002,15,3.20,25,Vivai Verdi,Piante,Cliente Test,CC002,PIA002,PRO002,Camion,15/09/2025,Note test,Via Roma 1,123456789,
+STORE01,Rosa rossa duplicata,TEST001,5,6.00,35,Vivai Rossi,Piante,Cliente Test,CC003,PIA003,PRO003,Camion,15/09/2025,Questo dovrebbe essere saltato,Via Roma 1,123456789,
+STORE01,Girasole grande,TEST003,8,4.75,40,Vivai Gialli,Piante,Cliente Test,CC004,PIA004,PRO004,Camion,15/09/2025,Note test,Via Roma 1,123456789,
+STORE01,Tulipano giallo duplicato,TEST002,12,3.50,28,Vivai Verdi,Piante,Cliente Test,CC005,PIA005,PRO005,Camion,15/09/2025,Anche questo dovrebbe essere saltato,Via Roma 1,123456789,
+STORE01,Margherita bianca,TEST004,20,2.10,15,Vivai Bianchi,Piante,Cliente Test,CC006,PIA006,PRO006,Camion,15/09/2025,Note test,Via Roma 1,123456789,

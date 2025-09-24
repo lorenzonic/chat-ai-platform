@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Create Store Account')
+@section('title', __('admin.create_store'))
 
 @section('content')
 <div class="py-12">
@@ -8,15 +8,15 @@
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
                 <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-2xl font-bold">Create Store Account</h1>
+                    <h1 class="text-2xl font-bold">{{ __('admin.create_store') }}</h1>
                     <a href="{{ route('admin.accounts.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">
-                        Back to Accounts
+                        {{ __('common.back') }} {{ __('admin.accounts') }}
                     </a>
                 </div>
 
                 @if($errors->any())
                     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-                        <strong>Please fix the following errors:</strong>
+                        <strong>{{ __('common.fix_errors') }}:</strong>
                         <ul class="mt-2 list-disc list-inside">
                             @foreach($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -25,15 +25,15 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('admin.accounts.stores.store') }}" class="space-y-6">
+                <form method="POST" action="{{ route('admin.accounts.stores.store') }}" class="space-y-6" enctype="multipart/form-data">
                     @csrf
 
                     <!-- Basic Information -->
                     <div class="bg-gray-50 p-6 rounded-lg">
-                        <h3 class="text-lg font-semibold mb-4">Basic Information</h3>
+                        <h3 class="text-lg font-semibold mb-4">{{ __('common.basic_information') }}</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Store Name *</label>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">{{ __('common.name') }} *</label>
                                 <input type="text"
                                        name="name"
                                        id="name"
@@ -43,13 +43,22 @@
                             </div>
 
                             <div>
-                                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">{{ __('common.email') }} *</label>
                                 <input type="email"
                                        name="email"
                                        id="email"
                                        value="{{ old('email') }}"
                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                        required>
+                            </div>
+
+                            <div>
+                                <label for="logo" class="block text-sm font-medium text-gray-700 mb-2">Logo Store</label>
+                                <input type="file" name="logo" id="logo" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                @error('logo')
+                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+                                <p class="text-xs text-gray-500 mt-1">Carica un logo quadrato, PNG o JPEG, max 1MB.</p>
                             </div>
 
                             <div>

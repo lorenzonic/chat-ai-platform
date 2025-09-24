@@ -1,0 +1,5 @@
+Fornitore,Piani,Quantità,Codice,Prodotto,CODE,H,Piante per cc,Cliente,CC,PIA,PRO,Trasporto,Data,Note,EAN,€ Vendita,Indirizzo,Telefono
+Vivaio Verde,3,50,ROSA001,Rosa Rossa,CLI001,30cm,1,Garden Center Milano,V14,PIA001,PRO001,Corriere,15/01/2024,Consegna urgente,1234567890123,12.50,Via Roma 1 Milano,02-1234567
+Vivaio Verde,2,25,TULIP001,Tulipano Giallo,CLI001,25cm,1,Garden Center Milano,V12,PIA001,PRO001,Corriere,15/01/2024,Stesso ordine,1234567890124,8.75,Via Roma 1 Milano,02-1234567
+Vivaio Blu,4,100,GERA001,Geranio Rosso,CLI002,35cm,2,Garden Center Roma,V16,PIA002,PRO002,Trasportatore,16/01/2024,Ordine normale,1234567890125,15.00,Via Milano 2 Roma,06-9876543
+Vivaio Verde,3,30,PETN001,Petunia Bianca,CLI001,20cm,1,Garden Center Milano,V10,PIA001,PRO001,Corriere,17/01/2024,Nuovo ordine,1234567890126,6.50,Via Roma 1 Milano,02-1234567

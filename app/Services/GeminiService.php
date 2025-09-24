@@ -24,10 +24,11 @@ class GeminiService
      * @param string $message User message
      * @param array $context Store context information
      * @param Store|null $store Store instance for knowledge search
+     * @param array|null $nlpData NLP analysis data for smarter fallbacks
      * @return string AI response
      * @throws Exception
      */
-    public function generateResponse(string $message, array $context = [], Store $store = null): string
+    public function generateResponse(string $message, array $context = [], Store $store = null, array $nlpData = null): string
     {
         // Prima cerca nella knowledge base dello store
         if ($store) {
@@ -47,7 +48,7 @@ class GeminiService
         }
 
         // Se non trova nulla nella knowledge base, usa l'AI normale
-        return $this->generateAIResponse($message, $context);
+        return $this->generateAIResponse($message, $context, $nlpData);
     }
 
     /**
@@ -55,10 +56,11 @@ class GeminiService
      *
      * @param string $message User message
      * @param array $context Store context information
+     * @param array|null $nlpData NLP analysis data for smarter fallbacks
      * @return string AI response
      * @throws Exception
      */
-    private function generateAIResponse(string $message, array $context = []): string
+    private function generateAIResponse(string $message, array $context = [], array $nlpData = null): string
     {
         try {
             // Prepara il contesto per l'AI
@@ -84,19 +86,44 @@ class GeminiService
                 ]
             ];
 
-            // Make the API request
-            $response = Http::timeout(30)
-                ->withHeaders([
-                    'Content-Type' => 'application/json',
-                ])
-                ->post($this->apiUrl . '?key=' . $this->apiKey, $payload);
+            // Make the API request with retry logic for 503 errors
+            $maxRetries = 3;
+            $retryDelay = 2; // seconds
+            $response = null;
 
-            if (!$response->successful()) {
+            for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+                $response = Http::timeout(30)
+                    ->withHeaders([
+                        'Content-Type' => 'application/json',
+                    ])
+                    ->post($this->apiUrl . '?key=' . $this->apiKey, $payload);
+
+                if ($response->successful()) {
+                    break; // Success, exit retry loop
+                }
+
+                // If it's a 503 error (overloaded) and we have retries left, wait and try again
+                if ($response->status() === 503 && $attempt < $maxRetries) {
+                    Log::warning("Gemini API overloaded, retrying in {$retryDelay}s (attempt {$attempt}/{$maxRetries})", [
+                        'status' => $response->status(),
+                        'body' => $response->body()
+                    ]);
+                    sleep($retryDelay);
+                    $retryDelay *= 2; // Exponential backoff
+                    continue;
+                }
+
+                // For non-503 errors or final attempt, log and break
                 Log::error('Gemini API error', [
+                    'attempt' => $attempt,
                     'status' => $response->status(),
                     'body' => $response->body()
                 ]);
-                throw new Exception('API request failed: ' . $response->status());
+                break;
+            }
+
+            if (!$response || !$response->successful()) {
+                throw new Exception('API request failed after ' . $maxRetries . ' attempts: ' . ($response ? $response->status() : 'no response'));
             }
 
             $data = $response->json();
@@ -114,8 +141,8 @@ class GeminiService
                 'context' => $context
             ]);
 
-            // Fallback response
-            return $this->getFallbackResponse();
+            // Fallback response with NLP data
+            return $this->getFallbackResponse($nlpData);
         }
     }
 
@@ -365,10 +392,33 @@ INFORMAZIONI SPECIFICHE DEL NEGOZIO:
     /**
      * Get fallback response when AI fails
      *
+     * @param array|null $nlpData NLP analysis data to create smarter fallback
      * @return string
      */
-    private function getFallbackResponse(): string
+    private function getFallbackResponse($nlpData = null): string
     {
+        // If we have NLP data, try to give a more intelligent response
+        if ($nlpData && isset($nlpData['intent'])) {
+            $intent = $nlpData['intent'];
+            $keywords = $nlpData['keywords'] ?? [];
+
+            // Plant care related fallback responses
+            if ($intent === 'cura' || in_array('cura', $keywords) || in_array('curare', $keywords)) {
+                return "Mi dispiace, il servizio AI è temporaneamente non disponibile. Per informazioni sulla cura delle piante, ti consiglio di contattarci direttamente. Nel frattempo, ricorda: luce indiretta, annaffiature moderate e terriccio ben drenato sono sempre buone regole base! 🌱";
+            }
+
+            // Product/plant information requests
+            if ($intent === 'consiglio' || in_array('colore', $keywords) || in_array('monstera', $keywords)) {
+                return "Il servizio AI è momentaneamente non disponibile. Per informazioni dettagliate sui nostri prodotti e piante, ti invitiamo a contattarci direttamente o visitare il nostro negozio. Saremo felici di aiutarti! 🌿";
+            }
+
+            // General plant questions
+            if (in_array('piante', $keywords) || in_array('pianta', $keywords)) {
+                return "Il nostro assistente AI è temporaneamente offline. Per qualsiasi domanda sulle piante, non esitare a contattarci! Il nostro staff è sempre pronto ad aiutarti con consigli personalizzati. 🌸";
+            }
+        }
+
+        // Default fallback
         return "Mi dispiace, in questo momento sto avendo difficoltà tecniche. Riprova tra qualche istante o contattaci direttamente per assistenza.";
     }
 

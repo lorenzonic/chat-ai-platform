@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatAI Plants - Diagramma Database</title>
+    <style>
+        @page {
+            margin: 20mm;
+            size: A4;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #1e40af;
+            font-size: 2.5em;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .header .subtitle {
+            color: #64748b;
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            page-break-inside: avoid;
+        }
+
+        .section h2 {
+            color: #1e40af;
+            font-size: 1.8em;
+            border-left: 5px solid #2563eb;
+            padding-left: 15px;
+            margin-bottom: 20px;
+        }
+
+        .section h3 {
+            color: #374151;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .table-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 15px;
+            background: #f9fafb;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .table-card.auth {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .table-card.ecommerce {
+            border-color: #8b5cf6;
+            background: #f5f3ff;
+        }
+
+        .table-card.ai {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .table-card.marketing {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .table-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .table-description {
+            font-size: 0.9em;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .table-fields {
+            font-size: 0.85em;
+            color: #374151;
+            font-family: 'Courier New', monospace;
+        }
+
+        .relationship-container {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .relationship {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #2563eb;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .flow-step {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .flow-step h4 {
+            color: #0369a1;
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+        }
+
+        .flow-step p {
+            margin: 5px 0;
+            font-size: 0.95em;
+        }
+
+        .highlight {
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .emoji {
+            font-size: 1.2em;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+
+        @media print {
+            body {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .section {
+                page-break-inside: avoid;
+            }
+
+            .table-grid {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1><span class="emoji">🌱</span> ChatAI Plants</h1>
+        <div class="subtitle">Diagramma di Flusso Database - Sistema Multi-Tenant SaaS</div>
+        <div style="font-size: 0.9em; color: #64748b; margin-top: 10px;">
+            Laravel 12 + Vue 3 + Gemini AI + Python NLP
+        </div>
+    </div>
+
+    <!-- Panoramica Sistema -->
+    <div class="section">
+        <h2><span class="emoji">🏗️</span> Architettura del Sistema</h2>
+        <p>
+            Sistema multi-tenant per garden centers con chatbot AI, gestione QR code,
+            lead generation e analytics avanzati. Supporta migliaia di negozi indipendenti
+            con i loro cataloghi prodotti e sistemi di conversazione AI.
+        </p>
+    </div>
+
+    <!-- Tabelle Database -->
+    <div class="section">
+        <h2><span class="emoji">🗄️</span> Struttura Database</h2>
+
+        <h3>Sistema di Autenticazione</h3>
+        <div class="table-grid">
+            <div class="table-card auth">
+                <div class="table-name"><span class="emoji">👤</span> ADMINS</div>
+                <div class="table-description">Super amministratori sistema</div>
+                <div class="table-fields">
+                    • id, name, email, password<br>
+                    • role (super_admin, admin)<br>
+                    • created_at, updated_at
+                </div>
+            </div>
+
+            <div class="table-card auth">
+                <div class="table-name"><span class="emoji">🏪</span> STORES</div>
+                <div class="table-description">Garden Centers (tenant principali)</div>
+                <div class="table-fields">
+                    • id, name, slug, email, password<br>
+                    • description, phone, address<br>
+                    • chat_settings, opening_hours<br>
+                    • is_active, is_premium
+                </div>
+            </div>
+
+            <div class="table-card auth">
+                <div class="table-name"><span class="emoji">🌱</span> GROWERS</div>
+                <div class="table-description">Produttori/Fornitori piante</div>
+                <div class="table-fields">
+                    • id, name, email, password<br>
+                    • code, contact_person<br>
+                    • phone, address<br>
+                    • is_active
+                </div>
+            </div>
+        </div>
+
+        <h3>Sistema E-commerce</h3>
+        <div class="table-grid">
+            <div class="table-card ecommerce">
+                <div class="table-name"><span class="emoji">📋</span> ORDERS</div>
+                <div class="table-description">Ordini dei negozi</div>
+                <div class="table-fields">
+                    • id, store_id, order_number<br>
+                    • client, cc, pia, pro<br>
+                    • transport, transport_cost<br>
+                    • delivery_date, notes, phone
+                </div>
+            </div>
+
+            <div class="table-card ecommerce">
+                <div class="table-name"><span class="emoji">📦</span> ORDER_ITEMS</div>
+                <div class="table-description">Singoli items negli ordini</div>
+                <div class="table-fields">
+                    • id, order_id, product_id<br>
+                    • store_id, grower_id<br>
+                    • quantity, unit_price<br>
+                    • product_snapshot (JSON)
+                </div>
+            </div>
+
+            <div class="table-card ecommerce">
+                <div class="table-name"><span class="emoji">🪴</span> PRODUCTS</div>
+                <div class="table-description">Catalogo prodotti</div>
+                <div class="table-fields">
+                    • id, store_id, grower_id<br>
+                    • name, code, ean, price<br>
+                    • description, category<br>
+                    • is_active
+                </div>
+            </div>
+        </div>
+
+        <h3>Sistema AI e QR</h3>
+        <div class="table-grid">
+            <div class="table-card ai">
+                <div class="table-name"><span class="emoji">📱</span> QR_CODES</div>
+                <div class="table-description">QR Code per chatbot</div>
+                <div class="table-fields">
+                    • id, store_id, product_id<br>
+                    • name, question, ref_code<br>
+                    • order_id (opzionale)<br>
+                    • is_active, scans_count
+                </div>
+            </div>
+
+            <div class="table-card ai">
+                <div class="table-name"><span class="emoji">📊</span> QR_SCANS</div>
+                <div class="table-description">Tracking scansioni QR</div>
+                <div class="table-fields">
+                    • id, qr_code_id, store_id<br>
+                    • ip_address, user_agent<br>
+                    • location_data (JSON)<br>
+                    • scanned_at
+                </div>
+            </div>
+
+            <div class="table-card ai">
+                <div class="table-name"><span class="emoji">💬</span> CHAT_LOGS</div>
+                <div class="table-description">Conversazioni AI</div>
+                <div class="table-fields">
+                    • id, store_id, qr_code_id<br>
+                    • message, response<br>
+                    • session_id, ip_address<br>
+                    • created_at
+                </div>
+            </div>
+
+            <div class="table-card ai">
+                <div class="table-name"><span class="emoji">🧠</span> STORE_KNOWLEDGE</div>
+                <div class="table-description">Knowledge base negozi</div>
+                <div class="table-fields">
+                    • id, store_id, title<br>
+                    • content, embedding<br>
+                    • category, is_active<br>
+                    • created_at, updated_at
+                </div>
+            </div>
+
+            <div class="table-card ai">
+                <div class="table-name"><span class="emoji">🔍</span> NLP_ANALYSES</div>
+                <div class="table-description">Analisi linguistiche Python</div>
+                <div class="table-fields">
+                    • id, chat_log_id<br>
+                    • intent, intent_confidence<br>
+                    • sentiment, entities (JSON)<br>
+                    • language_detected
+                </div>
+            </div>
+        </div>
+
+        <h3>Sistema Marketing</h3>
+        <div class="table-grid">
+            <div class="table-card marketing">
+                <div class="table-name"><span class="emoji">👥</span> LEADS</div>
+                <div class="table-description">Potenziali clienti</div>
+                <div class="table-fields">
+                    • id, store_id, email<br>
+                    • name, phone, location<br>
+                    • source, status<br>
+                    • metadata (JSON)
+                </div>
+            </div>
+
+            <div class="table-card marketing">
+                <div class="table-name"><span class="emoji">📧</span> NEWSLETTERS</div>
+                <div class="table-description">Campagne email</div>
+                <div class="table-fields">
+                    • id, store_id, subject<br>
+                    • content, template<br>
+                    • status, scheduled_at<br>
+                    • sent_count, open_rate
+                </div>
+            </div>
+
+            <div class="table-card marketing">
+                <div class="table-name"><span class="emoji">🤝</span> INTERACTIONS</div>
+                <div class="table-description">Interazioni utenti</div>
+                <div class="table-fields">
+                    • id, store_id, qr_code_id<br>
+                    • type, location_data<br>
+                    • metadata (JSON)<br>
+                    • created_at
+                </div>
+            </div>
+
+            <div class="table-card marketing">
+                <div class="table-name"><span class="emoji">📈</span> TRENDING_KEYWORDS</div>
+                <div class="table-description">Google Trends data</div>
+                <div class="table-fields">
+                    • id, keyword, country<br>
+                    • interest_over_time<br>
+                    • related_topics (JSON)<br>
+                    • updated_at
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Relazioni Database -->
+    <div class="section">
+        <h2><span class="emoji">🔗</span> Relazioni Principali</h2>
+
+        <div class="relationship-container">
+            <h3>Multi-tenant (Store-centered)</h3>
+            <div class="relationship">Store (1) → (N) Orders</div>
+            <div class="relationship">Store (1) → (N) Products</div>
+            <div class="relationship">Store (1) → (N) QrCodes</div>
+            <div class="relationship">Store (1) → (N) ChatLogs</div>
+            <div class="relationship">Store (1) → (N) Leads</div>
+            <div class="relationship">Store (1) → (N) OrderItems</div>
+        </div>
+
+        <div class="relationship-container">
+            <h3>Sistema Ordini Nuovo</h3>
+            <div class="relationship">Order (1) → (N) OrderItems</div>
+            <div class="relationship">OrderItem (N) → (1) Product</div>
+            <div class="relationship">OrderItem (N) → (1) Grower</div>
+            <div class="relationship">OrderItem (N) → (1) Store</div>
+        </div>
+
+        <div class="relationship-container">
+            <h3>Sistema QR e AI</h3>
+            <div class="relationship">QrCode (N) → (1) Store</div>
+            <div class="relationship">QrCode (N) → (1) Product (opzionale)</div>
+            <div class="relationship">QrCode (1) → (N) QrScans</div>
+            <div class="relationship">QrCode (1) → (N) ChatLogs</div>
+            <div class="relationship">ChatLog (1) → (1) NlpAnalysis</div>
+        </div>
+    </div>
+
+    <!-- Flusso Operativo -->
+    <div class="section">
+        <h2><span class="emoji">⚡</span> Flusso Operativo</h2>
+
+        <div class="flow-step">
+            <h4>1. Setup Iniziale</h4>
+            <p>• <span class="highlight">Grower</span> carica catalogo prodotti via CSV import</p>
+            <p>• Sistema crea automaticamente <span class="highlight">Orders → OrderItems → Products</span></p>
+            <p>• Genera <span class="highlight">QR Code</span> per ogni prodotto con question personalizzata</p>
+        </div>
+
+        <div class="flow-step">
+            <h4>2. Interazione Cliente</h4>
+            <p>• Cliente scansiona <span class="highlight">QR Code</span> su etichetta prodotto</p>
+            <p>• Sistema registra <span class="highlight">QrScan</span> per tracking</p>
+            <p>• Reindirizza a chatbot: <span class="highlight">/{store}?question=...&ref=qr_xxx</span></p>
+        </div>
+
+        <div class="flow-step">
+            <h4>3. Conversazione AI</h4>
+            <p>• Cliente invia messaggio nel chatbot</p>
+            <p>• <span class="highlight">Gemini API</span> genera risposta intelligente</p>
+            <p>• <span class="highlight">Python NLP</span> analizza intent, sentiment, entities</p>
+            <p>• Salva <span class="highlight">ChatLog + NlpAnalysis</span></p>
+        </div>
+
+        <div class="flow-step">
+            <h4>4. Lead Generation</h4>
+            <p>• Cliente fornisce email/contatti durante chat</p>
+            <p>• Sistema crea <span class="highlight">Lead</span> automaticamente</p>
+            <p>• Pianifica campagne <span class="highlight">Newsletter</span></p>
+        </div>
+
+        <div class="flow-step">
+            <h4>5. Analytics e Insights</h4>
+            <p>• Aggrega dati da <span class="highlight">ChatLogs, QrScans, Interactions</span></p>
+            <p>• Analizza <span class="highlight">TrendingKeywords</span> con Google Trends</p>
+            <p>• Dashboard analytics per ogni Store</p>
+        </div>
+    </div>
+
+    <!-- Caratteristiche Tecniche -->
+    <div class="section">
+        <h2><span class="emoji">⚙️</span> Caratteristiche Tecniche</h2>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <h3>Multi-Auth System</h3>
+                <ul>
+                    <li><strong>3 Guard separati:</strong> admin, store, grower</li>
+                    <li><strong>Route isolation:</strong> admin.php, store.php, auth.php</li>
+                    <li><strong>Namespace controllers:</strong> Admin/, Store/, Api/</li>
+                    <li><strong>Tenant isolation:</strong> Store come entità principale</li>
+                </ul>
+            </div>
+
+            <div>
+                <h3>AI Integration</h3>
+                <ul>
+                    <li><strong>Gemini API:</strong> Risposte chatbot principali</li>
+                    <li><strong>Python NLP:</strong> spaCy per analisi linguistiche</li>
+                    <li><strong>Vector Search:</strong> Embedding nella knowledge base</li>
+                    <li><strong>Caching:</strong> Redis per performance NLP</li>
+                </ul>
+            </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <h3>Migrazione Database Completata</h3>
+            <p>
+                Recente refactoring per migliorare la normalizzazione:
+                campi <span class="highlight">client, cc, pia, pro, transport, notes, phone</span>
+                spostati dalla tabella <code>products</code> alla tabella <code>orders</code>
+                per una migliore struttura relazionale.
+            </p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p><strong>ChatAI Plants</strong> - Sistema Multi-Tenant SaaS per Garden Centers</p>
+        <p>Generato il 22 Settembre 2025 | Laravel 12 + Vue 3 + Gemini AI + Python NLP</p>
+    </div>
+</body>
+</html>

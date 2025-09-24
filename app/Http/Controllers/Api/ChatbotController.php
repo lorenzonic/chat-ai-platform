@@ -115,7 +115,7 @@ class ChatbotController extends Controller
             ];
 
             // Get AI response (first check knowledge base, then use AI with conversation context)
-            $aiResponse = $this->geminiService->generateResponse($message, $context, $store);
+            $aiResponse = $this->geminiService->generateResponse($message, $context, $store, $nlpAnalysis);
 
             // Log the conversation with NLP data
             $chatLog = ChatLog::create([

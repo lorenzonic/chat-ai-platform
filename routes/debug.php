@@ -6,7 +6,7 @@ use App\Services\Trends\GoogleTrendsService;
 
 Route::get('/debug-trends', function () {
     $googleTrendsService = app(GoogleTrendsService::class);
-    
+
     $data = $googleTrendsService->getTrends(30);
 
     return response()->json([

@@ -7,9 +7,9 @@ try {
     // Test login admin first
     $adminEmail = 'admin@admin.com';
     $adminPassword = 'password';
-    
+
     echo "<h2>1. Test Login Admin</h2>";
-    
+
     // Initialize curl session for login
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, 'http://localhost:8000/admin/login');
@@ -17,21 +17,21 @@ try {
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_COOKIEJAR, 'cookies.txt');
     curl_setopt($ch, CURLOPT_COOKIEFILE, 'cookies.txt');
-    
+
     // Get login page to get CSRF token
     $loginPage = curl_exec($ch);
-    
+
     // Extract CSRF token
     preg_match('/_token.*?value="([^"]*)"/', $loginPage, $matches);
     $csrfToken = $matches[1] ?? '';
-    
+
     if (empty($csrfToken)) {
         echo "❌ Impossibile ottenere il token CSRF<br>";
         exit;
     }
-    
+
     echo "✅ Token CSRF ottenuto: " . substr($csrfToken, 0, 10) . "...<br>";
-    
+
     // Perform login
     curl_setopt($ch, CURLOPT_URL, 'http://localhost:8000/admin/login');
     curl_setopt($ch, CURLOPT_POST, true);
@@ -40,10 +40,10 @@ try {
         'email' => $adminEmail,
         'password' => $adminPassword
     ]));
-    
+
     $loginResult = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    
+
     if ($httpCode == 302 || strpos($loginResult, 'dashboard') !== false) {
         echo "✅ Login admin riuscito<br>";
     } else {
@@ -51,19 +51,19 @@ try {
         echo "Response: " . substr($loginResult, 0, 500) . "...<br>";
         exit;
     }
-    
+
     echo "<h2>2. Test Trends Dashboard Refactorizzato</h2>";
-    
+
     // Test trends dashboard
     curl_setopt($ch, CURLOPT_URL, 'http://localhost:8000/admin/trends');
     curl_setopt($ch, CURLOPT_POST, false);
-    
+
     $trendsResult = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    
+
     if ($httpCode == 200) {
         echo "✅ Trends dashboard accessibile (HTTP: $httpCode)<br>";
-        
+
         // Check for key elements that should be present
         $checks = [
             'Google Trends' => strpos($trendsResult, 'google_trends') !== false || strpos($trendsResult, 'Google Trends') !== false,
@@ -73,7 +73,7 @@ try {
             'Demographic' => strpos($trendsResult, 'demographic') !== false || strpos($trendsResult, 'Demographic') !== false,
             'Ecommerce Data' => strpos($trendsResult, 'ecommerce') !== false || strpos($trendsResult, 'E-commerce') !== false
         ];
-        
+
         foreach ($checks as $check => $result) {
             if ($result) {
                 echo "✅ $check: Presente<br>";
@@ -81,29 +81,29 @@ try {
                 echo "⚠️ $check: Non trovato nel contenuto<br>";
             }
         }
-        
+
         // Check for error messages
         if (strpos($trendsResult, 'error') !== false || strpos($trendsResult, 'Error') !== false) {
             echo "⚠️ Possibili errori trovati nella risposta<br>";
         }
-        
+
     } else {
         echo "❌ Errore accesso trends dashboard (HTTP: $httpCode)<br>";
         echo "Response preview: " . substr($trendsResult, 0, 500) . "...<br>";
     }
-    
+
     echo "<h2>3. Test AI Predictions Endpoint</h2>";
-    
+
     // Test AI predictions endpoint
     curl_setopt($ch, CURLOPT_URL, 'http://localhost:8000/admin/trends/ai-predictions');
     curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json']);
-    
+
     $aiResult = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    
+
     if ($httpCode == 200) {
         echo "✅ AI Predictions endpoint accessibile (HTTP: $httpCode)<br>";
-        
+
         $aiData = json_decode($aiResult, true);
         if ($aiData) {
             echo "✅ Risposta JSON valida<br>";
@@ -116,19 +116,19 @@ try {
         echo "❌ Errore AI predictions endpoint (HTTP: $httpCode)<br>";
         echo "Response preview: " . substr($aiResult, 0, 300) . "...<br>";
     }
-    
+
     curl_close($ch);
-    
+
     echo "<h2>4. Test Servizi Individuali</h2>";
-    
+
     // Test individual services through PHP
     try {
         // Test if we can instantiate services manually
         require_once __DIR__ . '/vendor/autoload.php';
-        
+
         $app = require_once __DIR__ . '/bootstrap/app.php';
         $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
-        
+
         // Test Google Trends Service
         try {
             $googleService = $app->make(\App\Services\Trends\GoogleTrendsService::class);
@@ -137,7 +137,7 @@ try {
         } catch (Exception $e) {
             echo "❌ GoogleTrendsService: " . $e->getMessage() . "<br>";
         }
-        
+
         // Test Social Media Service
         try {
             $socialService = $app->make(\App\Services\Trends\SocialMediaTrendsService::class);
@@ -146,7 +146,7 @@ try {
         } catch (Exception $e) {
             echo "❌ SocialMediaTrendsService: " . $e->getMessage() . "<br>";
         }
-        
+
         // Test Seasonal Analysis Service
         try {
             $seasonalService = $app->make(\App\Services\Trends\SeasonalAnalysisService::class);
@@ -155,7 +155,7 @@ try {
         } catch (Exception $e) {
             echo "❌ SeasonalAnalysisService: " . $e->getMessage() . "<br>";
         }
-        
+
         // Test Demographic Service
         try {
             $demoService = $app->make(\App\Services\Trends\DemographicAnalysisService::class);
@@ -164,7 +164,7 @@ try {
         } catch (Exception $e) {
             echo "❌ DemographicAnalysisService: " . $e->getMessage() . "<br>";
         }
-        
+
         // Test Performance Service
         try {
             $perfService = $app->make(\App\Services\Trends\PerformanceMetricsService::class);
@@ -173,7 +173,7 @@ try {
         } catch (Exception $e) {
             echo "❌ PerformanceMetricsService: " . $e->getMessage() . "<br>";
         }
-        
+
         // Test Ecommerce Service
         try {
             $ecomService = $app->make(\App\Services\Trends\EcommerceDataService::class);
@@ -182,13 +182,13 @@ try {
         } catch (Exception $e) {
             echo "❌ EcommerceDataService: " . $e->getMessage() . "<br>";
         }
-        
+
     } catch (Exception $e) {
         echo "❌ Errore inizializzazione Laravel: " . $e->getMessage() . "<br>";
     }
-    
+
     echo "<h2>5. Riepilogo Refactor</h2>";
-    
+
     echo "<div style='background: #f0f8ff; padding: 15px; border-radius: 5px;'>";
     echo "<h3>✅ Refactor TrendsController Completato!</h3>";
     echo "<p><strong>Architettura precedente:</strong></p>";
@@ -198,7 +198,7 @@ try {
     echo "<li>❌ Difficile da testare e mantenere</li>";
     echo "<li>❌ Violazione Single Responsibility Principle</li>";
     echo "</ul>";
-    
+
     echo "<p><strong>Nuova architettura modulare:</strong></p>";
     echo "<ul>";
     echo "<li>✅ 6 servizi specializzati e focalizzati</li>";
@@ -214,7 +214,7 @@ try {
     echo "<li>✅ Manutenibilità aumentata</li>";
     echo "<li>✅ Scalabilità del sistema</li>";
     echo "</ul>";
-    
+
     echo "<p><strong>Benefici:</strong></p>";
     echo "<ul>";
     echo "<li>🎯 Separazione delle responsabilità</li>";
@@ -225,7 +225,7 @@ try {
     echo "<li>💡 Architettura SOLID</li>";
     echo "</ul>";
     echo "</div>";
-    
+
 } catch (Exception $e) {
     echo "<h2>❌ Errore durante il test</h2>";
     echo "<p>Errore: " . $e->getMessage() . "</p>";

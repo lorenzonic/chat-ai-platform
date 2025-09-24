@@ -1,65 +1,70 @@
 <template>
   <div
-    class="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50"
+    class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
     :style="backgroundGradient"
   >
-    <!-- Header moderno personalizzato -->
+    <!-- Header moderno personalizzato con blur effect -->
     <header
-      class="text-white shadow-lg"
+      class="text-white shadow-xl backdrop-blur-md border-b border-white/20"
       :style="headerStyle"
     >
-      <div class="max-w-4xl mx-auto px-6 py-6">
+      <div class="max-w-4xl mx-auto px-6 py-8">
         <div class="flex items-center space-x-4">
           <div
-            class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center"
+            class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center shadow-lg backdrop-blur-sm"
             :style="avatarStyle"
           >
             <img
               v-if="store.chat_avatar_image"
               :src="store.chat_avatar_image"
               :alt="store.name"
-              class="w-10 h-10 rounded-full object-cover"
+              class="w-12 h-12 rounded-xl object-cover"
             />
-            <svg v-else class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <svg v-else class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-bold" :style="fontStyle">{{ store.name }}</h1>
-            <p class="text-white/80 text-sm" :style="fontStyle">
-             {{ store.assistant_name || 'AI Assistant' }} - {{ welcomeSubtitle }}
+            <h1 class="text-3xl font-bold tracking-tight" :style="fontStyle">{{ store.name }}</h1>
+            <p class="text-white/90 text-base mt-1" :style="fontStyle">
+             {{ store.assistant_name || 'AI Assistant' }} • {{ welcomeSubtitle }}
             </p>
           </div>
         </div>
       </div>
     </header>
 
-    <!-- Chat Container moderno -->
-    <div class="max-w-4xl mx-auto p-6">
-      <div class="glass rounded-2xl shadow-2xl border border-white/20">
-        <!-- Chat Header personalizzato -->
+    <!-- Chat Container moderno con glass morphism -->
+    <div class="max-w-4xl mx-auto p-6 -mt-4 relative z-10">
+      <div class="glass-modern rounded-3xl shadow-2xl border border-white/30 overflow-hidden">
+        <!-- Chat Header personalizzato completamente arrotondato -->
         <div
-          class="text-white p-4 rounded-t-2xl"
+          class="text-white p-5 relative overflow-hidden rounded-t-3xl"
           :style="chatHeaderStyle"
         >
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
+          <!-- Background decoration -->
+          <div class="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent"></div>
+          <div class="relative z-10 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
               <div
-                class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center"
+                class="w-10 h-10 bg-white/20 rounded-3xl flex items-center justify-center backdrop-blur-sm shadow-lg"
                 :style="onlineIndicatorStyle"
               >
-                <div class="w-2 h-2 bg-green-300 rounded-full animate-pulse"></div>
+                <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg"></div>
               </div>
-              <span class="font-medium" :style="fontStyle">{{ store.assistant_name || 'Chat AI' }}</span>
+              <div>
+                <span class="font-semibold text-lg" :style="fontStyle">{{ store.assistant_name || 'Chat AI' }}</span>
+                <div class="text-sm text-white/80" :style="fontStyle">Sempre pronto ad aiutarti</div>
+              </div>
             </div>
-            <div class="text-xs opacity-75" :style="fontStyle">Online</div>
+            <div class="text-xs opacity-90 bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm" :style="fontStyle">Online</div>
           </div>
         </div>
 
-        <!-- Messages Container -->
+        <!-- Messages Container con altezza massimizzata -->
         <div
           ref="messagesContainer"
-          class="h-96 p-6 overflow-y-auto scroll-smooth chatbot-gradient"
+          class="h-[600px] p-6 overflow-y-auto scroll-smooth bg-gradient-to-b from-white/50 to-blue-50/30"
         >
           <TransitionGroup name="message" tag="div">
             <div
@@ -68,42 +73,51 @@
               class="mb-4"
               :class="message.isUser ? 'chatbot-message-user' : 'chatbot-message-ai'"
             >
-              <!-- Message AI -->
-              <div v-if="!message.isUser" class="flex items-start space-x-3">
+              <!-- Message AI con design migliorato -->
+              <div v-if="!message.isUser" class="flex items-start space-x-4">
                 <div
-                  class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                  class="w-10 h-10 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-lg"
                   :style="aiAvatarStyle"
                 >
                   <img
                     v-if="store.chat_avatar_image"
                     :src="store.chat_avatar_image"
                     :alt="store.assistant_name"
-                    class="w-6 h-6 rounded-full object-cover"
+                    class="w-8 h-8 rounded-2xl object-cover"
                   />
-                  <svg v-else class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <svg v-else class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
                 </div>
-                <div
-                  class="bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-md max-w-xs lg:max-w-md border"
+                <div style="border-radius: 20px;"
+                  class="bg-white/90 backdrop-blur-sm rounded-3xl px-6 py-4 shadow-xl max-w-xs lg:max-w-md border border-white/50 hover:shadow-2xl transition-all duration-300"
                   :style="aiMessageStyle"
                 >
                   <p class="text-gray-800 text-sm leading-relaxed" :style="fontStyle" v-html="formatMessage(message.text)"></p>
-                  <div class="text-xs text-gray-400 mt-2" :style="fontStyle">{{ formatTime(message.timestamp) }}</div>
+                  <div class="text-xs text-gray-500 mt-3 flex items-center" :style="fontStyle">
+                    <svg class="w-3 h-3 mr-1 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                    </svg>
+                    {{ formatTime(message.timestamp) }}
+                  </div>
                 </div>
               </div>
 
-              <!-- Message User -->
-              <div v-else class="flex items-start justify-end space-x-3">
+              <div v-else class="flex items-start justify-end space-x-4">
                 <div
-                  class="text-white rounded-2xl rounded-tr-md px-4 py-3 shadow-md max-w-xs lg:max-w-md"
+                  class="text-white rounded-3xl px-6 py-4 shadow-xl max-w-xs lg:max-w-md backdrop-blur-sm border border-white/20 hover:shadow-2xl transition-all duration-300"
                   :style="userMessageStyle"
                 >
                   <p class="text-sm leading-relaxed" :style="fontStyle" v-html="formatMessage(message.text)"></p>
-                  <div class="text-xs text-white/80 mt-2" :style="fontStyle">{{ formatTime(message.timestamp) }}</div>
+                  <div class="text-xs text-white/90 mt-3 flex items-center justify-end" :style="fontStyle">
+                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                    </svg>
+                    {{ formatTime(message.timestamp) }}
+                  </div>
                 </div>
-                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                  <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                   </svg>
                 </div>
@@ -111,21 +125,21 @@
             </div>
           </TransitionGroup>
 
-          <!-- Loading indicator personalizzato -->
-          <div v-if="isLoading" class="flex items-start space-x-3 mb-4 chatbot-message-ai">
+          <!-- Loading indicator completamente arrotondato -->
+          <div v-if="isLoading" class="flex items-start space-x-4 mb-6 chatbot-message-ai">
             <div
-              class="w-8 h-8 rounded-full flex items-center justify-center"
+              class="w-10 h-10 rounded-3xl flex items-center justify-center shadow-lg"
               :style="aiAvatarStyle"
             >
               <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
             </div>
             <div
-              class="bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-md border"
+              class="bg-white/90 backdrop-blur-sm rounded-3xl px-6 py-4 shadow-xl border border-white/50"
               :style="aiMessageStyle"
             >
-              <div class="flex items-center space-x-2">
-                <span class="text-gray-500 text-sm" :style="fontStyle">{{ store.assistant_name || 'AI' }} sta scrivendo</span>
-                <div class="typing-dots">
+              <div class="flex items-center space-x-3">
+                <span class="text-gray-600 text-sm font-medium" :style="fontStyle">{{ store.assistant_name || 'AI' }} sta pensando</span>
+                <div class="typing-dots-modern">
                   <span></span>
                   <span></span>
                   <span></span>
@@ -135,37 +149,46 @@
           </div>
         </div>
 
-        <!-- Quick Suggestions personalizzate -->
-        <div v-if="showSuggestions" class="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
-          <!-- Smart Suggestions (NLP-powered) -->
-          <div v-if="smartSuggestions.length > 0" class="mb-4">
-            <p class="text-sm mb-3 font-medium flex items-center" :style="{ color: primaryColor, ...fontStyle }">
-              <span class="mr-2">🧠</span>
-              Suggerimenti intelligenti per te:
-            </p>
+        <!-- Quick Suggestions compatti -->
+        <div v-if="showSuggestions" class="px-6 py-3 bg-gradient-to-r from-gray-50/80 to-blue-50/80 backdrop-blur-sm border-t border-white/30">
+          <!-- Smart Suggestions (NLP-powered) compatti -->
+          <div v-if="smartSuggestions.length > 0" class="mb-3">
+            <div class="flex items-center mb-2">
+              <div class="w-5 h-5 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mr-2 shadow-sm">
+                <span class="text-white text-xs">🧠</span>
+              </div>
+              <p class="text-sm font-medium text-gray-700" :style="{ color: primaryColor, ...fontStyle }">
+                Suggerimenti intelligenti
+              </p>
+            </div>
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="suggestion in smartSuggestions"
                 :key="suggestion"
                 @click="sendSuggestion(suggestion)"
-                class="px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-sm border"
-                :style="smartSuggestionStyle"
+                class="px-3 py-2 rounded-3xl text-xs font-medium transition-all duration-200 shadow-sm hover:shadow-md border border-white/50 backdrop-blur-sm hover:scale-105"
+                :style="smartSuggestionStyleCompact"
               >
                 {{ suggestion }}
               </button>
             </div>
           </div>
 
-          <!-- Custom Store Suggestions -->
-          <div v-if="customStoreSuggestions.length > 0" class="mb-4">
-            <p class="text-sm text-gray-600 mb-3 font-medium" :style="fontStyle">⭐ Suggerimenti di {{ store.name }}:</p>
+          <!-- Custom Store Suggestions compatti -->
+          <div v-if="customStoreSuggestions.length > 0">
+            <div class="flex items-center mb-2">
+              <div class="w-5 h-5 rounded-2xl bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center mr-2 shadow-sm">
+                <span class="text-white text-xs">⭐</span>
+              </div>
+              <p class="text-sm font-medium text-gray-700" :style="fontStyle">{{ store.name }}</p>
+            </div>
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="suggestion in customStoreSuggestions"
                 :key="suggestion"
                 @click="sendSuggestion(suggestion)"
-                class="px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-sm"
-                :style="customSuggestionStyle"
+                class="px-3 py-2 rounded-3xl text-xs font-medium transition-all duration-200 shadow-sm hover:shadow-md border border-white/50 backdrop-blur-sm hover:scale-105"
+                :style="customSuggestionStyleCompact"
               >
                 {{ suggestion }}
               </button>
@@ -203,46 +226,58 @@
           </div>
         </div>
 
-        <!-- Input Area personalizzato -->
-        <div class="p-6 border-t border-gray-100 bg-white rounded-b-2xl">
-          <form @submit.prevent="sendMessage" class="flex space-x-3">
+        <!-- Input Area ridisegnato e completamente arrotondato -->
+        <div class="p-4 bg-gradient-to-r from-white/90 to-blue-50/90 backdrop-blur-sm border-t border-white/30 rounded-b-3xl">
+          <form @submit.prevent="sendMessage" class="flex space-x-4">
             <div class="flex-1 relative">
+              <!-- Input principale elegante -->
               <input
                 v-model="newMessage"
                 :disabled="isLoading"
                 ref="messageInput"
                 type="text"
                 :placeholder="`Scrivi a ${store.assistant_name || 'AI'}...`"
-                class="chat-input w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200 disabled:opacity-50"
-                :style="{ fontFamily: fontFamily, '&:focus': { '--tw-ring-color': primaryColor } }"
-              >
+                class="w-full px-6 py-4 pr-20 border-2 border-gray-200/50 rounded-3xl focus:outline-none focus:ring-4 focus:ring-blue-200/50 focus:border-blue-400 transition-all duration-300 disabled:opacity-50 bg-white/90 backdrop-blur-sm shadow-lg placeholder-gray-400"
+                :style="{ fontFamily: fontFamily }"
+              />
+              <!-- Bottone clear -->
               <button
                 type="button"
                 @click="clearChat"
-                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100 z-10"
+                title="Pulisci chat"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                 </svg>
               </button>
+              <!-- Indicatore di focus elegante -->
+              <div class="absolute inset-0 rounded-3xl bg-gradient-to-r opacity-0 focus-within:opacity-10 transition-opacity duration-300 pointer-events-none" :style="{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }"></div>
             </div>
             <button
               type="submit"
               :disabled="!newMessage.trim() || isLoading || isMessageTooLong"
-              class="text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              class="text-white px-6 py-4 rounded-3xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl hover:shadow-2xl hover:scale-110 flex items-center justify-center min-w-[60px] backdrop-blur-sm"
               :style="sendButtonStyle"
             >
-              <svg v-if="!isLoading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg v-if="!isLoading" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
               </svg>
-              <div v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <div v-else class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             </button>
           </form>
 
-          <!-- Character counter personalizzato -->
-          <div class="flex justify-between items-center mt-2 text-xs text-gray-500">
-            <span :style="fontStyle">💡 Suggerimento: Sii specifico per risposte più accurate</span>
-            <span :class="{ 'text-red-500': isMessageTooLong }" :style="fontStyle">
+          <!-- Character counter compatto -->
+          <div class="flex justify-between items-center mt-2 px-1">
+            <div class="flex items-center space-x-1 text-xs">
+              <div class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
+              <span class="text-gray-500" :style="fontStyle">💡 Sii specifico</span>
+            </div>
+            <span
+              :class="{ 'text-red-500 font-semibold': isMessageTooLong, 'text-gray-400': !isMessageTooLong }"
+              class="text-xs px-2 py-0.5 rounded-lg bg-white/50 backdrop-blur-sm border border-gray-200/30"
+              :style="fontStyle"
+            >
               {{ characterCount }}/{{ maxMessageLength }}
             </span>
           </div>
@@ -283,12 +318,7 @@
       <!-- Footer informativo personalizzato -->
       <div class="mt-6 text-center space-y-2">
         <div class="flex items-center justify-center space-x-4 text-sm text-gray-500">
-          <span class="flex items-center space-x-1" :style="fontStyle">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            <span>Powered by AI</span>
-          </span>
+
           <span class="flex items-center space-x-1" :style="fontStyle">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
@@ -346,6 +376,12 @@ export default {
     // === PERSONALIZZAZIONE STORE ===
     const primaryColor = computed(() => props.store.chat_theme_color || '#10b981')
     const fontFamily = computed(() => props.store.chat_font_family || 'Inter')
+
+    // Colore secondario per gradienti
+    const secondaryColor = computed(() => {
+      // Generiamo un colore complementare basato sul colore primario
+      return adjustColor(primaryColor.value, 30) // Più chiaro del primario
+    })
 
     // Computed styles per personalizzazione
     const fontStyle = computed(() => ({
@@ -410,6 +446,42 @@ export default {
       backgroundColor: `${primaryColor.value}25`,
       color: adjustColor(primaryColor.value, -40),
       fontFamily: fontFamily.value
+    }))
+
+    // Stili moderni per i suggerimenti
+    const smartSuggestionStyleModern = computed(() => ({
+      background: `linear-gradient(135deg, ${primaryColor.value}10, ${secondaryColor.value}10)`,
+      color: adjustColor(primaryColor.value, -40),
+      borderColor: `${primaryColor.value}20`,
+      fontFamily: fontFamily.value,
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+    }))
+
+    const customSuggestionStyleModern = computed(() => ({
+      background: `linear-gradient(135deg, ${primaryColor.value}15, ${secondaryColor.value}15)`,
+      color: adjustColor(primaryColor.value, -50),
+      borderColor: `${primaryColor.value}25`,
+      fontFamily: fontFamily.value,
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+    }))
+
+    // Stili compatti per i suggerimenti
+    const smartSuggestionStyleCompact = computed(() => ({
+      background: `linear-gradient(135deg, ${primaryColor.value}12, ${secondaryColor.value}12)`,
+      color: adjustColor(primaryColor.value, -35),
+      borderColor: `${primaryColor.value}25`,
+      fontFamily: fontFamily.value,
+      fontSize: '11px',
+      lineHeight: '1.3'
+    }))
+
+    const customSuggestionStyleCompact = computed(() => ({
+      background: `linear-gradient(135deg, ${primaryColor.value}18, ${secondaryColor.value}18)`,
+      color: adjustColor(primaryColor.value, -45),
+      borderColor: `${primaryColor.value}30`,
+      fontFamily: fontFamily.value,
+      fontSize: '11px',
+      lineHeight: '1.3'
     }))
 
     const sendButtonStyle = computed(() => ({
@@ -682,9 +754,7 @@ export default {
           addMessage(data.response, false)
 
           // === NUOVO: GESTIONE DATI NLP AVANZATA ===
-          console.log('🔍 Checking for NLP data...', data) // Debug log
           if (data.nlp) {
-            console.log('✅ NLP data received!', data.nlp) // Debug log
             lastNlpData.value = data.nlp
 
             // Aggiorna suggerimenti intelligenti se disponibili
@@ -855,6 +925,7 @@ export default {
       handleTypingSuggestions,
       // === PERSONALIZZAZIONE STORE ===
       primaryColor,
+      secondaryColor,
       fontFamily,
       fontStyle,
       backgroundGradient,
@@ -866,7 +937,11 @@ export default {
       aiMessageStyle,
       userMessageStyle,
       smartSuggestionStyle,
+      smartSuggestionStyleModern,
+      smartSuggestionStyleCompact,
       customSuggestionStyle,
+      customSuggestionStyleModern,
+      customSuggestionStyleCompact,
       sendButtonStyle,
       storeAvatarStyle,
       assistantBadgeStyle,
@@ -908,7 +983,58 @@ export default {
   }
 }
 
-/* Typing dots animation */
+/* Glass effect modernizzato */
+.glass-modern {
+  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+}
+
+/* Glass effect normale */
+.glass {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Input moderno con focus effect arrotondato */
+.chat-input:focus {
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+  border-color: #3b82f6;
+  transform: scale(1.02);
+}
+
+/* Typing dots animation moderna */
+.typing-dots-modern {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.typing-dots-modern span {
+  height: 6px;
+  width: 6px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 50%;
+  animation: typingModern 1.6s infinite ease-in-out;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.typing-dots-modern span:nth-child(1) { animation-delay: -0.32s; }
+.typing-dots-modern span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typingModern {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* Typing dots animation originale */
 .typing-dots {
   display: inline-flex;
   align-items: center;
@@ -937,53 +1063,43 @@ export default {
   }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar moderno */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #10b981, #14b8a6);
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #059669, #0f766e);
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  transform: scale(1.1);
 }
 
-/* Glass effect */
-.glass {
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.95);
-}
-
-/* Chat input focus effect - now dynamic */
-.chat-input:focus {
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-  transform: scale(1.01);
-}
-
-/* Hover effects for suggestions */
+/* Hover effects for suggestions modernizzati */
 button:hover {
-  transform: translateY(-1px);
-  transition: all 0.2s ease;
+  transform: translateY(-2px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Enhanced animations for messages */
 .chatbot-message-ai,
 .chatbot-message-user {
-  animation: slideInMessage 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideInMessage 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes slideInMessage {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.9);
+    transform: translateY(30px) scale(0.9);
   }
   to {
     opacity: 1;
@@ -991,18 +1107,34 @@ button:hover {
   }
 }
 
-/* Pulse animation for AI thinking */
-@keyframes pulse {
+/* Pulse animation for AI thinking modernizzato */
+@keyframes pulseModern {
   0%, 100% {
     opacity: 1;
+    transform: scale(1);
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.7;
+    transform: scale(1.05);
   }
 }
 
 .animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: pulseModern 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Glow effects */
+.glow-on-hover:hover {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Gradient text effect */
+.gradient-text {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Responsive design */

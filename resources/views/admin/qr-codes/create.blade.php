@@ -55,6 +55,19 @@
                     </div>
 
                     <div>
+                        <label for="ean_code" class="block text-sm font-medium text-gray-700">
+                            EAN/GTIN (GS1) <span class="text-xs text-gray-400">Optional</span>
+                        </label>
+                        <input type="text" id="ean_code" name="ean_code" value="{{ old('ean_code') }}" maxlength="13" pattern="[0-9]{13}" placeholder="e.g., 8057014050036" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        @error('ean_code')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-1 text-sm text-gray-500">
+                            Inserisci un codice EAN-13 valido per generare un QR GS1 compatibile con scanner da negozio.
+                        </p>
+                    </div>
+
+                    <div>
                         <label for="question" class="block text-sm font-medium text-gray-700">
                             Pre-filled Question (Optional)
                         </label>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Store;
+use App\Models\Grower;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -19,8 +20,9 @@ class AccountController extends Controller
     {
         $stores = Store::latest()->paginate(10);
         $admins = Admin::latest()->paginate(10);
+        $growers = Grower::latest()->paginate(10);
 
-        return view('admin.accounts.index', compact('stores', 'admins'));
+        return view('admin.accounts.index', compact('stores', 'admins', 'growers'));
     }
 
     /**
@@ -49,8 +51,13 @@ class AccountController extends Controller
             'country' => 'nullable|string|max:100',
             'is_active' => 'boolean',
             'is_premium' => 'boolean',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:1024',
         ]);
 
+        $logoPath = null;
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('store-logos', 'public');
+        }
         Store::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -64,6 +71,7 @@ class AccountController extends Controller
             'country' => $request->country,
             'is_active' => $request->boolean('is_active', true),
             'is_premium' => $request->boolean('is_premium', false),
+            'logo' => $logoPath,
         ]);
 
         return redirect()->route('admin.accounts.index')
@@ -142,6 +150,7 @@ class AccountController extends Controller
             'country' => 'nullable|string|max:100',
             'is_active' => 'boolean',
             'is_premium' => 'boolean',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:1024',
         ]);
 
         $updateData = [
@@ -157,6 +166,14 @@ class AccountController extends Controller
             'is_active' => $request->boolean('is_active'),
             'is_premium' => $request->boolean('is_premium'),
         ];
+
+        if ($request->hasFile('logo')) {
+            // Cancella il vecchio logo se esiste
+            if ($store->logo && \Storage::disk('public')->exists($store->logo)) {
+                \Storage::disk('public')->delete($store->logo);
+            }
+            $updateData['logo'] = $request->file('logo')->store('store-logos', 'public');
+        }
 
         // Only update password if provided
         if ($request->filled('password')) {

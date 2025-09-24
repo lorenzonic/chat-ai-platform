@@ -23,7 +23,19 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
+                            <div>
+                                @if(Auth::guard('admin')->check())
+                                    {{ Auth::guard('admin')->user()->name }}
+                                @elseif(Auth::guard('store')->check())
+                                    {{ Auth::guard('store')->user()->name }}
+                                @elseif(Auth::guard('grower')->check())
+                                    {{ Auth::guard('grower')->user()->contact_name ?? Auth::guard('grower')->user()->company_name }}
+                                @elseif(Auth::check())
+                                    {{ Auth::user()->name }}
+                                @else
+                                    Guest
+                                @endif
+                            </div>
 
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -34,20 +46,62 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
-
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
+                        @if(Auth::guard('admin')->check())
+                            <x-dropdown-link :href="route('admin.dashboard')">
+                                {{ __('Admin Dashboard') }}
                             </x-dropdown-link>
-                        </form>
+                            <form method="POST" action="{{ route('admin.logout') }}">
+                                @csrf
+                                <x-dropdown-link :href="route('admin.logout')"
+                                        onclick="event.preventDefault();
+                                                    this.closest('form').submit();">
+                                    {{ __('Log Out') }}
+                                </x-dropdown-link>
+                            </form>
+                        @elseif(Auth::guard('store')->check())
+                            <x-dropdown-link :href="route('store.dashboard')">
+                                {{ __('Store Dashboard') }}
+                            </x-dropdown-link>
+                            <form method="POST" action="{{ route('store.logout') }}">
+                                @csrf
+                                <x-dropdown-link :href="route('store.logout')"
+                                        onclick="event.preventDefault();
+                                                    this.closest('form').submit();">
+                                    {{ __('Log Out') }}
+                                </x-dropdown-link>
+                            </form>
+                        @elseif(Auth::guard('grower')->check())
+                            <x-dropdown-link :href="route('grower.dashboard')">
+                                {{ __('Grower Dashboard') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('grower.orders.index')">
+                                {{ __('My Orders') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('grower.products.index')">
+                                {{ __('My Products') }}
+                            </x-dropdown-link>
+                            <form method="POST" action="{{ route('grower.logout') }}">
+                                @csrf
+                                <x-dropdown-link :href="route('grower.logout')"
+                                        onclick="event.preventDefault();
+                                                    this.closest('form').submit();">
+                                    {{ __('Log Out') }}
+                                </x-dropdown-link>
+                            </form>
+                        @elseif(Auth::check())
+                            <x-dropdown-link :href="route('profile.edit')">
+                                {{ __('Profile') }}
+                            </x-dropdown-link>
+                            <!-- Authentication -->
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <x-dropdown-link :href="route('logout')"
+                                        onclick="event.preventDefault();
+                                                    this.closest('form').submit();">
+                                    {{ __('Log Out') }}
+                                </x-dropdown-link>
+                            </form>
+                        @endif
                     </x-slot>
                 </x-dropdown>
             </div>
@@ -75,25 +129,77 @@
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                @if(Auth::guard('admin')->check())
+                    <div class="font-medium text-base text-gray-800">{{ Auth::guard('admin')->user()->name }}</div>
+                    <div class="font-medium text-sm text-gray-500">{{ Auth::guard('admin')->user()->email }}</div>
+                @elseif(Auth::guard('store')->check())
+                    <div class="font-medium text-base text-gray-800">{{ Auth::guard('store')->user()->name }}</div>
+                    <div class="font-medium text-sm text-gray-500">{{ Auth::guard('store')->user()->email }}</div>
+                @elseif(Auth::guard('grower')->check())
+                    <div class="font-medium text-base text-gray-800">{{ Auth::guard('grower')->user()->contact_name ?? Auth::guard('grower')->user()->company_name }}</div>
+                    <div class="font-medium text-sm text-gray-500">{{ Auth::guard('grower')->user()->email }}</div>
+                @elseif(Auth::check())
+                    <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
+                    <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                @endif
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
-
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('Log Out') }}
+                @if(Auth::guard('admin')->check())
+                    <x-responsive-nav-link :href="route('admin.dashboard')">
+                        {{ __('Admin Dashboard') }}
                     </x-responsive-nav-link>
-                </form>
+                    <form method="POST" action="{{ route('admin.logout') }}">
+                        @csrf
+                        <x-responsive-nav-link :href="route('admin.logout')"
+                                onclick="event.preventDefault();
+                                            this.closest('form').submit();">
+                            {{ __('Log Out') }}
+                        </x-responsive-nav-link>
+                    </form>
+                @elseif(Auth::guard('store')->check())
+                    <x-responsive-nav-link :href="route('store.dashboard')">
+                        {{ __('Store Dashboard') }}
+                    </x-responsive-nav-link>
+                    <form method="POST" action="{{ route('store.logout') }}">
+                        @csrf
+                        <x-responsive-nav-link :href="route('store.logout')"
+                                onclick="event.preventDefault();
+                                            this.closest('form').submit();">
+                            {{ __('Log Out') }}
+                        </x-responsive-nav-link>
+                    </form>
+                @elseif(Auth::guard('grower')->check())
+                    <x-responsive-nav-link :href="route('grower.dashboard')">
+                        {{ __('Grower Dashboard') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('grower.orders.index')">
+                        {{ __('My Orders') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('grower.products.index')">
+                        {{ __('My Products') }}
+                    </x-responsive-nav-link>
+                    <form method="POST" action="{{ route('grower.logout') }}">
+                        @csrf
+                        <x-responsive-nav-link :href="route('grower.logout')"
+                                onclick="event.preventDefault();
+                                            this.closest('form').submit();">
+                            {{ __('Log Out') }}
+                        </x-responsive-nav-link>
+                    </form>
+                @elseif(Auth::check())
+                    <x-responsive-nav-link :href="route('profile.edit')">
+                        {{ __('Profile') }}
+                    </x-responsive-nav-link>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <x-responsive-nav-link :href="route('logout')"
+                                onclick="event.preventDefault();
+                                            this.closest('form').submit();">
+                            {{ __('Log Out') }}
+                        </x-responsive-nav-link>
+                    </form>
+                @endif
             </div>
         </div>
     </div>

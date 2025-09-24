@@ -50,6 +50,11 @@ return [
             'driver' => 'session',
             'provider' => 'stores',
         ],
+
+        'grower' => [
+            'driver' => 'session',
+            'provider' => 'growers',
+        ],
     ],
 
     /*
@@ -83,6 +88,11 @@ return [
         'stores' => [
             'driver' => 'eloquent',
             'model' => App\Models\Store::class,
+        ],
+
+        'growers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Grower::class,
         ],
 
         // 'users' => [

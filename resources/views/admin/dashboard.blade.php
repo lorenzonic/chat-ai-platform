@@ -17,7 +17,7 @@
                 <div class="p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+                            <div class="w-8 h-8 bg-blue-500 rounded-3xl flex items-center justify-center">
                                 <span class="text-white text-sm font-medium">S</span>
                             </div>
                         </div>
@@ -33,7 +33,7 @@
                 <div class="p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+                            <div class="w-8 h-8 bg-green-500 rounded-3xl flex items-center justify-center">
                                 <span class="text-white text-sm font-medium">A</span>
                             </div>
                         </div>
@@ -49,7 +49,7 @@
                 <div class="p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
+                            <div class="w-8 h-8 bg-purple-500 rounded-3xl flex items-center justify-center">
                                 <span class="text-white text-sm font-medium">P</span>
                             </div>
                         </div>
@@ -65,13 +65,48 @@
                 <div class="p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-orange-500 rounded-md flex items-center justify-center">
-                                <span class="text-white text-sm font-medium">Q</span>
+                            <div class="w-8 h-8 bg-indigo-500 rounded-3xl flex items-center justify-center">
+                                <span class="text-white text-sm font-medium">O</span>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium text-gray-900">Total Orders</h3>
+                            <p class="text-2xl font-bold text-gray-700">{{ \App\Models\Order::count() }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-orange-500 rounded-3xl flex items-center justify-center">
+                                <span class="text-white rounded-3xl text-sm font-medium">Q</span>
                             </div>
                         </div>
                         <div class="ml-4">
                             <h3 class="text-lg font-medium text-gray-900">QR Codes</h3>
                             <p class="text-2xl font-bold text-gray-700">{{ \App\Models\QrCode::count() }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-teal-500 rounded-3xl flex items-center justify-center">
+                                <span class="text-white text-sm font-medium">P</span>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium text-gray-900">Total Products</h3>
+                            <p class="text-2xl font-bold text-gray-700">{{ \App\Models\Product::count() }}</p>
                         </div>
                     </div>
                 </div>
@@ -83,28 +118,37 @@
             <div class="p-6">
                 <h2 class="text-lg font-semibold mb-4">Quick Actions</h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <a href="{{ route('admin.accounts.stores.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
+                    <a href="{{ route('admin.accounts.stores.create') }}" class="bg-[#A2FA7D] rounded-3xl  font-semibold hover:bg-blue-700 text-black px-4 py-2 rounded text-center text-sm font-medium">
                         Create Store Account
                     </a>
-                    <a href="{{ route('admin.accounts.admins.create') }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
+                    <a href="{{ route('admin.accounts.admins.create') }}" class="bg-green-600 rounded-3xl hover:bg-green-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
                         Create Admin Account
                     </a>
-                    <a href="{{ route('admin.accounts.index') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
+                    <a href="{{ route('admin.accounts.index') }}" class="bg-indigo-600 rounded-3xl hover:bg-indigo-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
                         Manage Accounts
                     </a>
-                    <a href="{{ route('admin.qr-codes.create') }}" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
+                    <a href="{{ route('admin.import.index') }}" class="bg-yellow-600 rounded-3xl hover:bg-yellow-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
+                        📊 Excel Import
+                    </a>
+                    <a href="{{ route('admin.orders.index') }}" class="bg-blue-600 rounded-3xl hover:bg-blue-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
+                        Manage Orders
+                    </a>
+                    <a href="{{ route('admin.products.index') }}" class="bg-cyan-600 rounded-3xl hover:bg-cyan-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
+                        Print Labels
+                    </a>
+                    <a href="{{ route('admin.qr-codes.create') }}" class="bg-orange-600 rounded-3xl hover:bg-orange-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
                         Generate QR Code
                     </a>
-                    <a href="{{ route('admin.qr-codes.index') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
+                    <a href="{{ route('admin.qr-codes.index') }}" class="bg-purple-600 rounded-3xl hover:bg-purple-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
                         Manage QR Codes
                     </a>
-                    <a href="{{ route('admin.analytics.index') }}" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
+                    <a href="{{ route('admin.analytics.index') }}" class="bg-teal-600 rounded-3xl hover:bg-teal-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
                         View Analytics
                     </a>
-                    <a href="{{ route('admin.trends.index') }}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
+                    <a href="{{ route('admin.trends.index') }}" class="bg-emerald-600 rounded-3xl hover:bg-emerald-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
                         E-commerce Trends
                     </a>
-                    <a href="{{ route('admin.trends.configure') }}" class="bg-lime-600 hover:bg-lime-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
+                    <a href="{{ route('admin.trends.configure') }}" class="bg-lime-600 rounded-3xl hover:bg-lime-700 text-white px-4 py-2 rounded text-center text-sm font-medium">
                         Configure Sites
                     </a>
                 </div>

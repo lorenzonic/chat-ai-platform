@@ -113,7 +113,7 @@ require __DIR__.'/auth.php';
 // Debug route for trends
 Route::get('/debug-trends', function () {
     $googleTrendsService = app(\App\Services\Trends\GoogleTrendsService::class);
-    
+
     $data = $googleTrendsService->getTrends(30);
 
     return response()->json([
@@ -141,3 +141,6 @@ Route::get('/test-python-scraping', function () {
 if (file_exists(__DIR__.'/demo.php')) {
     require __DIR__.'/demo.php';
 }
+
+// QR EAN/GTIN redirect route
+Route::get('/qr/{ean_code}', [\App\Http\Controllers\QrRedirectController::class, 'redirect'])->name('qr.redirect');

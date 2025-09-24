@@ -1,0 +1,4 @@
+Fornitore,Prodotto,Codice,Quantità,Cliente,CC,PIA,PRO,€ Vendita,EAN,H,CODE,Piani,Trasporto,Data,Telefono,Note,R,Costo
+"Vivaio Test","Rosa Test","TEST001",5,"Garden Test","GT001","PIA001","PRO001",10.50,"1234567890123",25,"TC001",1,"Standard","15/03/2024","555-0001","Test rose","R01",6.00
+"Vivaio Test","Geranio Test","TEST002",8,"Garden Test","GT001","PIA001","PRO001",7.80,"1234567890124",20,"TC002",1,"Standard","15/03/2024","555-0001","Test geranio","R02",4.50
+"Vivaio Verde","Lavanda Test","TEST003",12,"Garden Verde","GV001","PIA002","PRO002",9.20,"1234567890125",30,"LV001",1,"Express","16/03/2024","555-0002","Test lavanda","R03",5.80

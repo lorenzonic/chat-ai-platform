@@ -87,7 +87,7 @@ class SeasonalAnalysisService
                 'autunno_mite' => 'Ottobre-Dicembre: Extended growing'
             ]
         ];
-        
+
         return $patterns[$region] ?? $patterns['centro'];
     }
 
@@ -140,7 +140,7 @@ class SeasonalAnalysisService
     {
         $currentMonth = Carbon::now()->month;
         $season = $this->getCurrentSeason();
-        
+
         $opportunities = [
             'Primavera' => [
                 'high_demand' => ['Outdoor plants', 'Herb gardens', 'Flower bulbs'],
@@ -163,7 +163,7 @@ class SeasonalAnalysisService
                 'pricing_strategy' => 'Gift packaging and premium sets'
             ]
         ];
-        
+
         return $opportunities[$season] ?? $opportunities['Primavera'];
     }
 

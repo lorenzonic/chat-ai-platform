@@ -16,6 +16,9 @@
                         <a href="{{ route('admin.accounts.admins.create') }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
                             Create Admin Account
                         </a>
+                        <a href="{{ route('admin.accounts.growers.create') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                            Create Grower Account
+                        </a>
                     </div>
                 </div>
 
@@ -185,6 +188,88 @@
                     @if($admins->hasPages())
                         <div class="mt-6">
                             {{ $admins->links() }}
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Grower Accounts Section -->
+                <div class="mt-10">
+                    <h2 class="text-xl font-semibold mb-4">Grower Accounts ({{ $growers->total() }})</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Company Details
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Contact
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Created
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @forelse($growers as $grower)
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">{{ $grower->company_name }}</div>
+                                        <div class="text-sm text-gray-500">{{ $grower->business_type ?? 'N/A' }}</div>
+                                        @if($grower->website)
+                                            <div class="text-sm text-blue-500">
+                                                <a href="{{ $grower->website }}" target="_blank">{{ $grower->website }}</a>
+                                            </div>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">{{ $grower->contact_name }}</div>
+                                        <div class="text-sm text-gray-500">{{ $grower->email }}</div>
+                                        @if($grower->phone)
+                                            <div class="text-sm text-gray-500">{{ $grower->phone }}</div>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                                   {{ $grower->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                            {{ $grower->is_active ? 'Active' : 'Inactive' }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ $grower->created_at->format('M d, Y') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex space-x-2">
+                                            <a href="{{ route('admin.accounts.growers.show', $grower) }}" class="text-blue-600 hover:text-blue-900">
+                                                View
+                                            </a>
+                                            <a href="{{ route('admin.accounts.growers.edit', $grower) }}" class="text-indigo-600 hover:text-indigo-900">
+                                                Edit
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                        No grower accounts found.
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Grower Pagination -->
+                    @if($growers->hasPages())
+                        <div class="mt-6">
+                            {{ $growers->links() }}
                         </div>
                     @endif
                 </div>

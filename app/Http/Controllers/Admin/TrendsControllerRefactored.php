@@ -54,8 +54,16 @@ class TrendsControllerRefactored extends Controller
     {
         // Date range filter
         $days = $request->get('days', 30);
+        $region = $request->get('region');
+        $keyword = $request->get('keyword');
         $startDate = Carbon::now()->subDays($days);
         $endDate = Carbon::now();
+
+        // Google Trends reali dal database
+        $googleTrends = $this->googleTrendsService->getTrends($days, $region, $keyword);
+        $topTrends = $this->googleTrendsService->getTopTrends($days, 10);
+        $availableRegions = $googleTrends->pluck('region')->unique()->values();
+        $availableKeywords = $googleTrends->pluck('keyword')->unique()->values();
 
         // Site selection for scraping
         $selectedSites = $request->get('sites', []);
@@ -63,7 +71,8 @@ class TrendsControllerRefactored extends Controller
 
         // Get trending data from all services
         $trendsData = [
-            'google_trends' => $this->googleTrendsService->getTrends($days),
+            'google_trends' => $googleTrends,
+            'top_trends' => $topTrends,
             'social_trends' => $this->socialMediaService->getSocialTrends($days),
             'hashtag_trends' => $this->socialMediaService->getHashtagTrends($days),
             'influencer_trends' => $this->socialMediaService->getInfluencerTrends(),
@@ -91,9 +100,7 @@ class TrendsControllerRefactored extends Controller
         ];
 
         // Data source information
-        $dataSource = isset($trendsData['google_trends']['source']) 
-            ? $trendsData['google_trends']['source'] 
-            : 'simulated';
+        $dataSource = 'real';
 
         return view('admin.trends.index', compact(
             'trendsData',
@@ -101,8 +108,28 @@ class TrendsControllerRefactored extends Controller
             'dataSource',
             'days',
             'startDate',
-            'endDate'
+            'endDate',
+            'region',
+            'keyword',
+            'availableRegions',
+            'availableKeywords'
         ));
+    }
+
+    /**
+     * API endpoint per Google Trends filtrati (per frontend dinamico)
+     */
+    public function apiGoogleTrends(Request $request)
+    {
+        $days = $request->get('days', 30);
+        $region = $request->get('region');
+        $keyword = $request->get('keyword');
+        $trends = $this->googleTrendsService->getTrends($days, $region, $keyword);
+        $topTrends = $this->googleTrendsService->getTopTrends($days, 10);
+        return response()->json([
+            'trends' => $trends,
+            'topTrends' => $topTrends
+        ]);
     }
 
     /**
@@ -160,7 +187,7 @@ class TrendsControllerRefactored extends Controller
     public function configure(Request $request)
     {
         $availableSites = $this->plantSitesManager->getAvailableSites();
-        
+
         return view('admin.trends.configure', compact('availableSites'));
     }
 
@@ -170,9 +197,9 @@ class TrendsControllerRefactored extends Controller
     public function realTimeTrends(Request $request)
     {
         $type = $request->get('type', 'all');
-        
+
         $data = [];
-        
+
         switch ($type) {
             case 'google':
                 $data = $this->googleTrendsService->getTrends(7);
@@ -190,7 +217,7 @@ class TrendsControllerRefactored extends Controller
                     'timestamp' => now()->toISOString()
                 ];
         }
-        
+
         return response()->json($data);
     }
 
@@ -201,7 +228,7 @@ class TrendsControllerRefactored extends Controller
     {
         $format = $request->get('format', 'json');
         $days = $request->get('days', 30);
-        
+
         $data = [
             'export_timestamp' => now()->toISOString(),
             'period' => $days . ' days',
@@ -210,7 +237,7 @@ class TrendsControllerRefactored extends Controller
             'seasonal_analysis' => $this->seasonalAnalysisService->getSeasonalTrends(),
             'performance_metrics' => $this->performanceService->calculateTrendingScore([])
         ];
-        
+
         switch ($format) {
             case 'csv':
                 return $this->exportToCsv($data);
@@ -224,7 +251,7 @@ class TrendsControllerRefactored extends Controller
     }
 
     // Private helper methods for backward compatibility and specific functionality
-    
+
     private function getMarketplaceTrends($days = 30)
     {
         $cacheKey = "marketplace_trends_{$days}";
