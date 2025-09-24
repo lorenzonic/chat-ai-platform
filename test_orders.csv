@@ -1,0 +1,4 @@
+order_id,product_name,quantity,price,store_code,grower_id
+ORD001,Rosa rossa,10,15.50,STORE01,1
+ORD002,Tulipano giallo,25,8.00,STORE02,1
+ORD003,Geranio bianco,15,12.30,STORE01,1

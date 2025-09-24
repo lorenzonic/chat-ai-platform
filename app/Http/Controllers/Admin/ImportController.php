@@ -49,7 +49,25 @@ class ImportController extends Controller
 
     public function showOrdersImport(): View
     {
-        return view('admin.import.orders');
+        try {
+            // Get some basic stats for the view
+            $stats = [
+                'total_orders' => Order::count(),
+                'total_products' => Product::count(),
+                'total_stores' => Store::count(),
+                'total_growers' => Grower::count(),
+            ];
+            
+            return view('admin.import.orders-simple', compact('stats'));
+        } catch (\Exception $e) {
+            Log::error('Import Orders View Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // Return a simple view without data if there's an error
+            return view('admin.import.orders-simple', ['stats' => []]);
+        }
     }
 
     public function uploadOrdersFile(Request $request)
