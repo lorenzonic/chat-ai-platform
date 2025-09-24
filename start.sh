@@ -36,7 +36,11 @@ php artisan storage:link || echo "⚠️ Storage link già esistente"
 # Esegui migrazioni se necessario
 if [ "$APP_ENV" = "production" ]; then
     echo "📊 Esecuzione migrazioni database..."
-    php artisan migrate --force || echo "⚠️ Migrazioni fallite - continuiamo senza"
+    php artisan migrate:status || echo "⚠️ Cannot check migration status"
+    php artisan migrate --force || {
+        echo "⚠️ Standard migration failed, trying fresh migration..."
+        php artisan migrate:fresh --force --seed || echo "⚠️ Fresh migration also failed"
+    }
 
     # Seed admin if needed
     echo "👤 Verifica admin account..."

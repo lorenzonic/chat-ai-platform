@@ -8,8 +8,12 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('trending_keywords', function (Blueprint $table) {
-            $table->string('parent_keyword')->nullable()->after('region');
-            $table->text('related_topics')->nullable()->after('parent_keyword');
+            if (!Schema::hasColumn('trending_keywords', 'parent_keyword')) {
+                $table->string('parent_keyword')->nullable()->after('region');
+            }
+            if (!Schema::hasColumn('trending_keywords', 'related_topics')) {
+                $table->text('related_topics')->nullable()->after('parent_keyword');
+            }
         });
     }
 
