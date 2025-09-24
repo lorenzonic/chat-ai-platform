@@ -73,7 +73,15 @@ class ImportController extends Controller
                 throw new \Exception('File upload failed or file is invalid');
             }
 
-            // Read CSV data directly from uploaded file (no need to save to disk)
+            // Save file temporarily for multi-step process
+            $filename = 'import_' . time() . '_' . Str::random(8) . '.csv';
+            $tempPath = $file->storeAs('imports', $filename);
+            
+            if (!$tempPath) {
+                throw new \Exception('Failed to save uploaded file');
+            }
+
+            // Read CSV data to show preview and mapping
             $csvData = $this->readCsvFromUploadedFile($file);
 
             if (empty($csvData)) {
@@ -84,25 +92,17 @@ class ImportController extends Controller
             $preview = array_slice($csvData, 0, 5);
             $mapping = $this->autoDetectColumns($headers);
 
-            // Debug logging
-            Log::info('CSV Upload Debug', [
-                'headers' => $headers,
-                'mapping' => $mapping,
-                'preview_rows' => $preview
+            // Store session data for multi-step process
+            session([
+                'import_file_path' => $tempPath,
+                'import_headers' => $headers,
+                'import_preview' => $preview,
+                'import_mapping' => $mapping,
+                'import_total_rows' => count($csvData) + 1
             ]);
 
-            // Process the CSV data directly (no file needed)
-            $result = $this->processAdvancedOrderImport($csvData, $mapping);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Import completed successfully!',
-                'stats' => $result,
-                'headers' => $headers,
-                'preview' => $preview,
-                'mapping' => $mapping,
-                'total_rows' => count($csvData) + 1, // +1 for headers
-            ]);
+            // Return to mapping view instead of processing immediately
+            return redirect()->route('admin.import.mapping')->with('success', 'File caricato! Controlla la mappatura delle colonne.');
 
         } catch (\Exception $e) {
             Log::error('CSV Upload Error', [
@@ -111,10 +111,8 @@ class ImportController extends Controller
                 'line' => $e->getLine(),
                 'file' => $e->getFile()
             ]);
-            return response()->json([
-                'success' => false,
-                'error' => 'Upload failed: ' . $e->getMessage()
-            ], 500);
+            
+            return redirect()->back()->with('error', 'Errore caricamento: ' . $e->getMessage());
         }
     }
 
@@ -622,7 +620,7 @@ class ImportController extends Controller
                 }
             }
         }
-        
+
         // Second pass for partial matches if exact match failed
         foreach ($headers as $index => $header) {
             $header = strtolower(trim($header));
@@ -778,8 +776,80 @@ class ImportController extends Controller
         return response()->json($info, 200, [], JSON_PRETTY_PRINT);
     }
 
+    public function showMapping()
+    {
+        if (!session('import_file_path')) {
+            return redirect()->route('admin.import.orders')->with('error', 'Nessun file caricato. Carica prima un file CSV.');
+        }
+
+        $availableFields = [
+            'cliente' => 'Cliente/Negozio',
+            'codice_cliente' => 'Codice Cliente',
+            'prodotto' => 'Nome Prodotto',
+            'codice' => 'Codice Prodotto',
+            'quantita' => 'Quantità',
+            'prezzo' => 'Prezzo Acquisto',
+            'prezzo_rivendita' => 'Prezzo Vendita',
+            'fornitore' => 'Fornitore/Grower',
+            'ean' => 'Codice EAN',
+            'data' => 'Data Ordine',
+            'altezza' => 'Altezza (cm)',
+            'ignore' => '--- Ignora questa colonna ---'
+        ];
+
+        return view('admin.import.mapping', [
+            'headers' => session('import_headers'),
+            'preview' => session('import_preview'),
+            'mapping' => session('import_mapping', []),
+            'availableFields' => $availableFields,
+            'totalRows' => session('import_total_rows')
+        ]);
+    }
+
+    public function processMapping(Request $request)
+    {
+        if (!session('import_file_path')) {
+            return redirect()->route('admin.import.orders')->with('error', 'Nessun file caricato.');
+        }
+
+        $mapping = $request->input('mapping', []);
+        
+        // Remove ignored columns and empty mappings
+        $cleanMapping = array_filter($mapping, function($value) {
+            return $value && $value !== 'ignore';
+        });
+
+        try {
+            $filePath = storage_path('app/' . session('import_file_path'));
+            
+            if (!file_exists($filePath)) {
+                throw new \Exception('File temporaneo non trovato');
+            }
+
+            // Use CLI import method with custom mapping
+            $result = $this->cliImportFromPath($filePath, false, $cleanMapping);
+
+            // Clean up temp file
+            @unlink($filePath);
+            
+            // Clear session
+            session()->forget(['import_file_path', 'import_headers', 'import_preview', 'import_mapping', 'import_total_rows']);
+
+            return redirect()->route('admin.orders.index')->with('success', 
+                "Import completato! Creati: {$result['stats']['orders_created']} ordini, " .
+                "{$result['stats']['products_created']} prodotti, " .
+                "{$result['stats']['growers_created']} fornitori, " .
+                "{$result['stats']['order_items_created']} righe ordine."
+            );
+
+        } catch (\Exception $e) {
+            Log::error('Mapping Import Error', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Errore durante import: ' . $e->getMessage());
+        }
+    }
+
     // CLI helper: import directly from a file path (bypasses web upload)
-    public function cliImportFromPath(string $filePath, bool $dryRun = false): array
+    public function cliImportFromPath(string $filePath, bool $dryRun = false, array $customMapping = null): array
     {
         if (!file_exists($filePath)) {
             throw new \InvalidArgumentException("File not found: {$filePath}");
@@ -791,7 +861,7 @@ class ImportController extends Controller
         }
 
         $headers = array_shift($csvData);
-        $mapping = $this->autoDetectColumns($headers);
+        $mapping = $customMapping ?: $this->autoDetectColumns($headers);
 
         Log::info('CLI Import Debug', [
             'file' => $filePath,

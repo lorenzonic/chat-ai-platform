@@ -123,9 +123,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/products', [ImportController::class, 'showProductsImport'])->name('products');
             Route::post('/products', [ImportController::class, 'importProducts'])->name('products.process');
 
-            // Orders import (new simplified flow)
+            // Orders import (multi-step flow)
             Route::get('/orders', [ImportController::class, 'showOrdersImport'])->name('orders');
             Route::post('/orders/upload', [ImportController::class, 'uploadOrdersFile'])->name('orders.upload');
+            Route::get('/orders/mapping', [ImportController::class, 'showMapping'])->name('mapping');
+            Route::post('/orders/mapping', [ImportController::class, 'processMapping'])->name('mapping.process');
             Route::post('/orders/process', [ImportController::class, 'processOrdersImport'])->name('orders.process');
 
             // Template download
