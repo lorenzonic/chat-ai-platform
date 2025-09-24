@@ -3,7 +3,18 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
+use App\Models\P        } catch (\Exception $e) {
+            Log::error('CSV Upload Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
+            return response()->json([
+                'success' => false,
+                'error' => 'Upload failed: ' . $e->getMessage()
+            ], 500);
+        }ct;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Store;
@@ -49,36 +60,28 @@ class ImportController extends Controller
 
         try {
             $file = $request->file('csv_file');
-            $tempDir = storage_path('app/temp/imports');
-            if (!is_dir($tempDir)) {
-                mkdir($tempDir, 0755, true);
+            
+            // Check if file was uploaded successfully
+            if (!$file || !$file->isValid()) {
+                throw new \Exception('File upload failed or file is invalid');
             }
 
-            // Sanitize filename to avoid issues with special characters
-            $originalName = $file->getClientOriginalName();
-            $extension = pathinfo($originalName, PATHINFO_EXTENSION);
-            $baseName = preg_replace('/[^a-zA-Z0-9_-]/', '_', pathinfo($originalName, PATHINFO_FILENAME));
-            $sanitizedName = $baseName . '.' . $extension;
-            $filename = time() . '_' . $sanitizedName;
+            // Use Laravel's built-in store method which is more reliable
+            $storedPath = $file->store('temp/imports');
+            $fullPath = storage_path('app/' . $storedPath);
 
-            // Build full path first
-            $fullPath = $tempDir . DIRECTORY_SEPARATOR . $filename;
-
-            // Move the uploaded file manually
-            if (!$file->move($tempDir, $filename)) {
-                throw new \Exception('Failed to save uploaded file');
+            // Verify file was stored
+            if (!file_exists($fullPath)) {
+                throw new \Exception('Failed to store uploaded file at: ' . $fullPath);
             }
-
-            $storedPath = 'temp/imports/' . $filename;
 
             // Log for debugging
             Log::info('CSV Upload Debug', [
-                'original_name' => $originalName,
-                'sanitized_name' => $sanitizedName,
-                'filename' => $filename,
                 'stored_path' => $storedPath,
                 'full_path' => $fullPath,
-                'file_exists' => file_exists($fullPath)
+                'file_exists' => file_exists($fullPath),
+                'file_size' => file_exists($fullPath) ? filesize($fullPath) : 'N/A',
+                'is_readable' => file_exists($fullPath) ? is_readable($fullPath) : 'N/A'
             ]);
 
             $csvData = $this->readCsvFile($fullPath);
@@ -106,8 +109,16 @@ class ImportController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error('File upload failed', ['error' => $e->getMessage()]);
-            return response()->json(['success' => false, 'error' => 'Upload failed: ' . $e->getMessage()], 400);
+            Log::error('CSV Upload Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
+            return response()->json([
+                'success' => false,
+                'error' => 'Upload failed: ' . $e->getMessage()
+            ], 500);
         }
     }
 
