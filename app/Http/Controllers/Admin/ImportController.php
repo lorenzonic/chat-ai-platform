@@ -46,14 +46,14 @@ class ImportController extends Controller
                 'total_stores' => Store::count(),
                 'total_growers' => Grower::count(),
             ];
-            
+
             return view('admin.import.orders-simple', compact('stats'));
         } catch (\Exception $e) {
             Log::error('Import Orders View Error', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             // Return a simple view without data if there's an error
             return view('admin.import.orders-simple', ['stats' => []]);
         }
@@ -67,10 +67,16 @@ class ImportController extends Controller
 
         try {
             $file = $request->file('csv_file');
-            
+
             // Check if file was uploaded successfully
             if (!$file || !$file->isValid()) {
                 throw new \Exception('File upload failed or file is invalid');
+            }
+
+            // Create the directory if it doesn't exist
+            $importDir = storage_path('app/temp/imports');
+            if (!file_exists($importDir)) {
+                mkdir($importDir, 0755, true);
             }
 
             // Use Laravel's built-in store method which is more reliable
