@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('order_items', function (Blueprint $table) {
-            // Assicuriamoci che store_id non sia nullable
-            $table->unsignedBigInteger('store_id')->nullable(false)->change();
+            // Aggiungiamo store_id se non esiste
+            if (!Schema::hasColumn('order_items', 'store_id')) {
+                $table->unsignedBigInteger('store_id')->after('product_id');
+            }
 
             // Aggiungiamo il foreign key constraint
             $table->foreign('store_id')->references('id')->on('stores');

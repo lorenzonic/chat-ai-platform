@@ -37,15 +37,12 @@ php artisan storage:link || echo "⚠️ Storage link già esistente"
 if [ "$APP_ENV" = "production" ]; then
     echo "📊 Esecuzione migrazioni database..."
     php artisan migrate:status || echo "⚠️ Cannot check migration status"
-    php artisan migrate --force || {
-        echo "⚠️ Standard migration failed, trying fresh migration..."
-        php artisan migrate:fresh --force --seed || echo "⚠️ Fresh migration also failed"
+    
+    # Usa il nostro comando personalizzato per Railway
+    php artisan railway:force-migrate || {
+        echo "⚠️ Force migration failed, trying fresh migration..."
+        php artisan railway:force-migrate --fresh || echo "⚠️ Fresh migration also failed"
     }
-
-    # Seed admin and essential data if needed
-    echo "👤 Verifica accounts essenziali..."
-    php artisan db:seed --class=AdminSeeder --force || echo "⚠️ Admin seed failed"
-    php artisan db:seed --class=GrowerSeeder --force || echo "⚠️ Grower seed failed"
 fi
 
 # Ottimizzazioni per produzione

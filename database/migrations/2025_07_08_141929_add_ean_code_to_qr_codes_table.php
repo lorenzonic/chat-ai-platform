@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('qr_codes', function (Blueprint $table) {
-            $table->string('ean_code')->nullable()->unique()->after('ref_code');
+            if (!Schema::hasColumn('qr_codes', 'ean_code')) {
+                $table->string('ean_code')->nullable()->unique()->after('ref_code');
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('qr_codes', function (Blueprint $table) {
-            $table->dropColumn('ean_code');
+            if (Schema::hasColumn('qr_codes', 'ean_code')) {
+                $table->dropColumn('ean_code');
+            }
         });
     }
 };
