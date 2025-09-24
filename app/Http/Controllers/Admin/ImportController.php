@@ -50,6 +50,8 @@ class ImportController extends Controller
     public function showOrdersImport(): View
     {
         try {
+            Log::info('Accessing import orders page');
+            
             // Get some basic stats for the view
             $stats = [
                 'total_orders' => Order::count(),
@@ -58,15 +60,24 @@ class ImportController extends Controller
                 'total_growers' => Grower::count(),
             ];
             
-            return view('admin.import.orders-simple', compact('stats'));
+            Log::info('Stats calculated', $stats);
+            
+            return view('admin.import.orders-minimal', compact('stats'));
         } catch (\Exception $e) {
             Log::error('Import Orders View Error', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
             ]);
             
             // Return a simple view without data if there's an error
-            return view('admin.import.orders-simple', ['stats' => []]);
+            return view('admin.import.orders-minimal', ['stats' => [
+                'total_orders' => 0,
+                'total_products' => 0,
+                'total_stores' => 0,
+                'total_growers' => 0,
+            ]]);
         }
     }
 
@@ -117,7 +128,8 @@ class ImportController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Import completed successfully!',
+                'message' => 'Import completed successfully! Created: ' . ($result['orders_created'] ?? 0) . ' orders, ' . ($result['products_created'] ?? 0) . ' products.',
+                'redirect_url' => route('admin.orders.index'),
                 'stats' => $result,
                 'headers' => $headers,
                 'preview' => $preview,
