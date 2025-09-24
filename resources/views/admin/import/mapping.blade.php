@@ -10,7 +10,7 @@
     <div class="container mx-auto px-4 py-8">
         <div class="max-w-6xl mx-auto">
             <h1 class="text-3xl font-bold text-gray-900 mb-8">Mappatura Colonne CSV</h1>
-            
+
             @if(session('success'))
                 <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
                     {{ session('success') }}
@@ -30,23 +30,29 @@
 
             <form method="POST" action="{{ route('admin.import.mapping.process') }}">
                 @csrf
-                
+
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                     <h2 class="text-xl font-semibold mb-4">Mappatura Colonne</h2>
                     <p class="text-gray-600 mb-6">Associa ogni colonna del CSV ai campi del database. Seleziona "Ignora" per le colonne non necessarie.</p>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         @foreach($headers as $index => $header)
                             <div class="border border-gray-200 rounded-lg p-4">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     Colonna CSV: <span class="font-semibold">{{ $header }}</span>
                                 </label>
-                                
+
                                 <select name="mapping[{{ $index }}]" class="w-full border border-gray-300 rounded-md px-3 py-2">
                                     <option value="">-- Seleziona campo --</option>
                                     @foreach($availableFields as $key => $label)
-                                        <option value="{{ $key }}" 
-                                            @if(isset($mapping[$key]) && $mapping[$key] == $index) selected @endif>
+                                        @php
+                                            $selected = false;
+                                            // Check if this column index was auto-mapped to this field
+                                            if (isset($mapping[$key]) && $mapping[$key] == $index) {
+                                                $selected = true;
+                                            }
+                                        @endphp
+                                        <option value="{{ $key }}" @if($selected) selected @endif>
                                             {{ $label }}
                                         </option>
                                     @endforeach
@@ -87,12 +93,12 @@
                 @endif
 
                 <div class="flex justify-between">
-                    <a href="{{ route('admin.import.orders') }}" 
+                    <a href="{{ route('admin.import.orders') }}"
                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                         ← Torna indietro
                     </a>
-                    
-                    <button type="submit" 
+
+                    <button type="submit"
                             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                         Avvia Import →
                     </button>

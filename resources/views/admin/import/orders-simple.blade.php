@@ -85,7 +85,7 @@
             <div class="p-6">
                 <h2 class="text-xl font-semibold text-gray-900 mb-4">📁 Upload CSV File</h2>
 
-                <form id="uploadForm" enctype="multipart/form-data" class="space-y-4">
+                <form action="{{ route('admin.import.orders.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                     @csrf
                     <div>
                         <label for="csv_file" class="block text-sm font-medium text-gray-700">Select CSV File</label>
@@ -93,6 +93,7 @@
                                name="csv_file"
                                id="csv_file"
                                accept=".csv,.txt"
+                               required
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
 
@@ -103,70 +104,21 @@
                     </button>
                 </form>
 
-                <div id="uploadProgress" class="mt-4 hidden">
-                    <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded">
-                        <p>Processing your file...</p>
+                @if(session('success'))
+                    <div class="mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                        {{ session('success') }}
                     </div>
-                </div>
+                @endif
 
-                <div id="uploadResult" class="mt-4"></div>
+                @if(session('error'))
+                    <div class="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                        {{ session('error') }}
+                    </div>
+                @endif
             </div>
         </div>
     </div>
 </div>
 
-<script>
-document.getElementById('uploadForm').addEventListener('submit', function(e) {
-    e.preventDefault();
 
-    const formData = new FormData();
-    const fileInput = document.getElementById('csv_file');
-
-    if (!fileInput.files[0]) {
-        alert('Please select a file');
-        return;
-    }
-
-    formData.append('csv_file', fileInput.files[0]);
-    formData.append('_token', document.querySelector('input[name="_token"]').value);
-
-    // Show progress
-    document.getElementById('uploadProgress').classList.remove('hidden');
-    document.getElementById('uploadResult').innerHTML = '';
-
-    fetch('/admin/import/orders/upload', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById('uploadProgress').classList.add('hidden');
-
-        if (data.success) {
-            document.getElementById('uploadResult').innerHTML = `
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-                    <h4 class="font-bold">✅ Success!</h4>
-                    <pre class="mt-2 text-sm whitespace-pre-wrap">${data.message || 'Import completed successfully'}</pre>
-                </div>
-            `;
-        } else {
-            document.getElementById('uploadResult').innerHTML = `
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                    <h4 class="font-bold">❌ Error!</h4>
-                    <p class="mt-2">${data.error || 'Upload failed'}</p>
-                </div>
-            `;
-        }
-    })
-    .catch(error => {
-        document.getElementById('uploadProgress').classList.add('hidden');
-        document.getElementById('uploadResult').innerHTML = `
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                <h4 class="font-bold">❌ Network Error!</h4>
-                <p class="mt-2">${error.message}</p>
-            </div>
-        `;
-    });
-});
-</script>
 @endsection

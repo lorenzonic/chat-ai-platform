@@ -76,7 +76,7 @@ class ImportController extends Controller
             // Save file temporarily for multi-step process
             $filename = 'import_' . time() . '_' . Str::random(8) . '.csv';
             $tempPath = $file->storeAs('imports', $filename);
-            
+
             if (!$tempPath) {
                 throw new \Exception('Failed to save uploaded file');
             }
@@ -111,7 +111,7 @@ class ImportController extends Controller
                 'line' => $e->getLine(),
                 'file' => $e->getFile()
             ]);
-            
+
             return redirect()->back()->with('error', 'Errore caricamento: ' . $e->getMessage());
         }
     }
@@ -813,7 +813,7 @@ class ImportController extends Controller
         }
 
         $mapping = $request->input('mapping', []);
-        
+
         // Remove ignored columns and empty mappings
         $cleanMapping = array_filter($mapping, function($value) {
             return $value && $value !== 'ignore';
@@ -821,7 +821,7 @@ class ImportController extends Controller
 
         try {
             $filePath = storage_path('app/' . session('import_file_path'));
-            
+
             if (!file_exists($filePath)) {
                 throw new \Exception('File temporaneo non trovato');
             }
@@ -831,11 +831,11 @@ class ImportController extends Controller
 
             // Clean up temp file
             @unlink($filePath);
-            
+
             // Clear session
             session()->forget(['import_file_path', 'import_headers', 'import_preview', 'import_mapping', 'import_total_rows']);
 
-            return redirect()->route('admin.orders.index')->with('success', 
+            return redirect()->route('admin.orders.index')->with('success',
                 "Import completato! Creati: {$result['stats']['orders_created']} ordini, " .
                 "{$result['stats']['products_created']} prodotti, " .
                 "{$result['stats']['growers_created']} fornitori, " .
