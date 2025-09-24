@@ -76,12 +76,20 @@ class ImportController extends Controller
             // Save file temporarily for multi-step process
             $filename = 'import_' . time() . '_' . Str::random(8) . '.csv';
             $tempPath = $file->storeAs('imports', $filename);
-
+            
             if (!$tempPath) {
                 throw new \Exception('Failed to save uploaded file');
             }
 
-            // Read CSV data to show preview and mapping
+            // Debug logging
+            $fullPath = storage_path('app/' . $tempPath);
+            Log::info('File Upload Debug', [
+                'filename' => $filename,
+                'temp_path' => $tempPath,
+                'full_path' => $fullPath,
+                'file_exists' => file_exists($fullPath),
+                'file_size' => file_exists($fullPath) ? filesize($fullPath) : 'not found'
+            ]);            // Read CSV data to show preview and mapping
             $csvData = $this->readCsvFromUploadedFile($file);
 
             if (empty($csvData)) {
@@ -813,20 +821,29 @@ class ImportController extends Controller
         }
 
         $mapping = $request->input('mapping', []);
-
+        
         // Remove ignored columns and empty mappings
         $cleanMapping = array_filter($mapping, function($value) {
             return $value && $value !== 'ignore';
         });
 
         try {
-            $filePath = storage_path('app/' . session('import_file_path'));
-
+            $sessionPath = session('import_file_path');
+            $filePath = storage_path('app/' . $sessionPath);
+            
+            // Debug logging
+            Log::info('Processing Mapping Debug', [
+                'session_path' => $sessionPath,
+                'full_path' => $filePath,
+                'file_exists' => file_exists($filePath),
+                'storage_app_path' => storage_path('app'),
+                'imports_dir_exists' => is_dir(storage_path('app/imports')),
+                'imports_files' => is_dir(storage_path('app/imports')) ? scandir(storage_path('app/imports')) : 'dir not found'
+            ]);
+            
             if (!file_exists($filePath)) {
-                throw new \Exception('File temporaneo non trovato');
-            }
-
-            // Use CLI import method with custom mapping
+                throw new \Exception("File temporaneo non trovato: {$filePath}. Session path: {$sessionPath}");
+            }            // Use CLI import method with custom mapping
             $result = $this->cliImportFromPath($filePath, false, $cleanMapping);
 
             // Clean up temp file
