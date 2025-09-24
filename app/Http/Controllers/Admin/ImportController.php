@@ -271,27 +271,37 @@ class ImportController extends Controller
     private function processOrderItem($row, $mapping, $order, $store, &$stats)
     {
         try {
-            // Extract data from row
+            // Extract data from row using the mapping
             $supplierName = $this->getColumnValue($row, $mapping, 'fornitore');
             $productCode = $this->getColumnValue($row, $mapping, 'codice');
             $productName = $this->getColumnValue($row, $mapping, 'prodotto');
             $quantity = intval($this->getColumnValue($row, $mapping, 'quantita') ?: 1);
-            $price = $this->parsePrice($this->getColumnValue($row, $mapping, 'prezzo'));
-            $prezzoRivendita = $this->parsePrice($this->getColumnValue($row, $mapping, 'prezzo_rivendita'));
+            $price = $this->parsePrice($this->getColumnValue($row, $mapping, 'prezzo')); // Prezzo di acquisto
+            $prezzoRivendita = $this->parsePrice($this->getColumnValue($row, $mapping, 'prezzo_rivendita')); // Prezzo di vendita
             $ean = $this->getColumnValue($row, $mapping, 'ean');
             $height = $this->getColumnValue($row, $mapping, 'altezza');
 
-            // Debug logging
-            Log::info('Processing Order Item', [
-                'row' => $row,
-                'mapping' => $mapping,
-                'supplier_name' => $supplierName,
-                'product_code' => $productCode,
-                'product_name' => $productName,
-                'quantity' => $quantity,
-                'price' => $price,
-                'prezzo_rivendita' => $prezzoRivendita
+            // Detailed logging for every single item
+            Log::info('Processing Item Row', [
+                'order_id' => $order->id,
+                'store_name' => $store->name,
+                'raw_row' => $row,
+                'mapped_supplier' => $supplierName,
+                'mapped_product_code' => $productCode,
+                'mapped_product_name' => $productName,
+                'mapped_quantity' => $quantity,
+                'mapped_purchase_price' => $price,
+                'mapped_sell_price' => $prezzoRivendita,
+                'mapped_ean' => $ean,
+                'mapped_height' => $height,
             ]);
+
+            // Basic validation: skip if essential data is missing
+            if (empty($productName) || empty($supplierName)) {
+                $stats['errors'][] = "Skipping row due to missing product name or supplier. Row: " . implode(', ', $row);
+                Log::warning('Skipping row', ['reason' => 'Missing product name or supplier', 'row' => $row]);
+                return null;
+            }
 
             // 1. Find or create grower
             $grower = $this->findOrCreateGrower($supplierName, $stats);
@@ -303,7 +313,7 @@ class ImportController extends Controller
                 'ean' => $ean,
                 'height' => $height,
                 'grower_id' => $grower->id,
-                'store_id' => $store->id
+                'store_id' => $store->id // Pass store_id for context
             ], $stats);
 
             // 3. Create order item
@@ -313,8 +323,8 @@ class ImportController extends Controller
                 'grower_id' => $grower->id,
                 'store_id' => $store->id,
                 'quantity' => $quantity,
-                'unit_price' => $price,
-                'prezzo_rivendita' => $prezzoRivendita ?: ($price * 1.3), // Usa prezzo dal CSV o 30% markup come fallback
+                'unit_price' => $price, // Prezzo di acquisto
+                'prezzo_rivendita' => $prezzoRivendita ?: ($price * 1.3), // Usa prezzo dal CSV o 30% markup
                 'total_price' => $price * $quantity,
                 'ean' => $ean
             ]);
@@ -324,10 +334,11 @@ class ImportController extends Controller
             return $orderItem;
 
         } catch (\Exception $e) {
-            $stats['errors'][] = "Error processing item: " . $e->getMessage();
+            $stats['errors'][] = "Error processing item row: " . $e->getMessage();
             Log::error('Order item processing failed', [
                 'row' => $row,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
             return null;
         }
@@ -589,13 +600,13 @@ class ImportController extends Controller
         $mapping = [];
         $headerMaps = [
             'cliente' => ['cliente', 'client', 'negozio', 'store', 'store_code'],
-            'prodotto' => ['prodotto', 'product', 'articolo', 'item', 'product_name'],
+            'codice_cliente' => ['code', 'codice cliente'], // Added 'codice cliente'
+            'prodotto' => ['prodotto', 'product', 'articolo', 'item', 'product_name', 'descrizione'],
             'quantita' => ['quantità', 'piani', 'quantity', 'qta', 'qty'],
-            'prezzo' => ['prezzo', 'price', 'costo', 'cost'],
+            'prezzo' => ['prezzo', 'price', 'costo', 'cost', '€ acquisto'], // Prezzo di acquisto
             'prezzo_rivendita' => ['€ vendita', 'vendita', 'retail_price', 'selling_price'],
             'fornitore' => ['fornitore', 'grower', 'supplier', 'produttore', 'grower_id'],
-            'codice' => ['codice', 'product_code', 'order_id'],
-            'codice_cliente' => ['code'], // Codice del cliente/store
+            'codice' => ['codice', 'product_code', 'codice prodotto', 'sku'], // Codice del prodotto
             'ean' => ['ean', 'barcode', 'gtin'],
             'data' => ['data', 'date', 'delivery_date'],
             'altezza' => ['h', 'height', 'altezza', 'cm']
@@ -603,22 +614,41 @@ class ImportController extends Controller
 
         foreach ($headers as $index => $header) {
             $header = strtolower(trim($header));
+            if (empty($header)) continue;
+
             foreach ($headerMaps as $field => $keywords) {
-                foreach ($keywords as $keyword) {
-                    // Exact match or contains
-                    if ($header === $keyword || strpos($header, $keyword) !== false) {
+                // Prioritize exact match
+                if (in_array($header, $keywords)) {
+                    if (!isset($mapping[$field])) { // Assign only if not already mapped
                         $mapping[$field] = $index;
-                        break 2;
+                        continue 2; // Move to next header
+                    }
+                }
+            }
+        }
+        
+        // Second pass for partial matches if exact match failed
+        foreach ($headers as $index => $header) {
+            $header = strtolower(trim($header));
+            if (empty($header)) continue;
+
+            foreach ($headerMaps as $field => $keywords) {
+                if (!isset($mapping[$field])) { // Only check if not already mapped
+                    foreach ($keywords as $keyword) {
+                        if (strpos($header, $keyword) !== false) {
+                            $mapping[$field] = $index;
+                            continue 3; // Move to next header
+                        }
                     }
                 }
             }
         }
 
+
         // Debug logging
-        Log::info('Column Mapping Debug', [
+        Log::info('Column Mapping Result', [
             'headers' => $headers,
-            'mapping' => $mapping,
-            'header_maps' => $headerMaps
+            'final_mapping' => $mapping
         ]);
 
         return $mapping;
