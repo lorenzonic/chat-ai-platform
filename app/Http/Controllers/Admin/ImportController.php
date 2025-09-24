@@ -73,31 +73,8 @@ class ImportController extends Controller
                 throw new \Exception('File upload failed or file is invalid');
             }
 
-            // Create the directory if it doesn't exist
-            $importDir = storage_path('app/temp/imports');
-            if (!file_exists($importDir)) {
-                mkdir($importDir, 0755, true);
-            }
-
-            // Use Laravel's built-in store method which is more reliable
-            $storedPath = $file->store('temp/imports');
-            $fullPath = storage_path('app/' . $storedPath);
-
-            // Verify file was stored
-            if (!file_exists($fullPath)) {
-                throw new \Exception('Failed to store uploaded file at: ' . $fullPath);
-            }
-
-            // Log for debugging
-            Log::info('CSV Upload Debug', [
-                'stored_path' => $storedPath,
-                'full_path' => $fullPath,
-                'file_exists' => file_exists($fullPath),
-                'file_size' => file_exists($fullPath) ? filesize($fullPath) : 'N/A',
-                'is_readable' => file_exists($fullPath) ? is_readable($fullPath) : 'N/A'
-            ]);
-
-            $csvData = $this->readCsvFile($fullPath);
+            // Read CSV data directly from uploaded file (no need to save to disk)
+            $csvData = $this->readCsvFromUploadedFile($file);
 
             if (empty($csvData)) {
                 throw new \Exception('The CSV file appears to be empty or unreadable.');
@@ -107,8 +84,8 @@ class ImportController extends Controller
             $preview = array_slice($csvData, 0, 5);
             $mapping = $this->autoDetectColumns($headers);
 
-            // For now, let's process immediately instead of using session
-            $result = $this->processAdvancedOrderImport($fullPath, $mapping);
+            // Process the CSV data directly (no file needed)
+            $result = $this->processAdvancedOrderImport($csvData, $mapping);
 
             return response()->json([
                 'success' => true,
@@ -118,7 +95,6 @@ class ImportController extends Controller
                 'preview' => $preview,
                 'mapping' => $mapping,
                 'total_rows' => count($csvData) + 1, // +1 for headers
-                'file_path' => $storedPath
             ]);
 
         } catch (\Exception $e) {
@@ -173,10 +149,10 @@ class ImportController extends Controller
     /**
      * Advanced order import with automatic entity creation
      */
-    private function processAdvancedOrderImport($filePath, $mapping)
+    private function processAdvancedOrderImport($csvData, $mapping)
     {
-        $csvData = $this->readCsvFile($filePath);
-        array_shift($csvData); // Remove headers
+        // csvData already has headers removed
+        // No need to shift again if we handle it in the calling method
 
         $stats = [
             'orders_created' => 0,
@@ -526,6 +502,37 @@ class ImportController extends Controller
     /**
      * Read CSV file and return data array
      */
+    private function readCsvFromUploadedFile($uploadedFile)
+    {
+        $data = [];
+
+        // Get the file content as string
+        $content = file_get_contents($uploadedFile->getPathname());
+        
+        if (empty($content)) {
+            throw new \Exception("Uploaded file is empty");
+        }
+
+        // Auto-detect delimiter by reading first line
+        $lines = explode("\n", $content);
+        $firstLine = $lines[0] ?? '';
+        
+        $delimiter = ',';
+        if (substr_count($firstLine, ';') > substr_count($firstLine, ',')) {
+            $delimiter = ';';
+        }
+
+        // Parse CSV content
+        $rows = str_getcsv($content, "\n");
+        foreach ($rows as $row) {
+            if (!empty(trim($row))) {
+                $data[] = str_getcsv($row, $delimiter);
+            }
+        }
+
+        return $data;
+    }
+
     private function readCsvFile($filePath)
     {
         $data = [];
