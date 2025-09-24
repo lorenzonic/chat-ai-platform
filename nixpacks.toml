@@ -1,22 +1,20 @@
 # Nixpacks configuration for Railway
-# https://nixpacks.com/docs/configuration/file
+# Simplified config focusing on core dependencies
 
 [phases.setup]
-nixPkgs = ["php82", "php82Packages.composer", "nodejs_18", "python311", "mysql80"]
+nixPkgs = ["php82", "php82Packages.composer", "nodejs_18", "python311"]
 
 [phases.install]
 cmds = [
     "composer install --no-dev --optimize-autoloader",
-    "npm ci",
-    "pip install -r requirements.txt"
+    "npm ci"
 ]
 
 [phases.build]
 cmds = [
     "npm run build",
     "php artisan config:clear",
-    "php artisan view:clear",
-    "python -c 'import spacy; spacy.cli.download(\"it_core_news_sm\")'"
+    "php artisan view:clear"
 ]
 
 [phases.deploy]

@@ -3,6 +3,14 @@
 # Script di inizializzazione per Railway
 echo "🚀 Avvio applicazione Laravel..."
 
+# Install Python dependencies if not already installed
+if [ -f "requirements.txt" ]; then
+    echo "🐍 Installazione dipendenze Python..."
+    python3 -m pip install -r requirements.txt --quiet || echo "⚠️ Python dependencies installation failed"
+    python3 -m pip install spacy --quiet || echo "⚠️ spaCy installation failed"
+    python3 -m spacy download it_core_news_sm --quiet || echo "⚠️ spaCy model download failed"
+fi
+
 # Assicurati che le directories esistano
 mkdir -p storage/logs
 mkdir -p storage/framework/{cache,sessions,views}
@@ -45,7 +53,8 @@ fi
 
 # Test Python/spaCy
 echo "🐍 Test Python environment..."
-python -c "import spacy; print('✅ spaCy OK')" || echo "⚠️ spaCy non disponibile"
+python3 -c "import sys; print(f'✅ Python {sys.version_info.major}.{sys.version_info.minor} OK')" || echo "⚠️ Python non disponibile"
+python3 -c "import spacy; print('✅ spaCy OK')" 2>/dev/null || echo "⚠️ spaCy non disponibile (ma l'app può funzionare senza)"
 
 # Avvia server
 echo "🎯 Avvio server Laravel su porta ${PORT:-8000}..."
