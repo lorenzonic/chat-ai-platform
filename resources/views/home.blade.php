@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ChatAI Plants - B2B Plant Marketplace</title>
-    
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Custom Styles -->
     <style>
         .gradient-bg {
@@ -51,7 +51,7 @@
 
         <!-- Access Cards -->
         <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            
+
             <!-- Admin Card -->
             <div class="bg-white rounded-2xl shadow-lg p-8 card-hover border-t-4 border-red-500">
                 <div class="text-center">
@@ -68,7 +68,7 @@
                         <li>✅ Analytics e trends</li>
                         <li>✅ QR code generation</li>
                     </ul>
-                    <a href="{{ route('admin.login') }}" 
+                    <a href="{{ route('admin.login') }}"
                        class="inline-block w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
                         Accedi come Admin
                     </a>
@@ -91,7 +91,7 @@
                         <li>✅ Lead generation</li>
                         <li>✅ Analytics clienti</li>
                     </ul>
-                    <a href="{{ route('store.login') }}" 
+                    <a href="{{ route('store.login') }}"
                        class="inline-block w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
                         Accedi come Store
                     </a>
@@ -114,7 +114,7 @@
                         <li>✅ Stampa etichette bulk</li>
                         <li>✅ Analytics vendite</li>
                     </ul>
-                    <a href="{{ route('grower.login') }}" 
+                    <a href="{{ route('grower.login') }}"
                        class="inline-block w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
                         Accedi come Grower
                     </a>

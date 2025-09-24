@@ -42,9 +42,10 @@ if [ "$APP_ENV" = "production" ]; then
         php artisan migrate:fresh --force --seed || echo "⚠️ Fresh migration also failed"
     }
 
-    # Seed admin if needed
-    echo "👤 Verifica admin account..."
+    # Seed admin and essential data if needed
+    echo "👤 Verifica accounts essenziali..."
     php artisan db:seed --class=AdminSeeder --force || echo "⚠️ Admin seed failed"
+    php artisan db:seed --class=GrowerSeeder --force || echo "⚠️ Grower seed failed"
 fi
 
 # Ottimizzazioni per produzione
