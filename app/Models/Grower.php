@@ -12,19 +12,10 @@ class Grower extends Authenticatable
 
     protected $fillable = [
         'name',
-        'code',
-        'company_name',
-        'contact_name',
         'email',
         'password',
         'phone',
         'address',
-        'city',
-        'province',
-        'postal_code',
-        'country',
-        'vat_number',
-        'notes',
         'is_active',
     ];
 

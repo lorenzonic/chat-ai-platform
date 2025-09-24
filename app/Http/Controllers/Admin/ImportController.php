@@ -388,12 +388,8 @@ class ImportController extends Controller
         $grower = Grower::where('name', $supplierName)->first();
 
         if (!$grower) {
-            // Generate a unique code
-            $code = 'GR' . time() . rand(100, 999);
-
             $grower = Grower::create([
                 'name' => $supplierName,
-                'code' => $code,
                 'email' => strtolower(str_replace(' ', '', $supplierName)) . '@grower.local',
                 'password' => Hash::make(Str::random(12)),
                 'is_active' => true
@@ -780,5 +776,53 @@ class ImportController extends Controller
         }
 
         return response()->json($info, 200, [], JSON_PRETTY_PRINT);
+    }
+
+    // CLI helper: import directly from a file path (bypasses web upload)
+    public function cliImportFromPath(string $filePath, bool $dryRun = false): array
+    {
+        if (!file_exists($filePath)) {
+            throw new \InvalidArgumentException("File not found: {$filePath}");
+        }
+
+        $csvData = $this->readCsvFile($filePath);
+        if (empty($csvData)) {
+            throw new \RuntimeException('CSV appears empty');
+        }
+
+        $headers = array_shift($csvData);
+        $mapping = $this->autoDetectColumns($headers);
+
+        Log::info('CLI Import Debug', [
+            'file' => $filePath,
+            'rows' => count($csvData),
+            'headers' => $headers,
+            'mapping' => $mapping,
+        ]);
+
+        $stats = null;
+        if ($dryRun) {
+            DB::beginTransaction();
+        }
+        try {
+            $stats = $this->processAdvancedOrderImport($csvData, $mapping);
+            if ($dryRun) {
+                DB::rollBack();
+            }
+        } catch (\Throwable $e) {
+            if ($dryRun) {
+                DB::rollBack();
+            }
+            Log::error('CLI Import Exception', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            throw $e;
+        }
+
+        return [
+            'success' => true,
+            'stats' => $stats,
+            'headers' => $headers,
+            'mapping' => $mapping,
+            'total_rows' => count($csvData) + 1, // +1 for header
+        ];
     }
 }
