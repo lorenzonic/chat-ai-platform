@@ -2,7 +2,7 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "composer install --no-dev --optimize-autoloader && npm ci && npm run build && pip install -r requirements.txt && python -m spacy download it_core_news_sm"
+    "buildCommand": "composer install --no-dev --optimize-autoloader && npm ci && npm run build"
   },
   "deploy": {
     "startCommand": "chmod +x start.sh && ./start.sh",
@@ -19,7 +19,8 @@
         "LOG_CHANNEL": "stack",
         "SESSION_DRIVER": "database",
         "CACHE_DRIVER": "database",
-        "QUEUE_CONNECTION": "database"
+        "QUEUE_CONNECTION": "database",
+        "NIXPACKS_NODE_VERSION": "20"
       }
     }
   }
