@@ -178,7 +178,7 @@ class ImportController extends Controller
 
         // Group by client/store and date to create logical orders
         $orderGroups = $this->groupByClientAndDate($csvData, $mapping);
-        
+
         Log::info('Order Groups Debug', [
             'groups_count' => count($orderGroups),
             'groups' => array_keys($orderGroups)
@@ -526,7 +526,7 @@ class ImportController extends Controller
 
         // Get the file content as string
         $content = file_get_contents($uploadedFile->getPathname());
-        
+
         if (empty($content)) {
             throw new \Exception("Uploaded file is empty");
         }
@@ -534,7 +534,7 @@ class ImportController extends Controller
         // Auto-detect delimiter by reading first line
         $lines = explode("\n", $content);
         $firstLine = $lines[0] ?? '';
-        
+
         $delimiter = ',';
         if (substr_count($firstLine, ';') > substr_count($firstLine, ',')) {
             $delimiter = ';';
@@ -594,7 +594,7 @@ class ImportController extends Controller
             'prezzo' => ['prezzo', 'price', 'costo', 'cost'],
             'prezzo_rivendita' => ['€ vendita', 'vendita', 'retail_price', 'selling_price'],
             'fornitore' => ['fornitore', 'grower', 'supplier', 'produttore', 'grower_id'],
-            'codice' => ['codice', 'product_code', 'order_id'], 
+            'codice' => ['codice', 'product_code', 'order_id'],
             'codice_cliente' => ['code'], // Codice del cliente/store
             'ean' => ['ean', 'barcode', 'gtin'],
             'data' => ['data', 'date', 'delivery_date'],
@@ -605,7 +605,8 @@ class ImportController extends Controller
             $header = strtolower(trim($header));
             foreach ($headerMaps as $field => $keywords) {
                 foreach ($keywords as $keyword) {
-                    if (strpos($header, $keyword) !== false) {
+                    // Exact match or contains
+                    if ($header === $keyword || strpos($header, $keyword) !== false) {
                         $mapping[$field] = $index;
                         break 2;
                     }
