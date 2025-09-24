@@ -84,6 +84,13 @@ class ImportController extends Controller
             $preview = array_slice($csvData, 0, 5);
             $mapping = $this->autoDetectColumns($headers);
 
+            // Debug logging
+            Log::info('CSV Upload Debug', [
+                'headers' => $headers,
+                'mapping' => $mapping,
+                'preview_rows' => $preview
+            ]);
+
             // Process the CSV data directly (no file needed)
             $result = $this->processAdvancedOrderImport($csvData, $mapping);
 
@@ -163,8 +170,19 @@ class ImportController extends Controller
             'errors' => []
         ];
 
+        Log::info('Process Import Debug', [
+            'csv_rows_count' => count($csvData),
+            'mapping' => $mapping,
+            'first_row' => $csvData[0] ?? 'No data'
+        ]);
+
         // Group by client/store and date to create logical orders
         $orderGroups = $this->groupByClientAndDate($csvData, $mapping);
+        
+        Log::info('Order Groups Debug', [
+            'groups_count' => count($orderGroups),
+            'groups' => array_keys($orderGroups)
+        ]);
 
         foreach ($orderGroups as $orderGroup) {
             try {
@@ -570,13 +588,13 @@ class ImportController extends Controller
     {
         $mapping = [];
         $headerMaps = [
-            'cliente' => ['cliente', 'client', 'negozio', 'store'],
-            'prodotto' => ['prodotto', 'product', 'articolo', 'item'],
+            'cliente' => ['cliente', 'client', 'negozio', 'store', 'store_code'],
+            'prodotto' => ['prodotto', 'product', 'articolo', 'item', 'product_name'],
             'quantita' => ['quantità', 'piani', 'quantity', 'qta', 'qty'],
             'prezzo' => ['prezzo', 'price', 'costo', 'cost'],
             'prezzo_rivendita' => ['€ vendita', 'vendita', 'retail_price', 'selling_price'],
-            'fornitore' => ['fornitore', 'grower', 'supplier', 'produttore'],
-            'codice' => ['codice', 'product_code'], // 'code' rimosso perché è il codice cliente
+            'fornitore' => ['fornitore', 'grower', 'supplier', 'produttore', 'grower_id'],
+            'codice' => ['codice', 'product_code', 'order_id'], 
             'codice_cliente' => ['code'], // Codice del cliente/store
             'ean' => ['ean', 'barcode', 'gtin'],
             'data' => ['data', 'date', 'delivery_date'],
