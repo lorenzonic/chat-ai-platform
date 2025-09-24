@@ -84,19 +84,19 @@
         <div class="bg-white shadow-sm rounded-lg">
             <div class="p-6">
                 <h2 class="text-xl font-semibold text-gray-900 mb-4">📁 Upload CSV File</h2>
-                
+
                 <form id="uploadForm" enctype="multipart/form-data" class="space-y-4">
                     @csrf
                     <div>
                         <label for="csv_file" class="block text-sm font-medium text-gray-700">Select CSV File</label>
-                        <input type="file" 
-                               name="csv_file" 
-                               id="csv_file" 
+                        <input type="file"
+                               name="csv_file"
+                               id="csv_file"
                                accept=".csv,.txt"
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
-                    
-                    <button type="submit" 
+
+                    <button type="submit"
                             class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         <i class="fas fa-upload mr-2"></i>
                         Upload and Process
@@ -118,22 +118,22 @@
 <script>
 document.getElementById('uploadForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
+
     const formData = new FormData();
     const fileInput = document.getElementById('csv_file');
-    
+
     if (!fileInput.files[0]) {
         alert('Please select a file');
         return;
     }
-    
+
     formData.append('csv_file', fileInput.files[0]);
     formData.append('_token', document.querySelector('input[name="_token"]').value);
-    
+
     // Show progress
     document.getElementById('uploadProgress').classList.remove('hidden');
     document.getElementById('uploadResult').innerHTML = '';
-    
+
     fetch('/admin/import/orders/upload', {
         method: 'POST',
         body: formData
@@ -141,7 +141,7 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
     .then(response => response.json())
     .then(data => {
         document.getElementById('uploadProgress').classList.add('hidden');
-        
+
         if (data.success) {
             document.getElementById('uploadResult').innerHTML = `
                 <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">

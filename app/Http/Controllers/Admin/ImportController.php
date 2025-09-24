@@ -3,18 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\P        } catch (\Exception $e) {
-            Log::error('CSV Upload Error', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile()
-            ]);
-            return response()->json([
-                'success' => false,
-                'error' => 'Upload failed: ' . $e->getMessage()
-            ], 500);
-        }ct;
+use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Store;
@@ -50,8 +39,6 @@ class ImportController extends Controller
     public function showOrdersImport(): View
     {
         try {
-            Log::info('Accessing import orders page');
-            
             // Get some basic stats for the view
             $stats = [
                 'total_orders' => Order::count(),
@@ -60,24 +47,15 @@ class ImportController extends Controller
                 'total_growers' => Grower::count(),
             ];
             
-            Log::info('Stats calculated', $stats);
-            
-            return view('admin.import.orders-minimal', compact('stats'));
+            return view('admin.import.orders-simple', compact('stats'));
         } catch (\Exception $e) {
             Log::error('Import Orders View Error', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
+                'trace' => $e->getTraceAsString()
             ]);
             
             // Return a simple view without data if there's an error
-            return view('admin.import.orders-minimal', ['stats' => [
-                'total_orders' => 0,
-                'total_products' => 0,
-                'total_stores' => 0,
-                'total_growers' => 0,
-            ]]);
+            return view('admin.import.orders-simple', ['stats' => []]);
         }
     }
 
@@ -128,8 +106,7 @@ class ImportController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Import completed successfully! Created: ' . ($result['orders_created'] ?? 0) . ' orders, ' . ($result['products_created'] ?? 0) . ' products.',
-                'redirect_url' => route('admin.orders.index'),
+                'message' => 'Import completed successfully!',
                 'stats' => $result,
                 'headers' => $headers,
                 'preview' => $preview,

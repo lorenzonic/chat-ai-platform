@@ -5,7 +5,7 @@
 @section('content')
 <div class="container mx-auto p-6">
     <h1 class="text-2xl font-bold mb-4">Import Orders from CSV</h1>
-    
+
     <div class="mb-4">
         <p>Current stats:</p>
         <ul>
@@ -25,7 +25,7 @@
             </div>
             <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Upload CSV</button>
         </form>
-        
+
         <div id="result" class="mt-4"></div>
     </div>
 </div>
@@ -33,12 +33,12 @@
 <script>
 document.getElementById('uploadForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
+
     const formData = new FormData(this);
     const resultDiv = document.getElementById('result');
-    
+
     resultDiv.innerHTML = '<p>Uploading...</p>';
-    
+
     fetch('/admin/import/orders/upload', {
         method: 'POST',
         body: formData
