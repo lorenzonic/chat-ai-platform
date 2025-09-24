@@ -14,8 +14,8 @@
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <!-- Tailwind CSS CDN -->
+        <script src="https://cdn.tailwindcss.com"></script>
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
@@ -41,13 +41,8 @@
                                     </a>
                                     <a href="{{ route('grower.products.index') }}"
                                        class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition duration-200 ease-in-out
-                                              {{ request()->routeIs('grower.products.index', 'grower.products.create', 'grower.products.edit', 'grower.products.show') ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300' }}">
+                                              {{ request()->routeIs('grower.products.*') ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300' }}">
                                         📦 My Products
-                                    </a>
-                                    <a href="{{ route('grower.products.stickers.index') }}"
-                                       class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition duration-200 ease-in-out
-                                              {{ request()->routeIs('grower.products.stickers.*') ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300' }}">
-                                        🏷️ Product Stickers
                                     </a>
                                     <a href="{{ route('grower.orders.index') }}"
                                        class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition duration-200 ease-in-out
@@ -101,13 +96,8 @@
                             </a>
                             <a href="{{ route('grower.products.index') }}"
                                class="block ps-3 pe-4 py-2 border-l-4 text-base font-medium transition duration-200 ease-in-out
-                                      {{ request()->routeIs('grower.products.index', 'grower.products.create', 'grower.products.edit', 'grower.products.show') ? 'border-gray-900 text-gray-900 bg-gray-50' : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:border-gray-300' }}">
+                                      {{ request()->routeIs('grower.products.*') ? 'border-gray-900 text-gray-900 bg-gray-50' : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:border-gray-300' }}">
                                 📦 My Products
-                            </a>
-                            <a href="{{ route('grower.products.stickers.index') }}"
-                               class="block ps-3 pe-4 py-2 border-l-4 text-base font-medium transition duration-200 ease-in-out
-                                      {{ request()->routeIs('grower.products.stickers.*') ? 'border-gray-900 text-gray-900 bg-gray-50' : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:border-gray-300' }}">
-                                🏷️ Product Stickers
                             </a>
                             <a href="{{ route('grower.orders.index') }}"
                                class="block ps-3 pe-4 py-2 border-l-4 text-base font-medium transition duration-200 ease-in-out

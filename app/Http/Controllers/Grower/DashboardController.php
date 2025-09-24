@@ -14,36 +14,46 @@ class DashboardController extends Controller
     {
         $grower = Auth::guard('grower')->user();
 
-        // Statistiche per il dashboard
-        $totalProducts = Product::where('grower_id', $grower->id)->count();
+        try {
+            // Statistiche per il dashboard con controlli sicuri
+            $totalProducts = Product::where('grower_id', $grower->id)->count() ?? 0;
 
-        $totalOrders = Order::whereHas('products', function($query) use ($grower) {
-            $query->where('grower_id', $grower->id);
-        })->count();
+            $totalOrders = Order::whereHas('products', function($query) use ($grower) {
+                $query->where('grower_id', $grower->id);
+            })->count() ?? 0;
 
-        $recentProducts = Product::where('grower_id', $grower->id)
+            $recentProducts = Product::where('grower_id', $grower->id)
+                ->latest()
+                ->take(5)
+                ->get() ?? collect();
+
+            $recentOrders = Order::whereHas('products', function($query) use ($grower) {
+                $query->where('grower_id', $grower->id);
+            })
+            ->with(['store', 'products' => function($query) use ($grower) {
+                $query->where('grower_id', $grower->id);
+            }])
             ->latest()
             ->take(5)
-            ->get();
+            ->get() ?? collect();
 
-        $recentOrders = Order::whereHas('products', function($query) use ($grower) {
-            $query->where('grower_id', $grower->id);
-        })
-        ->with(['store', 'products' => function($query) use ($grower) {
-            $query->where('grower_id', $grower->id);
-        }])
-        ->latest()
-        ->take(5)
-        ->get();
+            $lowStockProducts = Product::where('grower_id', $grower->id)
+                ->where('quantity', '<=', 10)
+                ->where('quantity', '>', 0)
+                ->count() ?? 0;
 
-        $lowStockProducts = Product::where('grower_id', $grower->id)
-            ->where('quantity', '<=', 10)
-            ->where('quantity', '>', 0)
-            ->count();
-
-        $outOfStockProducts = Product::where('grower_id', $grower->id)
-            ->where('quantity', 0)
-            ->count();
+            $outOfStockProducts = Product::where('grower_id', $grower->id)
+                ->where('quantity', 0)
+                ->count() ?? 0;
+        } catch (\Exception $e) {
+            // Fallback values in case of any database issues
+            $totalProducts = 0;
+            $totalOrders = 0;
+            $recentProducts = collect();
+            $recentOrders = collect();
+            $lowStockProducts = 0;
+            $outOfStockProducts = 0;
+        }
 
         return view('grower.dashboard', compact(
             'grower',
