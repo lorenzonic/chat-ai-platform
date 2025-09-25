@@ -206,12 +206,171 @@
 
 <script>
 function printLabelOnly() {
-    const printContents = document.getElementById('label-print-area').outerHTML;
-    const originalContents = document.body.innerHTML;
-    document.body.innerHTML = printContents;
-    window.print();
-    document.body.innerHTML = originalContents;
-    window.location.reload();
+    // Create a new window for printing
+    var printWindow = window.open('', '_blank');
+
+    // Get the label content
+    var labelContent = document.getElementById('label-print-area').outerHTML;
+
+    // Create the print document
+    var printDocument = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Etichetta - {{ $labelData['product_name'] }}</title>
+            <style>
+                @page {
+                    margin: 5mm;
+                    size: A4;
+                }
+
+                body {
+                    margin: 0;
+                    padding: 0;
+                    font-family: Arial, sans-serif;
+                    background: white;
+                }
+
+                /* Copy all label styles */
+                .label-container {
+                    width: 189px;
+                    height: 94px;
+                    border: 2px solid #333;
+                    background: white;
+                    margin: 20px auto;
+                    padding: 3px;
+                    font-family: Arial, sans-serif;
+                    display: flex;
+                    flex-direction: column;
+                    position: relative;
+                    box-sizing: border-box;
+                    page-break-inside: avoid;
+                }
+
+                .label-top-section {
+                    height: 55px;
+                    display: flex;
+                    margin-bottom: 3px;
+                }
+
+                .label-qr-container {
+                    width: 50px;
+                    height: 50px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 1px solid #ddd;
+                    margin-right: 6px;
+                }
+
+                .label-qr-container svg {
+                    width: 48px !important;
+                    height: 48px !important;
+                }
+
+                .label-product-info {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    padding: 2px;
+                }
+
+                .label-product-name {
+                    font-size: 8px;
+                    font-weight: bold;
+                    line-height: 1.1;
+                    max-height: 32px;
+                    overflow: hidden;
+                    text-align: left;
+                    margin-bottom: 4px;
+                }
+
+                .label-price {
+                    font-size: 12px;
+                    font-weight: bold;
+                    color: #000;
+                    text-align: left;
+                    margin: 4px 0;
+                }
+
+                .label-bottom-section {
+                    height: 30px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                }
+
+                .label-barcode-container {
+                    height: 16px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-bottom: 2px;
+                }
+
+                .label-barcode-container .barcode {
+                    height: 16px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .label-barcode-container .barcode .bar,
+                .label-barcode-container .barcode div[style*="background"],
+                .label-barcode-container .barcode div[style*="color"] {
+                    background-color: black !important;
+                    color: black !important;
+                }
+
+                .label-barcode-container .barcode {
+                    background-color: white !important;
+                }
+
+                .label-bottom-info {
+                    height: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    font-size: 5px;
+                    line-height: 1.1;
+                }
+
+                .label-ean-text {
+                    font-size: 5px;
+                    color: black;
+                    font-weight: bold;
+                    margin-top: 1px;
+                    text-align: left;
+                }
+
+                .label-client-code {
+                    font-size: 7px;
+                    color: #333;
+                    text-align: right;
+                    flex: 1;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    line-height: 1.1;
+                }
+            </style>
+        </head>
+        <body>
+            ${labelContent}
+        </body>
+        </html>
+    `;
+
+    // Write the document and print
+    printWindow.document.write(printDocument);
+    printWindow.document.close();
+
+    // Wait for the content to load, then print
+    printWindow.onload = function() {
+        printWindow.print();
+        printWindow.close();
+    };
 }
 </script>
 @endsection
