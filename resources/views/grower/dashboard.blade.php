@@ -53,7 +53,7 @@
                                 <i class="fas fa-shopping-cart text-purple-600 text-xl"></i>
                             </div>
                             <div>
-                                <p class="text-2xl font-semibold text-gray-900">{{ number_format($totalOrder_items) }}</p>
+                                <p class="text-2xl font-semibold text-gray-900">{{ number_format($totalOrders) }}</p>
                                 <p class="text-gray-600">Ordini Totali</p>
                             </div>
                         </div>
