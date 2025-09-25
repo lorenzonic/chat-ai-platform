@@ -7,6 +7,8 @@ use App\Models\Grower;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class GrowerController extends Controller
 {
@@ -37,16 +39,41 @@ class GrowerController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'nullable|email|max:255',
+            'email' => 'nullable|email|max:255|unique:growers,email',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
             'description' => 'nullable|string',
+            'password' => ['nullable', 'confirmed', Password::min(8)],
         ]);
 
-        Grower::create($validated);
+        // If email is provided, we need a password
+        if (!empty($validated['email'])) {
+            if (empty($validated['password'])) {
+                // Use default password if none provided
+                $validated['password'] = Hash::make('password123');
+            } else {
+                $validated['password'] = Hash::make($validated['password']);
+            }
+        } else {
+            // Remove password if no email provided
+            unset($validated['password']);
+        }
+
+        // Remove password_confirmation from the data
+        unset($validated['password_confirmation']);
+
+        $grower = Grower::create($validated);
+
+        $message = 'Coltivatore creato con successo.';
+        if (!empty($grower->email)) {
+            $message .= ' Può accedere con email: ' . $grower->email;
+            if (empty($request->password)) {
+                $message .= ' e password: password123';
+            }
+        }
 
         return redirect()->route('admin.growers.index')
-                        ->with('success', 'Grower created successfully.');
+                        ->with('success', $message);
     }
 
     /**
@@ -74,16 +101,33 @@ class GrowerController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'nullable|email|max:255',
+            'email' => 'nullable|email|max:255|unique:growers,email,' . $grower->id,
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
             'description' => 'nullable|string',
+            'password' => ['nullable', 'confirmed', Password::min(8)],
         ]);
+
+        // Remove password from validated data if not provided
+        if (empty($validated['password'])) {
+            unset($validated['password']);
+        } else {
+            // Hash the password before saving
+            $validated['password'] = Hash::make($validated['password']);
+        }
+
+        // Remove password_confirmation from the data (not needed for update)
+        unset($validated['password_confirmation']);
 
         $grower->update($validated);
 
+        $message = 'Informazioni coltivatore aggiornate con successo.';
+        if (!empty($request->password)) {
+            $message .= ' Password aggiornata.';
+        }
+
         return redirect()->route('admin.growers.index')
-                        ->with('success', 'Grower updated successfully.');
+                        ->with('success', $message);
     }
 
     /**
