@@ -82,8 +82,8 @@ class GrowerController extends Controller
     public function show(Grower $grower): View
     {
         $grower->load([
-            'products', 
-            'orderItems.order.store', 
+            'products',
+            'orderItems.order.store',
             'orderItems.product'
         ]);
 

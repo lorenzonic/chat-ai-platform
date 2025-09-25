@@ -250,36 +250,62 @@ class ProductLabelController extends Controller
     }
 
     /**
-     * Display order items for a specific order (new structure)
+     * Display order items for stickers management (all items for grower)
      */
     public function orderItems(Request $request): View
     {
         $grower = auth('grower')->user();
 
-        // Get order items for this grower only
-        $orderItems = OrderItem::with(['product', 'order.store', 'store', 'grower'])
+        // Base query for all order items for this grower
+        $query = OrderItem::with(['product', 'order.store', 'store', 'grower'])
             ->where('grower_id', $grower->id)
-            ->whereHas('product', function($query) use ($grower) {
-                $query->where('grower_id', $grower->id);
-            })
-            ->when($request->filled('order_id'), function($query) use ($request) {
-                $query->where('order_id', $request->order_id);
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(20)
-            ->withQueryString();
+            ->whereHas('product', function($q) use ($grower) {
+                $q->where('grower_id', $grower->id);
+            });
 
-        // Get order for context if specified
-        $order = null;
-        if ($request->filled('order_id')) {
-            $order = Order::with(['store'])
-                ->whereHas('orderItems', function($query) use ($grower) {
-                    $query->where('grower_id', $grower->id);
-                })
-                ->find($request->order_id);
+        // Add search functionality
+        if ($request->filled('search')) {
+            $query->whereHas('product', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            });
         }
 
-        return view('grower.orders.items', compact('orderItems', 'order', 'grower'));
+        // Filter by store
+        if ($request->filled('store_id')) {
+            $query->whereHas('order', function ($q) use ($request) {
+                $q->where('store_id', $request->store_id);
+            });
+        }
+
+        // Filter by order
+        if ($request->filled('order_id')) {
+            $query->where('order_id', $request->order_id);
+        }
+
+        $orderItems = $query->latest()->paginate(20)->withQueryString();
+
+        return view('grower.stickers.index', compact('orderItems'));
+    }
+
+    /**
+     * Show single order item label for stickers management
+     */
+    public function showOrderItemLabel(OrderItem $orderItem): View
+    {
+        $grower = auth('grower')->user();
+
+        // Verify ownership through grower_id in order item
+        if ($orderItem->grower_id !== $grower->id) {
+            abort(403, 'Unauthorized access to order item');
+        }
+
+        // Load necessary relationships
+        $orderItem->load(['product', 'order.store', 'grower']);
+
+        // Generate label data for order item
+        $labelData = $this->prepareOrderItemLabelData($orderItem);
+
+        return view('grower.stickers.label', compact('orderItem', 'labelData', 'grower'));
     }
 
     /**

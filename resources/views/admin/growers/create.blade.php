@@ -47,9 +47,9 @@
                     <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
                         Nome Coltivatore <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" 
-                           id="name" 
-                           name="name" 
+                    <input type="text"
+                           id="name"
+                           name="name"
                            value="{{ old('name') }}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('name') border-red-500 @enderror"
                            required>
@@ -63,9 +63,9 @@
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
                         Email (per accesso account)
                     </label>
-                    <input type="email" 
-                           id="email" 
-                           name="email" 
+                    <input type="email"
+                           id="email"
+                           name="email"
                            value="{{ old('email') }}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('email') border-red-500 @enderror">
                     @error('email')
@@ -79,9 +79,9 @@
                     <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
                         Telefono
                     </label>
-                    <input type="text" 
-                           id="phone" 
-                           name="phone" 
+                    <input type="text"
+                           id="phone"
+                           name="phone"
                            value="{{ old('phone') }}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('phone') border-red-500 @enderror">
                     @error('phone')
@@ -94,9 +94,9 @@
                     <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
                         Indirizzo
                     </label>
-                    <input type="text" 
-                           id="address" 
-                           name="address" 
+                    <input type="text"
+                           id="address"
+                           name="address"
                            value="{{ old('address') }}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('address') border-red-500 @enderror">
                     @error('address')
@@ -110,8 +110,8 @@
                 <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
                     Descrizione
                 </label>
-                <textarea id="description" 
-                          name="description" 
+                <textarea id="description"
+                          name="description"
                           rows="3"
                           placeholder="Descrizione dell'attività del coltivatore..."
                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('description') border-red-500 @enderror">{{ old('description') }}</textarea>
@@ -124,16 +124,16 @@
             <div class="border-t border-gray-200 pt-6" id="password-section" style="display: none;">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">🔐 Password Account</h3>
                 <p class="text-sm text-gray-600 mb-4">Se l'email è fornita, imposta una password per l'accesso.</p>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Password -->
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
                             Password
                         </label>
-                        <input type="password" 
-                               id="password" 
-                               name="password" 
+                        <input type="password"
+                               id="password"
+                               name="password"
                                autocomplete="new-password"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('password') border-red-500 @enderror">
                         @error('password')
@@ -147,9 +147,9 @@
                         <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">
                             Conferma Password
                         </label>
-                        <input type="password" 
-                               id="password_confirmation" 
-                               name="password_confirmation" 
+                        <input type="password"
+                               id="password_confirmation"
+                               name="password_confirmation"
                                autocomplete="new-password"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
@@ -173,7 +173,7 @@
                    class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                     Annulla
                 </a>
-                
+
                 <button type="submit"
                         class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                     ➕ Crea Coltivatore
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordSection = document.getElementById('password-section');
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('password_confirmation');
-    
+
     // Show/hide password section based on email input
     function togglePasswordSection() {
         if (emailInput.value.trim()) {
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
             confirmPasswordInput.value = '';
         }
     }
-    
+
     // Check password matching
     function checkPasswordMatch() {
         if (passwordInput.value && confirmPasswordInput.value) {
@@ -216,11 +216,11 @@ document.addEventListener('DOMContentLoaded', function() {
             confirmPasswordInput.style.backgroundColor = '#FFFFFF';
         }
     }
-    
+
     emailInput.addEventListener('input', togglePasswordSection);
     passwordInput.addEventListener('input', checkPasswordMatch);
     confirmPasswordInput.addEventListener('input', checkPasswordMatch);
-    
+
     // Initial check
     togglePasswordSection();
 });

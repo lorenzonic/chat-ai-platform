@@ -46,9 +46,9 @@ Route::middleware(['web', 'growerAuth'])->prefix('grower')->name('grower.')->gro
         Route::get('/{product}', [\App\Http\Controllers\Grower\ProductLabelController::class, 'show'])->name('show');
     });
 
-    // Order Items Routes (new structure)
+    // Order Items Routes (new structure) - Stickers Management
     Route::prefix('order-items')->name('order-items.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Grower\ProductLabelController::class, 'orderItems'])->name('index');
-        Route::get('/{orderItem}/label', [\App\Http\Controllers\Grower\ProductLabelController::class, 'showOrderItem'])->name('label');
+        Route::get('/{orderItem}/label', [\App\Http\Controllers\Grower\ProductLabelController::class, 'showOrderItemLabel'])->name('label');
     });
 });

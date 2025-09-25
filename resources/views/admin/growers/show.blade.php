@@ -158,7 +158,7 @@
                     <div class="text-sm text-blue-800 space-y-1">
                         <p><strong>Email:</strong> {{ $grower->email }}</p>
                         <p><strong>URL Accesso:</strong> <code>{{ url('/grower/login') }}</code></p>
-                        <p><strong>Stato:</strong> 
+                        <p><strong>Stato:</strong>
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                 Attivo
                             </span>
@@ -169,7 +169,7 @@
                 <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
                     <h3 class="font-medium text-gray-900 mb-2">🔒 Accesso Non Configurato</h3>
                     <p class="text-sm text-gray-600">
-                        Nessuna email configurata per l'accesso. 
+                        Nessuna email configurata per l'accesso.
                         <a href="{{ route('admin.growers.edit', $grower) }}" class="text-blue-600 hover:text-blue-500">
                             Clicca qui per configurare l'accesso.
                         </a>
@@ -285,7 +285,7 @@
                                 @foreach($grower->orderItems->sortByDesc('created_at')->take(10) as $orderItem)
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <a href="{{ route('admin.orders.show', $orderItem->order) }}" 
+                                            <a href="{{ route('admin.orders.show', $orderItem->order) }}"
                                                class="text-blue-600 hover:text-blue-900">
                                                 {{ $orderItem->order->order_number }}
                                             </a>
