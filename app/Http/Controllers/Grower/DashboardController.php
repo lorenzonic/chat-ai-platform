@@ -22,6 +22,10 @@ class DashboardController extends Controller
                 $query->where('grower_id', $grower->id);
             })->count() ?? 0;
 
+            $productsInOrders = $grower->products()
+                ->whereHas('orderItems')
+                ->count() ?? 0;
+
             $recentProducts = Product::where('grower_id', $grower->id)
                 ->latest()
                 ->take(5)
@@ -49,6 +53,7 @@ class DashboardController extends Controller
             // Fallback values in case of any database issues
             $totalProducts = 0;
             $totalOrders = 0;
+            $productsInOrders = 0;
             $recentProducts = collect();
             $recentOrders = collect();
             $lowStockProducts = 0;
@@ -59,6 +64,7 @@ class DashboardController extends Controller
             'grower',
             'totalProducts',
             'totalOrders',
+            'productsInOrders',
             'recentProducts',
             'recentOrders',
             'lowStockProducts',

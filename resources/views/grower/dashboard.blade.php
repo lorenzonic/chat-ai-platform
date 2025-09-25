@@ -9,9 +9,9 @@
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
             <div class="p-6 bg-white border-b border-gray-200">
                 <h1 class="text-2xl font-bold text-gray-900">
-                    Welcome back, {{ $grower->contact_name ?? $grower->company_name ?? $grower->email ?? 'Grower' }}! 🌱
+                    Benvenuto, {{ $grower->name ?? $grower->company_name ?? $grower->email ?? 'Grower' }}! 🌱
                 </h1>
-                <p class="text-gray-600 mt-1">Here's what's happening with your products today.</p>
+                <p class="text-gray-600 mt-1">Ecco cosa sta succedendo con i tuoi prodotti oggi.</p>
             </div>
         </div>            <!-- Statistics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
@@ -38,7 +38,7 @@
                                 <i class="fas fa-check-circle text-green-600 text-xl"></i>
                             </div>
                             <div>
-                                <p class="text-2xl font-semibold text-gray-900">{{ number_format($totalProducts - $outOfStockProducts) }}</p>
+                                <p class="text-2xl font-semibold text-gray-900">{{ number_format($productsInOrders) }}</p>
                                 <p class="text-gray-600">Prodotti Attivi</p>
                             </div>
                         </div>
@@ -53,7 +53,7 @@
                                 <i class="fas fa-shopping-cart text-purple-600 text-xl"></i>
                             </div>
                             <div>
-                                <p class="text-2xl font-semibold text-gray-900">{{ number_format($totalOrders) }}</p>
+                                <p class="text-2xl font-semibold text-gray-900">{{ number_format($totalOrder_items) }}</p>
                                 <p class="text-gray-600">Ordini Totali</p>
                             </div>
                         </div>

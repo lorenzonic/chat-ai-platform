@@ -214,7 +214,7 @@ class ProductLabelController extends Controller
                 $refCode = 'qr_' . Str::random(8) . '_' . time();
 
                 // Create a question for this specific product
-                $question = "Dimmi tutto su {$product->name}";
+                $question = "Come Si Cura {$product->name}";
 
                 // Create new QR code for this product
                 $qrCode = QrCode::create([
