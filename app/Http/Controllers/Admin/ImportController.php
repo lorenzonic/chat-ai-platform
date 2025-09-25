@@ -104,6 +104,7 @@ class ImportController extends Controller
             session([
                 'import_file_path' => $tempPath,
                 'import_headers' => $headers,
+                'import_csv_data' => $csvData, // Store ALL CSV data for fallback
                 'import_preview' => $preview,
                 'import_mapping' => $mapping,
                 'import_total_rows' => count($csvData) + 1
@@ -822,10 +823,13 @@ class ImportController extends Controller
 
         $mapping = $request->input('mapping', []);
         
-        // Remove ignored columns and empty mappings
-        $cleanMapping = array_filter($mapping, function($value) {
-            return $value && $value !== 'ignore';
-        });
+        // Convert mapping format from [column_index => field_name] to [field_name => column_index]
+        $cleanMapping = [];
+        foreach ($mapping as $columnIndex => $fieldName) {
+            if ($fieldName && $fieldName !== 'ignore') {
+                $cleanMapping[$fieldName] = (int)$columnIndex;
+            }
+        }
 
         try {
             $sessionPath = session('import_file_path');
@@ -856,7 +860,7 @@ class ImportController extends Controller
             }
 
             // Clear session
-            session()->forget(['import_file_path', 'import_headers', 'import_preview', 'import_mapping', 'import_total_rows']);
+            session()->forget(['import_file_path', 'import_headers', 'import_csv_data', 'import_preview', 'import_mapping', 'import_total_rows']);
 
             return redirect()->route('admin.orders.index')->with('success',
                 "Import completato! Creati: {$result['stats']['orders_created']} ordini, " .
@@ -924,21 +928,20 @@ class ImportController extends Controller
     {
         // Get data from session
         $headers = session('import_headers', []);
-        $preview = session('import_preview', []);
+        $csvData = session('import_csv_data', []);
         
-        if (empty($headers) || empty($preview)) {
+        if (empty($headers) || empty($csvData)) {
             throw new \Exception('Dati sessione mancanti per fallback import');
         }
 
-        // For demonstration, we'll just use the preview data
-        // In a real scenario, you'd want to store more rows in session
-        $csvData = $preview;
+        // Use ALL CSV data, not just preview
         $mapping = $customMapping ?: $this->autoDetectColumns($headers);
 
         Log::info('Session Fallback Import', [
             'headers' => $headers,
             'mapping' => $mapping,
-            'preview_rows' => count($csvData)
+            'total_csv_rows' => count($csvData),
+            'first_row_sample' => $csvData[0] ?? 'no data'
         ]);
 
         $stats = $this->processAdvancedOrderImport($csvData, $mapping);
