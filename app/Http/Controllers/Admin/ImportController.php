@@ -76,7 +76,7 @@ class ImportController extends Controller
             // Save file temporarily for multi-step process
             $filename = 'import_' . time() . '_' . Str::random(8) . '.csv';
             $tempPath = $file->storeAs('imports', $filename);
-            
+
             if (!$tempPath) {
                 throw new \Exception('Failed to save uploaded file');
             }
@@ -822,7 +822,7 @@ class ImportController extends Controller
         }
 
         $mapping = $request->input('mapping', []);
-        
+
         // Convert mapping format from [column_index => field_name] to [field_name => column_index]
         $cleanMapping = [];
         foreach ($mapping as $columnIndex => $fieldName) {
@@ -834,7 +834,7 @@ class ImportController extends Controller
         try {
             $sessionPath = session('import_file_path');
             $filePath = storage_path('app/' . $sessionPath);
-            
+
             // Debug logging
             Log::info('Processing Mapping Debug', [
                 'session_path' => $sessionPath,
@@ -844,7 +844,7 @@ class ImportController extends Controller
                 'imports_dir_exists' => is_dir(storage_path('app/imports')),
                 'imports_files' => is_dir(storage_path('app/imports')) ? scandir(storage_path('app/imports')) : 'dir not found'
             ]);
-            
+
             if (!file_exists($filePath)) {
                 Log::warning("Temp file not found, using session fallback", [
                     'path' => $filePath,
@@ -929,7 +929,7 @@ class ImportController extends Controller
         // Get data from session
         $headers = session('import_headers', []);
         $csvData = session('import_csv_data', []);
-        
+
         if (empty($headers) || empty($csvData)) {
             throw new \Exception('Dati sessione mancanti per fallback import');
         }
