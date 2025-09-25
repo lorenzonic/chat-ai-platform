@@ -97,7 +97,7 @@
                                class="block w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">
                                 <i class="fas fa-shopping-cart mr-2"></i>Visualizza Ordini
                             </a>
-                            <a href="{{ route('grower.order-items.index') }}"
+                            <a href="{{ route('grower.products.stickers.index') }}"
                                class="block w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">
                                 <i class="fas fa-tags mr-2"></i>Gestione Etichette
                             </a>

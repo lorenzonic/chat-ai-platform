@@ -1,4 +1,4 @@
-@extends('layouts.grower')
+@extends('layouts.app')
 
 @section('title', 'My Products - Grower Portal')
 
@@ -8,13 +8,13 @@
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
                 <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-2xl font-bold">My Products</h1>
+                    <h1 class="text-2xl font-bold">I Miei Prodotti</h1>
                     <div class="flex items-center space-x-4">
                         <div class="text-sm text-gray-500">
                             {{ $grower->company_name }}
                         </div>
                         <a href="{{ route('grower.products.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-                            Add New Product
+                            Aggiungi Nuovo Prodotto
                         </a>
                     </div>
                 </div>
@@ -26,8 +26,8 @@
                 @endif
 
                 <div class="mb-4 p-4 bg-blue-50 rounded-lg">
-                    <h3 class="text-lg font-semibold text-blue-800">Product Summary</h3>
-                    <p class="text-blue-600">Total products in catalog: {{ $products->total() }}</p>
+                    <h3 class="text-lg font-semibold text-blue-800">Riepilogo Prodotti</h3>
+                    <p class="text-blue-600">Totale prodotti nel mio catalogo: {{ $products->total() }}</p>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -35,19 +35,19 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Product Details
+                                    Dettagli Prodotto
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    EAN Code
+                                    Codice EAN
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Price
+                                    Prezzo
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Quantity
+                                    Quantità
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Created
+                                    Creato
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Actions
@@ -119,10 +119,10 @@
                                         <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4.5m8-4.5v10l-8 4.5m0-9v9m0-9L4 7m8 4.5v9m8-4.5l-8 4.5"></path>
                                         </svg>
-                                        <p class="text-lg font-medium text-gray-900 mb-2">No products found</p>
-                                        <p class="text-gray-500 mb-4">Start by adding your first product to the catalog.</p>
+                                        <p class="text-lg font-medium text-gray-900 mb-2">nessun prodotto trovato</p>
+                                        <p class="text-gray-500 mb-4">Inizia aggiungendo il tuo primo prodotto al catalogo.</p>
                                         <a href="{{ route('grower.products.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-                                            Add First Product
+                                            Aggiungi il Primo Prodotto
                                         </a>
                                     </div>
                                 </td>
@@ -143,15 +143,15 @@
                 @if($products->count() > 0)
                     <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="bg-blue-50 p-4 rounded-lg">
-                            <h4 class="font-semibold text-blue-800">Total Products</h4>
+                            <h4 class="font-semibold text-blue-800">Totale Prodotti</h4>
                             <p class="text-2xl font-bold text-blue-600">{{ $products->total() }}</p>
                         </div>
                         <div class="bg-green-50 p-4 rounded-lg">
-                            <h4 class="font-semibold text-green-800">Products with EAN</h4>
+                            <h4 class="font-semibold text-green-800">Prodotti con EAN</h4>
                             <p class="text-2xl font-bold text-green-600">{{ $products->where('ean', '!=', null)->count() }}</p>
                         </div>
                         <div class="bg-purple-50 p-4 rounded-lg">
-                            <h4 class="font-semibold text-purple-800">Products with Price</h4>
+                            <h4 class="font-semibold text-purple-800">Prodotti con Prezzo</h4>
                             <p class="text-2xl font-bold text-purple-600">{{ $products->where('price', '!=', null)->count() }}</p>
                         </div>
                     </div>

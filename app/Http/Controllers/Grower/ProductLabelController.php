@@ -249,64 +249,7 @@ class ProductLabelController extends Controller
         }
     }
 
-    /**
-     * Display order items for stickers management (all items for grower)
-     */
-    public function orderItems(Request $request): View
-    {
-        $grower = auth('grower')->user();
 
-        // Base query for all order items for this grower
-        $query = OrderItem::with(['product', 'order.store', 'store', 'grower'])
-            ->where('grower_id', $grower->id)
-            ->whereHas('product', function($q) use ($grower) {
-                $q->where('grower_id', $grower->id);
-            });
-
-        // Add search functionality
-        if ($request->filled('search')) {
-            $query->whereHas('product', function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%');
-            });
-        }
-
-        // Filter by store
-        if ($request->filled('store_id')) {
-            $query->whereHas('order', function ($q) use ($request) {
-                $q->where('store_id', $request->store_id);
-            });
-        }
-
-        // Filter by order
-        if ($request->filled('order_id')) {
-            $query->where('order_id', $request->order_id);
-        }
-
-        $orderItems = $query->latest()->paginate(20)->withQueryString();
-
-        return view('grower.stickers.index', compact('orderItems'));
-    }
-
-    /**
-     * Show single order item label for stickers management
-     */
-    public function showOrderItemLabel(OrderItem $orderItem): View
-    {
-        $grower = auth('grower')->user();
-
-        // Verify ownership through grower_id in order item
-        if ($orderItem->grower_id !== $grower->id) {
-            abort(403, 'Unauthorized access to order item');
-        }
-
-        // Load necessary relationships
-        $orderItem->load(['product', 'order.store', 'grower']);
-
-        // Generate label data for order item
-        $labelData = $this->prepareOrderItemLabelData($orderItem);
-
-        return view('grower.stickers.label', compact('orderItem', 'labelData', 'grower'));
-    }
 
     /**
      * Show single order item with label for printing

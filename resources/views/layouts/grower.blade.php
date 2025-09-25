@@ -42,16 +42,16 @@
                                     <a href="{{ route('grower.products.index') }}"
                                        class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition duration-200 ease-in-out
                                               {{ request()->routeIs('grower.products.*') ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300' }}">
-                                        📦 My Products
+                                        📦 I miei Prodotti
                                     </a>
                                     <a href="{{ route('grower.orders.index') }}"
                                        class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition duration-200 ease-in-out
                                               {{ request()->routeIs('grower.orders.*') ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300' }}">
-                                        📋 My Orders
+                                        📋 I miei Ordini
                                     </a>
-                                    <a href="{{ route('grower.order-items.index') }}"
+                                    <a href="{{ route('grower.products.stickers.index') }}"
                                        class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition duration-200 ease-in-out
-                                              {{ request()->routeIs('grower.order-items.*') ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300' }}">
+                                              {{ request()->routeIs('grower.products.stickers.*') ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300' }}">
                                         🏷️ Etichette
                                     </a>
                                 </div>

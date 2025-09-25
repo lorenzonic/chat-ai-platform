@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.grower')
 
 @section('title', 'My Orders - Grower Portal')
 
@@ -8,9 +8,9 @@
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
                 <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-2xl font-bold">My Orders</h1>
+                    <h1 class="text-2xl font-bold">I miei Ordini</h1>
                     <div class="text-sm text-gray-500">
-                        Benvenuto, {{ $grower->grower_name }}
+                        Benvenuto, {{ $grower->name }}
                     </div>
                 </div>
 
@@ -21,8 +21,8 @@
                 @endif
 
                 <div class="mb-4 p-4 bg-blue-50 rounded-lg">
-                    <h3 class="text-lg font-semibold text-blue-800">Order Summary</h3>
-                    <p class="text-blue-600">Total orders with your products: {{ $orders->total() }}</p>
+                    <h3 class="text-lg font-semibold text-blue-800">I miei Ordini</h3>
+                    <p class="text-blue-600">Totale ordini con i tuoi prodotti: {{ $orders->total() }}</p>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -30,22 +30,22 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Order Details
+                                    Dettagli Ordine
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Store
+                                    Negozio
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    My Products
+                                    I miei Prodotti
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Status
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Date
+                                    Data
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Actions
+                                    Azioni
                                 </th>
                             </tr>
                         </thead>
@@ -95,7 +95,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <a href="{{ route('grower.orders.show', $order) }}" class="text-blue-600 hover:text-blue-900">
-                                        View Details
+                                        vedi dettagli
                                     </a>
                                 </td>
                             </tr>
