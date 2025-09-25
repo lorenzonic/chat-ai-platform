@@ -11,8 +11,9 @@ foreach ($orders as $order) {
 }
 
 echo "\nLatest OrderItems:\n";
-$items = App\Models\OrderItem::latest()->take(5)->get(['id', 'order_id', 'product_name', 'quantity', 'created_at']);
+$items = App\Models\OrderItem::with('product')->latest()->take(5)->get(['id', 'order_id', 'quantity', 'created_at']);
 foreach ($items as $item) {
-    echo "ID: {$item->id}, Order: {$item->order_id}, Product: {$item->product_name}, Qty: {$item->quantity}, Created: {$item->created_at}\n";
+    $productName = $item->product_snapshot['name'] ?? $item->product->name ?? 'Unknown Product';
+    echo "ID: {$item->id}, Order: {$item->order_id}, Product: {$productName}, Qty: {$item->quantity}, Created: {$item->created_at}\n";
 }
 ?>
