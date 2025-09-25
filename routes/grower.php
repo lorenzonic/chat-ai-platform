@@ -43,6 +43,7 @@ Route::middleware(['web', 'growerAuth'])->prefix('grower')->name('grower.')->gro
     Route::prefix('products-stickers')->name('products.stickers.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Grower\ProductLabelController::class, 'index'])->name('index');
         Route::get('/bulk-print', [\App\Http\Controllers\Grower\ProductLabelController::class, 'bulkPrint'])->name('bulk-print');
+        Route::get('/order-item/{orderItem}', [\App\Http\Controllers\Grower\ProductLabelController::class, 'showOrderItem'])->name('order-item');
         Route::get('/{product}', [\App\Http\Controllers\Grower\ProductLabelController::class, 'show'])->name('show');
     });
 
