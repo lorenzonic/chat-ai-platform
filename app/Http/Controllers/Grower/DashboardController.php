@@ -14,6 +14,12 @@ class DashboardController extends Controller
     {
         $grower = Auth::guard('grower')->user();
 
+        // Check if grower is authenticated
+        if (!$grower) {
+            return redirect()->route('grower.login')
+                ->with('error', 'Devi effettuare il login per accedere alla dashboard.');
+        }
+
         try {
             // Statistiche per il dashboard con controlli sicuri
             $totalProducts = Product::where('grower_id', $grower->id)->count() ?? 0;
