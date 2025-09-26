@@ -37,10 +37,10 @@ class DashboardController extends Controller
                 ->take(5)
                 ->get() ?? collect();
 
-            $recentOrders = Order::whereHas('products', function($query) use ($grower) {
+            $recentOrders = Order::whereHas('orderItems.product', function($query) use ($grower) {
                 $query->where('grower_id', $grower->id);
             })
-            ->with(['store', 'products' => function($query) use ($grower) {
+            ->with(['store', 'orderItems.product' => function($query) use ($grower) {
                 $query->where('grower_id', $grower->id);
             }])
             ->latest()
