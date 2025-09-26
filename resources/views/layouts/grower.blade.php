@@ -109,9 +109,9 @@
                                       {{ request()->routeIs('grower.orders.*') ? 'border-gray-900 text-gray-900 bg-gray-50' : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:border-gray-300' }}">
                                 📋 My Orders
                             </a>
-                            <a href="{{ route('grower.order-items.index') }}"
+                            <a href="{{ route('grower.products.stickers.index') }}"
                                class="block ps-3 pe-4 py-2 border-l-4 text-base font-medium transition duration-200 ease-in-out
-                                      {{ request()->routeIs('grower.order-items.*') ? 'border-gray-900 text-gray-900 bg-gray-50' : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:border-gray-300' }}">
+                                      {{ request()->routeIs('grower.products.stickers.*') ? 'border-gray-900 text-gray-900 bg-gray-50' : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:border-gray-300' }}">
                                 🏷️ Etichette
                             </a>
                         </div>
