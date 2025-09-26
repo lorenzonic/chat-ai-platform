@@ -7,10 +7,10 @@ try {
     $app = require_once __DIR__ . '/../bootstrap/app.php';
     $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
     $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-    
+
     echo "🔍 Route Handler Test\n";
     echo "====================\n\n";
-    
+
     // Test 1: Check if route exists
     $routes = Route::getRoutes();
     $dashboardRoute = $routes->getByName('grower.dashboard');
@@ -23,18 +23,18 @@ try {
         echo "❌ Route 'grower.dashboard' not found\n";
         exit;
     }
-    
+
     // Test 2: Login a grower first
     $grower = App\Models\Grower::first();
     if ($grower) {
         Auth::guard('grower')->login($grower);
         echo "✅ Grower logged in: {$grower->name}\n";
     }
-    
+
     // Test 3: Create request and handle it
     $request = Request::create('/grower/dashboard', 'GET');
     $request->setLaravelSession($app['session']->driver());
-    
+
     try {
         echo "Handling request...\n";
         $response = $kernel->handle($request);
@@ -46,7 +46,7 @@ try {
         echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n";
         echo "Stack trace:\n" . $e->getTraceAsString() . "\n";
     }
-    
+
 } catch (Exception $e) {
     echo "❌ Fatal error: " . $e->getMessage() . "\n";
     echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n";
