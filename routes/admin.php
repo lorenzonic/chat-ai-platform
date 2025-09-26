@@ -109,10 +109,20 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'destroy'])->name('destroy');
         });
 
+        // Order Items management routes
+        Route::prefix('order-items')->name('order-items.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\OrderItemController::class, 'index'])->name('index');
+            Route::get('/{orderItem}', [\App\Http\Controllers\Admin\OrderItemController::class, 'show'])->name('show');
+            Route::get('/{orderItem}/edit', [\App\Http\Controllers\Admin\OrderItemController::class, 'edit'])->name('edit');
+            Route::put('/{orderItem}', [\App\Http\Controllers\Admin\OrderItemController::class, 'update'])->name('update');
+            Route::delete('/{orderItem}', [\App\Http\Controllers\Admin\OrderItemController::class, 'destroy'])->name('destroy');
+            Route::post('/bulk-action', [\App\Http\Controllers\Admin\OrderItemController::class, 'bulkAction'])->name('bulk-action');
+        });
+
         // Product label routes
         Route::prefix('products-stickers')->name('products.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Admin\ProductLabelController::class, 'index'])->name('index');
-            Route::get('/{product}', [\App\Http\Controllers\Admin\ProductLabelController::class, 'show'])->name('show');
+            Route::get('/{orderItem}', [\App\Http\Controllers\Admin\ProductLabelController::class, 'show'])->name('show');
         });
 
                 // Import routes

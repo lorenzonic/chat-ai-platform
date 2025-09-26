@@ -22,12 +22,12 @@
                 <div class="ml-4">
                     <h3 class="text-lg font-medium text-gray-900">
                         @if(request()->hasAny(['search', 'store_id', 'grower_id', 'order_id']))
-                            Prodotti Filtrati
+                            Order Items Filtrati
                         @else
-                            Totale Prodotti
+                            Totale Order Items
                         @endif
                     </h3>
-                    <p class="text-2xl font-bold text-blue-600">{{ $products->total() }}</p>
+                    <p class="text-2xl font-bold text-blue-600">{{ $orderItems->total() }}</p>
                 </div>
             </div>
         </div>
@@ -41,7 +41,7 @@
                 </div>
                 <div class="ml-4">
                     <h3 class="text-lg font-medium text-gray-900">Ordini Coinvolti</h3>
-                    <p class="text-2xl font-bold text-green-600">{{ $products->unique('order_id')->count() }}</p>
+                    <p class="text-2xl font-bold text-green-600">{{ $orderItems->unique('order_id')->count() }}</p>
                 </div>
             </div>
         </div>
@@ -55,7 +55,7 @@
                 </div>
                 <div class="ml-4">
                     <h3 class="text-lg font-medium text-gray-900">Store Coinvolti</h3>
-                    <p class="text-2xl font-bold text-purple-600">{{ $products->unique('store_id')->count() }}</p>
+                    <p class="text-2xl font-bold text-purple-600">{{ $orderItems->unique('store_id')->count() }}</p>
                 </div>
             </div>
         </div>
@@ -68,8 +68,8 @@
                     </div>
                 </div>
                 <div class="ml-4">
-                    <h3 class="text-lg font-medium text-gray-900">Coltivatori</h3>
-                    <p class="text-2xl font-bold text-yellow-600">{{ $products->unique('grower_id')->count() }}</p>
+                    <h3 class="text-lg font-medium text-gray-900">Fornitori</h3>
+                    <p class="text-2xl font-bold text-yellow-600">{{ $orderItems->unique('grower_id')->count() }}</p>
                 </div>
             </div>
         </div>
@@ -90,7 +90,7 @@
                     </h3>
                     <p class="text-blue-700">
                         Store: {{ $selectedOrder->store->name ?? 'N/A' }} |
-                        Prodotti in questo ordine: {{ $products->total() }}
+                        Order Items in questo ordine: {{ $orderItems->total() }}
                     </p>
                 </div>
                 <div class="ml-auto">
@@ -144,12 +144,12 @@
                     <!-- Filter by Grower -->
                     <div>
                         <label for="grower_id" class="block text-sm font-medium text-gray-700 mb-1">
-                            Filtra per Coltivatore
+                            Filtra per Fornitore
                         </label>
                         <select id="grower_id"
                                 name="grower_id"
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            <option value="">Tutti i Coltivatori</option>
+                            <option value="">Tutti i Fornitori</option>
                             @foreach($growers as $grower)
                                 <option value="{{ $grower->id }}" {{ request('grower_id') == $grower->id ? 'selected' : '' }}>
                                     {{ $grower->name }}
@@ -190,13 +190,13 @@
         </div>
     </div>
 
-    <!-- Products Table -->
+    <!-- Order Items Table -->
     <div class="bg-white shadow-sm rounded-lg overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-medium text-gray-900">Lista Prodotti</h2>
+            <h2 class="text-lg font-medium text-gray-900">Lista Order Items per Etichette</h2>
         </div>
 
-        @if($products->count() > 0)
+        @if($orderItems->count() > 0)
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
@@ -204,8 +204,9 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Prodotto
                             </th>
+
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Coltivatore
+                                Fornitore
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Ordine
@@ -217,30 +218,33 @@
                                 Prezzo
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Data Consegna
+                                data
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Azioni
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach($products as $product)
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach($orderItems as $orderItem)
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="text-sm font-medium text-gray-900">
-                                        {{ $product->name }}
+                                        {{ $orderItem->product_snapshot['name'] ?? ($orderItem->product->name ?? 'N/A') }}
                                     </div>
-                                    @if($product->variety)
+                                    @if($orderItem->product_snapshot['variety'] ?? ($orderItem->product->variety ?? null))
                                         <div class="text-sm text-gray-500 ml-2">
-                                            ({{ $product->variety }})
+                                            ({{ $orderItem->product_snapshot['variety'] ?? $orderItem->product->variety }})
                                         </div>
                                     @endif
                                 </div>
-                                @if($product->ean)
-                                    <div class="text-xs text-gray-400">EAN: {{ $product->ean }}</div>
-                                @endif
+                                <div class="text-xs text-gray-400">
+                                    Qty: {{ $orderItem->quantity }}
+                                    @if($orderItem->product_snapshot['ean'] ?? ($orderItem->product->ean ?? null))
+                                        | EAN: {{ $orderItem->product_snapshot['ean'] ?? $orderItem->product->ean }}
+                                    @endif
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
@@ -253,14 +257,14 @@
                                     </div>
                                     <div class="ml-3">
                                         <div class="text-sm font-medium text-gray-900">
-                                            <a href="{{ route('admin.products.index', ['grower_id' => $product->grower->id ?? '']) }}"
+                                            <a href="{{ route('admin.products.index', ['grower_id' => $orderItem->grower->id ?? '']) }}"
                                                class="text-green-700 hover:text-green-900 hover:underline">
-                                                {{ $product->grower->name ?? 'N/A' }}
+                                                {{ $orderItem->grower->name ?? 'N/A' }}
                                             </a>
                                         </div>
-                                        @if($product->grower && $product->grower->phone)
+                                        @if($orderItem->grower && $orderItem->grower->phone)
                                             <div class="text-xs text-gray-500">
-                                                {{ $product->grower->phone }}
+                                                {{ $orderItem->grower->phone }}
                                             </div>
                                         @endif
                                     </div>
@@ -268,54 +272,56 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">
-                                    <a href="{{ route('admin.products.index', ['order_id' => $product->order->id ?? '']) }}"
+                                    <a href="{{ route('admin.products.index', ['order_id' => $orderItem->order_id]) }}"
                                        class="text-blue-700 hover:text-blue-900 hover:underline">
-                                        {{ $product->order->order_number ?? 'N/A' }}
+                                        {{ $orderItem->order->order_number ?? 'N/A' }}
                                     </a>
                                 </div>
                                 <div class="text-sm text-gray-500">
-                                    Cliente: {{ $product->client ?? 'N/A' }}
+                                    Cliente: {{ $orderItem->order->client ?? ($orderItem->store->name ?? 'N/A') }}
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">
-                                    <a href="{{ route('admin.products.index', ['store_id' => $product->store->id ?? '']) }}"
+                                    <a href="{{ route('admin.products.index', ['store_id' => $orderItem->store->id ?? '']) }}"
                                        class="text-indigo-700 hover:text-indigo-900 hover:underline">
-                                        {{ $product->store->name ?? 'N/A' }}
+                                        {{ $orderItem->store->name ?? 'N/A' }}
                                     </a>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">
-                                    €{{ number_format((float) $product->price, 2, ',', '.') }}
+                                    €{{ number_format((float) $orderItem->prezzo_rivendita, 2, ',', '.') }}
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    Tot: €{{ number_format((float) ($orderItem->price * $orderItem->quantity), 2, ',', '.') }}
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">
-                                    {{ $product->delivery_date ? date('d/m/Y', strtotime($product->delivery_date)) : 'N/A' }}
+                                    {{ $orderItem->order->delivery_date ? date('d/m/Y', strtotime($orderItem->order->delivery_date)) : 'N/A' }}
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="{{ route('admin.products.show', $product) }}"
+                                <a href="{{ route('admin.products.show', $orderItem) }}"
                                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
                                     🏷️ Stampa Etichetta
                                 </a>
                             </td>
                         </tr>
                         @endforeach
-                    </tbody>
                 </table>
             </div>
 
             <!-- Pagination -->
             <div class="px-6 py-4 border-t border-gray-200">
-                {{ $products->links() }}
+                {{ $orderItems->links() }}
             </div>
         @else
             <div class="text-center py-12">
                 <div class="text-gray-400 text-6xl mb-4">📦</div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Nessun prodotto trovato</h3>
-                <p class="text-gray-600">Non ci sono prodotti disponibili per la stampa etichette.</p>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Nessun order item trovato</h3>
+                <p class="text-gray-600">Non ci sono order items disponibili per la stampa etichette.</p>
             </div>
         @endif
     </div>

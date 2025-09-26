@@ -5,44 +5,44 @@ $basePath = realpath(__DIR__ . '/..');
 // Check if we can create a basic Laravel app instance
 if (file_exists($basePath . '/vendor/autoload.php')) {
     require_once $basePath . '/vendor/autoload.php';
-    
+
     echo "<h1>Direct Laravel Dashboard Test</h1>\n";
-    
+
     try {
         // Set up basic Laravel environment
         $app = new Illuminate\Foundation\Application($basePath);
-        
+
         // Bind the kernel
         $app->singleton(
             Illuminate\Contracts\Http\Kernel::class,
             App\Http\Kernel::class
         );
-        
+
         $app->singleton(
             Illuminate\Contracts\Console\Kernel::class,
             App\Console\Kernel::class
         );
-        
+
         $app->singleton(
             Illuminate\Contracts\Debug\ExceptionHandler::class,
             App\Exceptions\Handler::class
         );
-        
+
         // Bootstrap the application
         $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-        
+
         echo "<p>✅ Laravel app created</p>\n";
-        
+
         // Simulate the grower dashboard request
         $request = Illuminate\Http\Request::create('/grower/dashboard', 'GET');
-        
+
         // Try to handle the request
         $response = $kernel->handle($request);
-        
+
         echo "<p>✅ Request handled</p>\n";
         echo "<p>Status Code: " . $response->getStatusCode() . "</p>\n";
         echo "<p>Content Length: " . strlen($response->getContent()) . "</p>\n";
-        
+
         if ($response->getStatusCode() === 200) {
             echo "<p>✅ Dashboard working correctly!</p>\n";
         } else {
@@ -52,17 +52,17 @@ if (file_exists($basePath . '/vendor/autoload.php')) {
                 echo "<pre>" . htmlspecialchars(substr($response->getContent(), 0, 1000)) . "</pre>\n";
             }
         }
-        
+
         $kernel->terminate($request, $response);
-        
+
     } catch (Exception $e) {
         echo "<p>❌ Laravel setup error: " . htmlspecialchars($e->getMessage()) . "</p>\n";
         echo "<p>File: " . htmlspecialchars($e->getFile()) . " Line: " . $e->getLine() . "</p>\n";
-        
+
         // Try fallback approach - direct database test
         echo "<h2>Fallback Database Test</h2>\n";
         echo "<p>Attempting direct database connection...</p>\n";
-        
+
         // Try to read environment variables
         if (file_exists($basePath . '/.env')) {
             $envFile = file_get_contents($basePath . '/.env');
@@ -72,7 +72,7 @@ if (file_exists($basePath . '/vendor/autoload.php')) {
             }
         }
     }
-    
+
 } else {
     echo "<h1>Autoloader Not Found</h1>\n";
     echo "<p>❌ Cannot find vendor/autoload.php</p>\n";

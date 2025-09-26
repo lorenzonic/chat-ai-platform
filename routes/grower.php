@@ -25,10 +25,11 @@ Route::prefix('grower')->name('grower.')->group(function () {
 
 // Route temporanea per testare login grower
 Route::get('/grower/test-login', function () {
-    $grower = Grower::first();
+    // Usa grower 11 che ha order_items
+    $grower = Grower::find(11) ?? Grower::first();
     if ($grower) {
         Auth::guard('grower')->login($grower);
-        return redirect()->route('grower.dashboard')->with('success', 'Logged in as test grower');
+        return redirect()->route('grower.dashboard')->with('success', 'Logged in as test grower: ' . $grower->name);
     }
     return 'No growers found';
 })->name('grower.test.login');

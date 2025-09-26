@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.grower')
 
 @section('title', 'My Products - Grower Portal')
 

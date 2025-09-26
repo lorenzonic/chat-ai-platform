@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Product: ' . $product->name)
+@section('title', 'Order Item: ' . ($orderItem->product_snapshot['name'] ?? ($orderItem->product->name ?? 'N/A')))
 
 @section('content')
 <style>
@@ -192,7 +192,7 @@
     <!-- Screen-only navigation and info -->
     <div class="no-print">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-900">{{ $product->name }}</h1>
+            <h1 class="text-2xl font-bold text-gray-900">{{ $orderItem->product_snapshot['name'] ?? ($orderItem->product->name ?? 'N/A') }}</h1>
             <div class="flex gap-2">
                 <button onclick="printLabel()"
                         class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">
@@ -205,26 +205,26 @@
             </div>
         </div>
 
-        <!-- Product Information Grid -->
+        <!-- Order Item Information Grid -->
         <div class="product-info-grid">
             <div class="info-card">
-                <div class="info-label">Codice Prodotto</div>
-                <div class="info-value font-mono">{{ $product->code }}</div>
+                <div class="info-label">SKU</div>
+                <div class="info-value font-mono">{{ $orderItem->product_snapshot['sku'] ?? ($orderItem->product->sku ?? '—') }}</div>
             </div>
 
             <div class="info-card">
                 <div class="info-label">EAN</div>
-                <div class="info-value font-mono">{{ $product->ean ?: '—' }}</div>
+                <div class="info-value font-mono">{{ $orderItem->product_snapshot['ean'] ?? ($orderItem->product->ean ?? '—') }}</div>
             </div>
 
             <div class="info-card">
-                <div class="info-label">Prezzo</div>
+                <div class="info-label">Prezzo Unitario</div>
                 <div class="info-value text-lg font-semibold">{{ $labelData['formatted_price'] }}</div>
             </div>
 
             <div class="info-card">
                 <div class="info-label">Quantità</div>
-                <div class="info-value">{{ $product->quantity }} pz</div>
+                <div class="info-value">{{ $orderItem->quantity }} pz</div>
             </div>
 
             <div class="info-card">
@@ -243,8 +243,8 @@
             </div>
 
             <div class="info-card">
-                <div class="info-label">Trasporto</div>
-                <div class="info-value">{{ $product->transport ?: '—' }}</div>
+                <div class="info-label">Ordine</div>
+                <div class="info-value">{{ $orderItem->order->order_number ?? 'N/A' }}</div>
             </div>
         </div>
 
@@ -279,7 +279,7 @@
             <div class="label-product-info">
                 <!-- Product Name -->
                 <div class="label-product-name">
-                    {{ $product->name }}
+                    {{ $labelData['name'] }}
                 </div>
 
                 <!-- Price -->
@@ -303,7 +303,7 @@
             <!-- Bottom info: EAN left, Client right -->
             <div class="label-bottom-info">
                 <div class="label-ean-text">
-                    {{ $product->ean }}
+                    {{ $orderItem->product_snapshot['ean'] ?? ($orderItem->product->ean ?? '') }}
                 </div>
                 <div class="label-client-code">
                     {{ $labelData['order_info']['customer_short'] ?: 'N/A' }}
@@ -316,10 +316,10 @@
     <div class="no-print mt-8 pt-6 border-t border-gray-200">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-500">
             <div>
-                <strong>Creato:</strong> {{ $product->created_at->format('d/m/Y H:i') }}
+                <strong>Creato:</strong> {{ $orderItem->created_at->format('d/m/Y H:i') }}
             </div>
             <div>
-                <strong>Aggiornato:</strong> {{ $product->updated_at->format('d/m/Y H:i') }}
+                <strong>Aggiornato:</strong> {{ $orderItem->updated_at->format('d/m/Y H:i') }}
             </div>
         </div>
     </div>
@@ -338,7 +338,7 @@ function printLabel() {
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Etichetta - {{ $product->name }}</title>
+            <title>Etichetta - {{ $labelData['name'] }}</title>
             <style>
                 @page {
                     margin: 5mm;

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\OrderItem;
 use App\Models\Order;
 use App\Models\QrCode;
 use Illuminate\Http\Request;
@@ -16,11 +17,11 @@ use Picqer\Barcode\BarcodeGeneratorHTML;
 class ProductLabelController extends Controller
 {
     /**
-     * Display a listing of products for label printing
+     * Display a listing of order items for label printing
      */
     public function index(Request $request): View
     {
-        $query = Product::with(['order', 'store', 'grower']);
+        $query = OrderItem::with(['order', 'store', 'grower', 'product']);
 
         // Filter by order ID
         if ($request->filled('order_id')) {
@@ -37,14 +38,20 @@ class ProductLabelController extends Controller
             $query->where('grower_id', $request->grower_id);
         }
 
-        // Search by product name
+        // Search by product name (in product_snapshot)
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where(function($q) use ($request) {
+                $search = $request->search;
+                $q->whereJsonContains('product_snapshot->name', $search)
+                  ->orWhereHas('product', function($productQuery) use ($search) {
+                      $productQuery->where('name', 'like', '%' . $search . '%');
+                  });
+            });
         }
 
-        $products = $query->orderBy('created_at', 'desc')
-                         ->paginate(20)
-                         ->withQueryString();
+        $orderItems = $query->orderBy('created_at', 'desc')
+                           ->paginate(20)
+                           ->withQueryString();
 
         // Get options for filters
         $stores = \App\Models\Store::orderBy('name')->get();
@@ -56,78 +63,68 @@ class ProductLabelController extends Controller
             $selectedOrder = \App\Models\Order::with('store')->find($request->order_id);
         }
 
-        return view('admin.products.index', compact('products', 'stores', 'growers', 'selectedOrder'));
+        return view('admin.products.index', compact('orderItems', 'stores', 'growers', 'selectedOrder'));
     }
 
     /**
-     * Show the product with label for printing
+     * Show the order item with label for printing
      */
-    public function show(Product $product): View
+    public function show(OrderItem $orderItem): View
     {
         // Load related data
-        $product->load(['order', 'store']);
+        $orderItem->load(['order', 'store', 'grower', 'product']);
 
         // Generate label data
-        $labelData = $this->prepareLabelData($product);
+        $labelData = $this->prepareLabelData($orderItem);
 
-        return view('admin.products.show', compact('product', 'labelData'));
+        return view('admin.products.show', compact('orderItem', 'labelData'));
     }
 
     /**
      * Prepare all data needed for the label
      */
-    private function prepareLabelData(Product $product): array
+    private function prepareLabelData(OrderItem $orderItem): array
     {
-        // Get or create QR code for the product
-        $qrCode = $this->getProductQrCode($product);
+        // Get or create QR code for the order item
+        $qrCode = $this->getOrderItemQrCode($orderItem);
 
-        // Try to get data from OrderItem if available (contains complete order data)
-        $orderItem = \App\Models\OrderItem::where('product_id', $product->id)
-                                          ->with(['order'])
-                                          ->first();
+        // Get product data from snapshot or relationship
+        $product = $orderItem->product;
+        $productName = $orderItem->product_snapshot['name'] ?? ($product ? $product->name : 'N/A');
+        $productVariety = $orderItem->product_snapshot['variety'] ?? ($product ? $product->variety : null);
+        $productEan = $orderItem->product_snapshot['ean'] ?? ($product ? $product->ean : null);
 
         // Generate barcode for EAN
         $barcode = null;
         $barcodeGenerator = new BarcodeGeneratorHTML();
 
-        if ($product->ean) {
+        if ($productEan) {
             try {
                 $barcode = [
-                    'html' => $barcodeGenerator->getBarcode($product->ean, 'EAN13'),
-                    'code' => $product->ean
+                    'html' => $barcodeGenerator->getBarcode($productEan, 'EAN13'),
+                    'code' => $productEan
                 ];
             } catch (\Exception $e) {
                 // Fallback if EAN is invalid
                 $barcode = [
                     'html' => '<div class="text-xs">Invalid EAN</div>',
-                    'code' => $product->ean
+                    'code' => $productEan
                 ];
             }
         }
 
-        // Determine price and order data source
-        if ($orderItem) {
-            // Use OrderItem data (contains complete order information)
-            $price = $orderItem->prezzo_rivendita ?: $orderItem->unit_price ?: $product->price;
-            $orderNumber = $orderItem->order->order_number ?? 'N/A';
-
-            // For customer, try order client first, then fallback to store name
-            $customer = $orderItem->order->client ?? $product->store->name ?? 'N/A';
-            $deliveryDate = $orderItem->order->delivery_date ? date('d/m/Y', strtotime($orderItem->order->delivery_date)) : 'N/A';
-        } else {
-            // Fallback to Product data
-            $price = $product->price;
-            $orderNumber = $product->order->order_number ?? 'N/A';
-            $customer = $product->client ?? $product->store->name ?? 'N/A';
-            $deliveryDate = $product->delivery_date ? date('d/m/Y', strtotime($product->delivery_date)) : 'N/A';
-        }
+        // Use OrderItem data (contains complete order information)
+        $price = $orderItem->prezzo_rivendita ?? 'N/A';
+        $orderNumber = $orderItem->order->order_number ?? 'N/A';
+        $customer = $orderItem->order->store->name ?? ($orderItem->store->name ?? 'N/A');
+        $deliveryDate = $orderItem->order->delivery_date ? date('d/m/Y', strtotime($orderItem->order->delivery_date)) : 'N/A';
 
         return [
             // Basic product info
-            'name' => $product->name,
-            'variety' => $product->variety,
+            'name' => $productName,
+            'variety' => $productVariety,
             'price' => $price,
-            'store_name' => $product->store->name ?? 'N/A',
+            'store_name' => $orderItem->store->name ?? 'N/A',
 
             // QR Code and Barcode
             'qrcode' => [
@@ -137,7 +134,7 @@ class ProductLabelController extends Controller
             'barcode' => $barcode,
             'formatted_price' => '€ ' . number_format((float) $price, 2, ',', '.'),
 
-            // Order information (from OrderItem when available)
+            // Order information
             'order_info' => [
                 'number' => $orderNumber,
                 'customer' => $customer,
@@ -148,22 +145,26 @@ class ProductLabelController extends Controller
     }
 
     /**
-     * Get or create QR code for a product
+     * Get or create QR code for an order item
      */
-    private function getProductQrCode(Product $product): ?QrCode
+    private function getOrderItemQrCode(OrderItem $orderItem): ?QrCode
     {
-        if (!$product) {
+        if (!$orderItem) {
             return null;
         }
 
-        // Look for existing QR code for this product
-        $qrCode = QrCode::where('product_id', $product->id)
-                       ->where('store_id', $product->store_id)
+        // Look for existing QR code for this order item
+        $qrCode = QrCode::where('order_id', $orderItem->order_id)
+                       ->where('store_id', $orderItem->store_id)
+                       ->where('product_id', $orderItem->product_id)
                        ->first();
 
         if (!$qrCode) {
-            // Generate unique ref_code for the product
-            $baseRefCode = 'PROD-' . strtoupper(substr(md5($product->name . $product->id), 0, 8));
+            $productName = $orderItem->product_snapshot['name'] ?? ($orderItem->product ? $orderItem->product->name : 'Product');
+            $productEan = $orderItem->product_snapshot['ean'] ?? ($orderItem->product ? $orderItem->product->ean : null);
+
+            // Generate unique ref_code for the order item
+            $baseRefCode = 'OI-' . strtoupper(substr(md5($productName . $orderItem->id), 0, 8));
             $refCode = $baseRefCode;
             $counter = 1;
 
@@ -174,22 +175,22 @@ class ProductLabelController extends Controller
             }
 
             // Generate name: "nome prodotto - codice cliente"
-            $clientCode = $product->client ?? 'N/A';
-            $qrName = $product->name . ' - ' . $clientCode;
+            $clientCode = $orderItem->order->client ?? 'N/A';
+            $qrName = $productName . ' - ' . $clientCode;
 
             // Generate question: "come si cura [nome del prodotto]"
-            $question = "Come si cura " . $product->name . "?";
+            $question = "Come si cura " . $productName . "?";
 
-            // Create new QR code for the product
+            // Create new QR code for the order item
             $qrCode = QrCode::create([
-                'store_id' => $product->store_id,
-                'order_id' => $product->order_id, // Keep order reference
-                'product_id' => $product->id,     // Add product reference
+                'store_id' => $orderItem->store_id,
+                'order_id' => $orderItem->order_id,
+                'product_id' => $orderItem->product_id,
                 'name' => $qrName,
                 'question' => $question,
                 'ref_code' => $refCode,
                 'is_active' => true,
-                'ean_code' => $product->ean,      // Save EAN code from product
+                'ean_code' => $productEan,
             ]);
 
             // Generate QR code image

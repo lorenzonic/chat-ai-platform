@@ -41,7 +41,7 @@ if (!isset($_SESSION['grower_id'])) {
         <!-- Main Content -->
         <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             <div class="px-4 py-6 sm:px-0">
-                
+
                 <!-- Alert -->
                 <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-6">
                     <div class="flex">
@@ -60,7 +60,7 @@ if (!isset($_SESSION['grower_id'])) {
                             <i class="fas fa-rocket mr-2"></i>Azioni Disponibili
                         </h3>
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <a href="/grower/products-stickers" 
+                            <a href="/grower/products-stickers"
                                class="block p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition">
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0">
@@ -72,8 +72,8 @@ if (!isset($_SESSION['grower_id'])) {
                                     </div>
                                 </div>
                             </a>
-                            
-                            <a href="/grower/products" 
+
+                            <a href="/grower/products"
                                class="block p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition">
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0">

@@ -8,16 +8,16 @@
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
                 <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-2xl font-bold">Manage Accounts</h1>
+                    <h1 class="text-2xl font-bold">gestisci Accounts</h1>
                     <div class="flex space-x-4">
                         <a href="{{ route('admin.accounts.stores.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-                            Create Store Account
+                            Crea Store Account
                         </a>
                         <a href="{{ route('admin.accounts.admins.create') }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-                            Create Admin Account
+                            Crea Admin Account
                         </a>
                         <a href="{{ route('admin.accounts.growers.create') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
-                            Create Grower Account
+                            Crea Grower Account
                         </a>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Store Details
+                                       dettagli Store
                                     </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Slug
@@ -200,10 +200,10 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Company Details
+                                        Name
                                     </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Contact
+                                        email
                                     </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status
@@ -220,8 +220,8 @@
                                 @forelse($growers as $grower)
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">{{ $grower->company_name }}</div>
-                                        <div class="text-sm text-gray-500">{{ $grower->business_type ?? 'N/A' }}</div>
+                                        <div class="text-sm font-medium text-gray-900">{{ $grower->name }}</div>
+                                        <div class="text-sm text-gray-500">{{ $grower->phone ?? 'N/A' }}</div>
                                         @if($grower->website)
                                             <div class="text-sm text-blue-500">
                                                 <a href="{{ $grower->website }}" target="_blank">{{ $grower->website }}</a>
