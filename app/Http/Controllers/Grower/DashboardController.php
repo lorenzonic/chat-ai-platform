@@ -24,7 +24,7 @@ class DashboardController extends Controller
             // Statistiche per il dashboard con controlli sicuri
             $totalProducts = Product::where('grower_id', $grower->id)->count() ?? 0;
 
-            $totalOrders = Order::whereHas('products', function($query) use ($grower) {
+            $totalOrders = Order::whereHas('orderItems.product', function($query) use ($grower) {
                 $query->where('grower_id', $grower->id);
             })->count() ?? 0;
 
