@@ -125,11 +125,11 @@ class OrderItemController extends Controller
 
         // Prepare product snapshot updates
         $productSnapshot = $orderItem->product_snapshot ?? [];
-        
+
         if ($request->filled('product_name')) {
             $productSnapshot['name'] = $request->product_name;
         }
-        
+
         if ($request->filled('product_ean')) {
             $productSnapshot['ean'] = $request->product_ean;
         }
