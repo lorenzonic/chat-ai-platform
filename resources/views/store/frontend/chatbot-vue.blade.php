@@ -180,7 +180,7 @@
                         this.isLoading = true;
 
                         try {
-                            const response = await axios.post(`/api/chatbot/${this.store.slug}`, {
+                            const response = await axios.post(`/api/chatbot/${this.store.slug}/message`, {
                                 message: userMessage,
                                 ref_code: refCode
                             }, {
@@ -239,11 +239,11 @@
                                     </div>
                                     <div>
                                         <h1 class="text-3xl font-bold tracking-tight"
-                                            :style="{ fontFamily: store.chat_font_family || 'Inter' }">
-                                            {{ store.name }}
+                                            :style="{ fontFamily: store.chat_font_family || 'Inter' }"
+                                            v-text="store.name">
                                         </h1>
-                                        <p class="text-white text-opacity-90 text-base mt-1">
-                                            {{ store.assistant_name || 'AI Assistant' }} • Assistente Virtuale
+                                        <p class="text-white text-opacity-90 text-base mt-1"
+                                           v-text="(store.assistant_name || 'AI Assistant') + ' • Assistente Virtuale'">
                                         </p>
                                     </div>
                                 </div>
@@ -265,7 +265,7 @@
                                                 </svg>
                                             </div>
                                             <div>
-                                                <h2 class="text-lg font-semibold">{{ store.assistant_name || 'Assistente AI' }}</h2>
+                                                <h2 class="text-lg font-semibold" v-text="store.assistant_name || 'Assistente AI'"></h2>
                                                 <p class="text-sm text-white text-opacity-75">Online ora</p>
                                             </div>
                                         </div>
@@ -290,8 +290,8 @@
                                                 </svg>
                                             </div>
                                             <div class="bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-md border border-gray-200">
-                                                <p class="text-gray-800 text-sm leading-relaxed">{{ message.content }}</p>
-                                                <p class="text-xs text-gray-500 mt-2">{{ formatTime(message.timestamp) }}</p>
+                                                <p class="text-gray-800 text-sm leading-relaxed" v-text="message.content"></p>
+                                                <p class="text-xs text-gray-500 mt-2" v-text="formatTime(message.timestamp)"></p>
                                             </div>
                                         </div>
 
@@ -299,8 +299,8 @@
                                         <div v-else class="flex items-start space-x-3 max-w-xs lg:max-w-md">
                                             <div class="rounded-2xl rounded-tr-md px-4 py-3 shadow-md text-white"
                                                  :style="{ background: store.chat_theme_color || '#10b981' }">
-                                                <p class="text-sm leading-relaxed">{{ message.content }}</p>
-                                                <p class="text-xs text-white text-opacity-75 mt-2">{{ formatTime(message.timestamp) }}</p>
+                                                <p class="text-sm leading-relaxed" v-text="message.content"></p>
+                                                <p class="text-xs text-white text-opacity-75 mt-2" v-text="formatTime(message.timestamp)"></p>
                                             </div>
                                             <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
                                                 <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
