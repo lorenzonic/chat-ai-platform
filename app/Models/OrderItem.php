@@ -110,4 +110,22 @@ class OrderItem extends Model
     {
         return number_format($this->margin, 1) . '%';
     }
+
+    /**
+     * Accessor per compatibilità con il campo 'price'
+     * Restituisce prezzo_rivendita come price
+     */
+    public function getPriceAttribute(): float
+    {
+        return (float) $this->prezzo_rivendita;
+    }
+
+    /**
+     * Mutator per compatibilità con il campo 'price'
+     * Imposta prezzo_rivendita quando si assegna price
+     */
+    public function setPriceAttribute($value): void
+    {
+        $this->attributes['prezzo_rivendita'] = $value;
+    }
 }

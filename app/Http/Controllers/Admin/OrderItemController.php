@@ -73,7 +73,7 @@ class OrderItemController extends Controller
             'total_stores' => Store::whereHas('orderItems')->count(),
             'total_growers' => Grower::whereHas('orderItems')->count(),
             'total_quantity' => OrderItem::sum('quantity'),
-            'total_value' => OrderItem::selectRaw('SUM(quantity * price) as total')->value('total') ?? 0,
+            'total_value' => OrderItem::selectRaw('SUM(quantity * prezzo_rivendita) as total')->value('total') ?? 0,
         ];
 
         return view('admin.order-items.index', compact(
@@ -123,7 +123,7 @@ class OrderItemController extends Controller
 
         $orderItem->update([
             'quantity' => $request->quantity,
-            'price' => $request->price,
+            'prezzo_rivendita' => $request->price,
             'store_id' => $request->store_id,
             'grower_id' => $request->grower_id,
         ]);

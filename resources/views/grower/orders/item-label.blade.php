@@ -228,7 +228,7 @@
 
             <div class="info-card">
                 <div class="info-label">Prezzo Rivendita</div>
-                <div class="info-value text-lg font-semibold">{{ $labelData['unit_price'] }}</div>
+                <div class="info-value text-lg font-semibold">{{ $labelData['unit_price'] ?? '' }}</div>
             </div>
 
             <div class="info-card">
