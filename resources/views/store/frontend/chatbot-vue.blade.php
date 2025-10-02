@@ -20,24 +20,83 @@
     <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Vite assets with fallback -->
-    @if (app()->environment('production') && !file_exists(public_path('build/manifest.json')))
-        <!-- Production fallback quando Vite assets non sono disponibili -->
+    <!-- Vite assets with intelligent fallback -->
+    @php
+        $viteManifestExists = file_exists(public_path('build/manifest.json'));
+        $useVite = $viteManifestExists;
+    @endphp
+
+    @if ($useVite)
+        <!-- Use Vite assets when manifest exists -->
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <script>
+            window.ViteAssetsLoaded = true;
+            console.log('✅ Using Vite assets');
+        </script>
+    @else
+        <!-- Fallback to CDN when manifest not found -->
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script>
+            window.ViteAssetsLoaded = false;
+            console.log('⚠️ Using CDN fallback - Vite manifest not found');
+        </script>
         <style>
-            /* Basic Tailwind-like styles for fallback */
+            /* Essential Tailwind-like styles for fallback */
             .bg-gradient-to-br { background: linear-gradient(to bottom right, #f8fafc, #e0f2fe, #e0e7ff); }
             .min-h-screen { min-height: 100vh; }
             .text-white { color: white; }
             .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
             .rounded-3xl { border-radius: 1.5rem; }
             .p-6 { padding: 1.5rem; }
-            /* Add more essential styles as needed */
+            .bg-white { background-color: white; }
+            .rounded-xl { border-radius: 0.75rem; }
+            .shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+            .border { border-width: 1px; }
+            .border-gray-200 { border-color: #e5e7eb; }
+            .px-4 { padding-left: 1rem; padding-right: 1rem; }
+            .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+            .flex { display: flex; }
+            .items-center { align-items: center; }
+            .justify-center { justify-content: center; }
+            .space-x-4 > * + * { margin-left: 1rem; }
+            .space-y-4 > * + * { margin-top: 1rem; }
+            .max-w-4xl { max-width: 56rem; }
+            .mx-auto { margin-left: auto; margin-right: auto; }
+            .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+            .font-bold { font-weight: 700; }
+            .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+            .font-semibold { font-weight: 600; }
+            .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+            .text-xs { font-size: 0.75rem; line-height: 1rem; }
+            .text-gray-800 { color: #1f2937; }
+            .text-gray-600 { color: #4b5563; }
+            .text-gray-500 { color: #6b7280; }
+            .bg-gray-300 { background-color: #d1d5db; }
+            .bg-opacity-20 { --tw-bg-opacity: 0.2; }
+            .backdrop-blur-md { backdrop-filter: blur(12px); }
+            .rounded-2xl { border-radius: 1rem; }
+            .w-14 { width: 3.5rem; }
+            .h-14 { width: 3.5rem; }
+            .w-10 { width: 2.5rem; }
+            .h-10 { height: 2.5rem; }
+            .w-8 { width: 2rem; }
+            .h-8 { height: 2rem; }
+            .w-5 { width: 1.25rem; }
+            .h-5 { height: 1.25rem; }
+            .w-4 { width: 1rem; }
+            .h-4 { height: 1rem; }
+            .w-3 { width: 0.75rem; }
+            .h-3 { height: 0.75rem; }
+            .w-2 { width: 0.5rem; }
+            .h-2 { height: 0.5rem; }
+            .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+            .animate-bounce { animation: bounce 1s infinite; }
+            .animate-spin { animation: spin 1s linear infinite; }
+            @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+            @keyframes bounce { 0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8,0,1,1); } 50% { transform: none; animation-timing-function: cubic-bezier(0,0,0.2,1); } }
+            @keyframes spin { to { transform: rotate(360deg); } }
         </style>
-    @else
-        <!-- Normal Vite assets -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
 
     <!-- Vue initialization script -->
