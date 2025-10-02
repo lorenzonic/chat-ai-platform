@@ -14,7 +14,7 @@ Alpine.start();
 // Vue setup per componenti specifici
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing Vue components...');
-    
+
     // Chatbot component
     const chatbotElement = document.getElementById('modern-chatbot');
     if (chatbotElement) {

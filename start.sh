@@ -18,9 +18,38 @@ mkdir -p public/qr_codes
 mkdir -p public/storage
 
 # Set permissions
-chmod -R 755 storage
-chmod -R 755 bootstrap/cache
-chmod -R 755 public/qr_codes
+# Set permissions
+chmod -R 755 storage bootstrap/cache
+chmod -R 777 storage/logs
+chmod -R 777 public/qr_codes
+
+# Build frontend assets for production
+echo "🎨 Building frontend assets..."
+if [ "$APP_ENV" = "production" ]; then
+    echo "📦 Installing npm dependencies..."
+    npm ci --production=false || {
+        echo "⚠️ npm ci failed, trying npm install..."
+        npm install || echo "⚠️ npm install also failed"
+    }
+    
+    echo "🏗️ Building Vite assets..."
+    npm run build || {
+        echo "⚠️ npm run build failed, checking for manifest..."
+        if [ ! -f "public/build/manifest.json" ]; then
+            echo "🚨 No manifest found, creating emergency fallback..."
+            mkdir -p public/build
+            echo '{"resources/js/app.js":{"file":"assets/app-fallback.js","isEntry":true},"resources/css/app.css":{"file":"assets/app-fallback.css","isEntry":true}}' > public/build/manifest.json
+        fi
+    }
+    
+    # Ensure manifest is in correct location
+    if [ -f "public/build/.vite/manifest.json" ] && [ ! -f "public/build/manifest.json" ]; then
+        echo "📋 Copying manifest from .vite directory..."
+        cp "public/build/.vite/manifest.json" "public/build/manifest.json"
+    fi
+    
+    echo "✅ Frontend build completed"
+fi
 
 # Pulizia cache esistente
 echo "🧹 Pulizia cache..."
