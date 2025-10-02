@@ -67,6 +67,9 @@ class GeminiService
             $systemPrompt = $this->buildSystemPrompt($context);
             $fullPrompt = $systemPrompt . "\n\nDomanda del cliente: " . $message;
 
+            // Detect if the query requires web search (prices, trends, news, current info)
+            $needsWebSearch = $this->needsWebSearch($message, $nlpData);
+
             // Prepare the request payload
             $payload = [
                 'contents' => [
@@ -86,13 +89,25 @@ class GeminiService
                 ]
             ];
 
+            // Add Google Search tool if needed
+            if ($needsWebSearch) {
+                $payload['tools'] = [
+                    [
+                        'googleSearch' => new \stdClass()
+                    ]
+                ];
+            }
+
             // Make the API request with retry logic for 503 errors
             $maxRetries = 3;
             $retryDelay = 2; // seconds
             $response = null;
+            
+            // Use longer timeout for web search requests
+            $timeout = $needsWebSearch ? 60 : 30;
 
             for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
-                $response = Http::timeout(30)
+                $response = Http::timeout($timeout)
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                     ])
@@ -422,7 +437,7 @@ INFORMAZIONI SPECIFICHE DEL NEGOZIO:
         return "Mi dispiace, in questo momento sto avendo difficoltà tecniche. Riprova tra qualche istante o contattaci direttamente per assistenza.";
     }
 
-    /**
+        /**
      * Get tone instructions based on selected AI tone
      *
      * @param string $tone
@@ -437,6 +452,45 @@ INFORMAZIONI SPECIFICHE DEL NEGOZIO:
             'professional' => 'Mantieni un tono professionale, cortese e competente. Sii formale ma accessibile. Usa emoji professionali con moderazione ✅📋.',
             default => 'Sii cordiale, professionale e utile.'
         };
+    }
+
+    /**
+     * Determine if the query needs web search based on content and NLP analysis
+     *
+     * @param string $message User message
+     * @param array|null $nlpData NLP analysis data
+     * @return bool
+     */
+    private function needsWebSearch(string $message, ?array $nlpData = null): bool
+    {
+        // Keywords that suggest need for current/web information
+        $webSearchKeywords = [
+            'prezzo', 'prezzi', 'costo', 'costi', 'quanto costa', 'offerta', 'offerte',
+            'novità', 'nuovo', 'nuovi', 'ultime', 'ultimo', 'recente', 'recenti',
+            'tendenza', 'trend', 'andamento', 'mercato', 'disponibilità',
+            'confronto', 'confronta', 'migliore', 'migliori', 'sconto', 'sconti',
+            'stagionale', 'stagione', 'periodo', 'quando', 'dove comprare',
+            'news', 'notizie', 'aggiornamento', 'aggiornamenti'
+        ];
+
+        $messageLower = strtolower($message);
+        
+        // Check for web search keywords
+        foreach ($webSearchKeywords as $keyword) {
+            if (strpos($messageLower, $keyword) !== false) {
+                return true;
+            }
+        }
+
+        // Check NLP intent if available
+        if ($nlpData && isset($nlpData['intent'])) {
+            $webSearchIntents = ['price_inquiry', 'product_comparison', 'availability_check', 'news_request'];
+            if (in_array($nlpData['intent'], $webSearchIntents)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
