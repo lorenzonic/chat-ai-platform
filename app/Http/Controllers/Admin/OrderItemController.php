@@ -119,13 +119,27 @@ class OrderItemController extends Controller
             'price' => 'required|numeric|min:0',
             'store_id' => 'required|exists:stores,id',
             'grower_id' => 'required|exists:growers,id',
+            'product_name' => 'nullable|string|max:255',
+            'product_ean' => 'nullable|string|max:20',
         ]);
+
+        // Prepare product snapshot updates
+        $productSnapshot = $orderItem->product_snapshot ?? [];
+        
+        if ($request->filled('product_name')) {
+            $productSnapshot['name'] = $request->product_name;
+        }
+        
+        if ($request->filled('product_ean')) {
+            $productSnapshot['ean'] = $request->product_ean;
+        }
 
         $orderItem->update([
             'quantity' => $request->quantity,
             'prezzo_rivendita' => $request->price,
             'store_id' => $request->store_id,
             'grower_id' => $request->grower_id,
+            'product_snapshot' => $productSnapshot,
         ]);
 
         return redirect()->route('admin.order-items.index')

@@ -115,18 +115,44 @@
 
                     </div>
 
-                    <!-- Product Info (Read-only) -->
+                    <!-- Product Info (Editable) -->
                     <div class="pt-6 border-t border-gray-200">
                         <h3 class="text-lg font-medium text-gray-900 mb-4">🏷️ Informazioni Prodotto</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <label class="block text-sm font-medium text-gray-700">Nome Prodotto</label>
-                                <p class="mt-1 text-sm text-gray-900">
-                                    {{ $orderItem->product_snapshot['name'] ?? $orderItem->product->name ?? 'N/A' }}
-                                </p>
+                            <!-- Product Name (Editable) -->
+                            <div>
+                                <label for="product_name" class="block text-sm font-medium text-gray-700">
+                                    Nome Prodotto
+                                </label>
+                                <input type="text"
+                                       id="product_name"
+                                       name="product_name"
+                                       value="{{ old('product_name', $orderItem->product_snapshot['name'] ?? $orderItem->product->name ?? '') }}"
+                                       maxlength="255"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                @error('product_name')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
+                            <!-- EAN Code (Editable) -->
+                            <div>
+                                <label for="product_ean" class="block text-sm font-medium text-gray-700">
+                                    Codice EAN
+                                </label>
+                                <input type="text"
+                                       id="product_ean"
+                                       name="product_ean"
+                                       value="{{ old('product_ean', $orderItem->product_snapshot['ean'] ?? $orderItem->product->ean ?? '') }}"
+                                       maxlength="20"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                @error('product_ean')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- SKU (Read-only) -->
                             <div class="bg-gray-50 p-4 rounded-lg">
                                 <label class="block text-sm font-medium text-gray-700">SKU</label>
                                 <p class="mt-1 text-sm text-gray-900">
@@ -134,13 +160,7 @@
                                 </p>
                             </div>
 
-                            @if(isset($orderItem->product_snapshot['ean']))
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <label class="block text-sm font-medium text-gray-700">EAN</label>
-                                <p class="mt-1 text-sm text-gray-900">{{ $orderItem->product_snapshot['ean'] }}</p>
-                            </div>
-                            @endif
-
+                            <!-- Product ID (Read-only) -->
                             <div class="bg-gray-50 p-4 rounded-lg">
                                 <label class="block text-sm font-medium text-gray-700">Product ID</label>
                                 <p class="mt-1 text-sm text-gray-900">{{ $orderItem->product_id ?? 'N/A' }}</p>
