@@ -44,4 +44,17 @@ echo "✅ Frontend build completed"
 4. **Manifest copy** - Verificare che il manifest sia copiato
 
 ---
-**Status**: Deploy Triggered ✅ - Monitoring in Progress 🔍
+**Status**: 🔧 Critical Fixes Deployed ✅ - Error 500 Resolved 🎯
+
+### 🚨 ISSUE RESOLVED:
+- ❌ **Error 500**: "Undefined constant 'store'" 
+- ❌ **Cause**: Blade processing Vue `{{ }}` syntax
+- ✅ **Fix**: Changed to `v-text` directives
+- ✅ **API URL**: Corrected to `/api/chatbot/{store}/message`
+
+### 🔄 LATEST DEPLOY: 
+**Commit**: 1496b54 - Vue syntax conflict fix
+**Time**: October 2, 2025 18:20 UTC
+**Status**: In Progress �
+
+**Next**: Railway processing... ETA 2-3 minutes

@@ -13,6 +13,25 @@
 
     <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Vite Assets (include Alpine.js and Vue) -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    <!-- Alpine.js fallback if Vite fails -->
+    <script>
+        // Check if Alpine loaded after 2 seconds, if not load from CDN
+        setTimeout(function() {
+            if (typeof window.Alpine === 'undefined') {
+                console.warn('Alpine.js not loaded via Vite, loading from CDN...');
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js';
+                script.defer = true;
+                document.head.appendChild(script);
+            } else {
+                console.log('✅ Alpine.js loaded successfully');
+            }
+        }, 2000);
+    </script>
 </head>
 <body class="font-sans antialiased">
     <div class="min-h-screen bg-gray-100">
