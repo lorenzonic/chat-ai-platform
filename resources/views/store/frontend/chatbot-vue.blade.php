@@ -20,9 +20,14 @@
     <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Vue 3 and Axios from CDN - Always reliable -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- Vite assets per development con fallback CDN -->
+    @if (app()->environment('local') && file_exists(public_path('build/manifest.json')))
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @else
+        <!-- CDN fallback per development senza build o produzione -->
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    @endif
 
     <!-- Initialize chatbot -->
     <script>
