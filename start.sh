@@ -31,7 +31,7 @@ if [ "$APP_ENV" = "production" ]; then
         echo "⚠️ npm ci failed, trying npm install..."
         npm install || echo "⚠️ npm install also failed"
     }
-    
+
     echo "🏗️ Building Vite assets..."
     npm run build || {
         echo "⚠️ npm run build failed, checking for manifest..."
@@ -41,13 +41,13 @@ if [ "$APP_ENV" = "production" ]; then
             echo '{"resources/js/app.js":{"file":"assets/app-fallback.js","isEntry":true},"resources/css/app.css":{"file":"assets/app-fallback.css","isEntry":true}}' > public/build/manifest.json
         fi
     }
-    
+
     # Ensure manifest is in correct location
     if [ -f "public/build/.vite/manifest.json" ] && [ ! -f "public/build/manifest.json" ]; then
         echo "📋 Copying manifest from .vite directory..."
         cp "public/build/.vite/manifest.json" "public/build/manifest.json"
     fi
-    
+
     echo "✅ Frontend build completed"
 fi
 

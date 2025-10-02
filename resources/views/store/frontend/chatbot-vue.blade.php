@@ -103,7 +103,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM loaded, checking Vue availability...');
-        
+
         // Function to initialize the chatbot
         function initializeChatbot() {
             const chatbotElement = document.getElementById('modern-chatbot');
@@ -113,14 +113,14 @@
             }
 
             console.log('Initializing Vue chatbot...');
-            
+
             // Get data from element
             const storeData = chatbotElement.dataset.store ? JSON.parse(chatbotElement.dataset.store) : null;
             const prefilledQuestion = chatbotElement.dataset.prefilledQuestion || null;
             const refCode = chatbotElement.dataset.refCode || null;
 
             console.log('Store data:', storeData);
-            
+
             if (!storeData) {
                 console.error('Store data not found');
                 return;
@@ -135,7 +135,7 @@
             }
 
             const { createApp } = Vue;
-            
+
             // Create Vue app with inline template for maximum compatibility
             const ChatbotApp = {
                 data() {
@@ -150,14 +150,14 @@
                 async mounted() {
                     console.log('Vue app mounted');
                     this.isInitialized = true;
-                    
+
                     // Add welcome message
                     this.messages.push({
                         type: 'bot',
                         content: `Ciao! Sono ${this.store.assistant_name || 'l\'assistente AI'} di ${this.store.name}. Come posso aiutarti?`,
                         timestamp: new Date()
                     });
-                    
+
                     // Auto-send prefilled question if present
                     if (this.currentMessage) {
                         setTimeout(() => {
@@ -220,17 +220,17 @@
                     }
                 },
                 template: \`
-                    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" 
+                    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
                          :style="{ background: 'linear-gradient(to bottom right, #f8fafc, #e0f2fe, #e0e7ff)' }">
-                        
+
                         <!-- Header -->
-                        <header class="text-white shadow-xl" 
+                        <header class="text-white shadow-xl"
                                 :style="{ background: store.chat_theme_color || '#10b981' }">
                             <div class="max-w-4xl mx-auto px-6 py-8">
                                 <div class="flex items-center space-x-4">
                                     <div class="w-14 h-14 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center shadow-lg">
-                                        <img v-if="store.chat_avatar_image" 
-                                             :src="store.chat_avatar_image" 
+                                        <img v-if="store.chat_avatar_image"
+                                             :src="store.chat_avatar_image"
                                              :alt="store.name"
                                              class="w-12 h-12 rounded-xl object-cover">
                                         <svg v-else class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
@@ -238,7 +238,7 @@
                                         </svg>
                                     </div>
                                     <div>
-                                        <h1 class="text-3xl font-bold tracking-tight" 
+                                        <h1 class="text-3xl font-bold tracking-tight"
                                             :style="{ fontFamily: store.chat_font_family || 'Inter' }">
                                             {{ store.name }}
                                         </h1>
@@ -253,7 +253,7 @@
                         <!-- Chat Container -->
                         <div class="max-w-4xl mx-auto p-6 -mt-4 relative z-10">
                             <div class="bg-white bg-opacity-80 backdrop-blur-md rounded-3xl shadow-2xl border border-white border-opacity-30 overflow-hidden">
-                                
+
                                 <!-- Chat Header -->
                                 <div class="text-white p-5 relative overflow-hidden rounded-t-3xl"
                                      :style="{ background: store.chat_theme_color || '#10b981' }">
@@ -280,7 +280,7 @@
                                 <div ref="messagesContainer" class="h-96 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-white to-gray-50">
                                     <div v-for="(message, index) in messages" :key="index"
                                          :class="message.type === 'user' ? 'flex justify-end' : 'flex justify-start'">
-                                        
+
                                         <!-- Bot Message -->
                                         <div v-if="message.type === 'bot'" class="flex items-start space-x-3 max-w-xs lg:max-w-md">
                                             <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
