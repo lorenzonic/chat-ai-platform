@@ -11,11 +11,19 @@
                 <div class="p-6 text-gray-900">
                     <div class="flex justify-between items-center mb-6">
                         <h1 class="text-2xl font-bold">{{ auth('store')->user()->name }} Dashboard</h1>
-                        @if(auth('store')->user()->is_premium)
-                            <span class="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-semibold rounded-full">
-                                Premium Account
-                            </span>
-                        @endif
+                        <div class="flex items-center space-x-3">
+                            @if(auth('store')->user()->is_premium)
+                                <span class="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-semibold rounded-full">
+                                    Premium Account
+                                </span>
+                            @endif
+                            <div class="flex items-center text-sm text-gray-600">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                {{ auth('store')->user()->email }}
+                            </div>
+                        </div>
                     </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -82,8 +90,11 @@
                                class="block bg-orange-600 hover:bg-orange-700 text-white text-center px-4 py-2 rounded">
                                 📊 Analytics
                             </a>
-                            <a href="{{ route('store.profile.show') }}" class="w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-center block">
-                                👤 Gestisci Profilo
+                            <a href="{{ route('store.profile.show') }}" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded text-center block flex items-center justify-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                Gestisci Profilo
                             </a>
                         </div>
                     </div>

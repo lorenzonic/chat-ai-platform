@@ -13,15 +13,21 @@ Alpine.start();
 
 // Vue setup per componenti specifici
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing Vue components...');
+    
     // Chatbot component
     const chatbotElement = document.getElementById('modern-chatbot');
     if (chatbotElement) {
-        console.log('Mounting Vue chatbot app...');
+        console.log('Found chatbot element, mounting Vue chatbot app...');
         try {
             // Ottieni i dati dalle data attributes o dal DOM
             const storeData = chatbotElement.dataset.store ? JSON.parse(chatbotElement.dataset.store) : null;
             const prefilledQuestion = chatbotElement.dataset.prefilledQuestion || null;
             const refCode = chatbotElement.dataset.refCode || null;
+
+            console.log('Store data:', storeData);
+            console.log('Prefilled question:', prefilledQuestion);
+            console.log('Ref code:', refCode);
 
             const app = createApp(ChatbotApp, {
                 store: storeData,
@@ -33,7 +39,10 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Vue chatbot app mounted successfully');
         } catch (error) {
             console.error('Error mounting Vue chatbot app:', error);
+            console.error('Error stack:', error.stack);
         }
+    } else {
+        console.log('No chatbot element found on this page');
     }
 
     // Analytics dashboard component

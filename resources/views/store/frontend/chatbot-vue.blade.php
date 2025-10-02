@@ -20,167 +20,46 @@
     <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Vite assets per development con fallback CDN -->
-    @if (app()->environment('local') && file_exists(public_path('build/manifest.json')))
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @else
-        <!-- CDN fallback per development senza build o produzione -->
-        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    @endif
-
-    <!-- Initialize chatbot -->
+    <!-- Always use Vite assets -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    <!-- Fallback script per debug in production -->
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Wait for Vue to load
+        // Check if Vue loaded after 5 seconds
         setTimeout(function() {
-            if (window.Vue) {
-                initChatbot();
-            } else {
-                console.error('Vue not loaded');
-            }
-        }, 100);
-    });
-
-    function initChatbot() {
-        const { createApp } = Vue;
-
-        const ChatbotApp = {
-            data() {
-                return {
-                    messages: [],
-                    currentMessage: '',
-                    isLoading: false,
-                    store: null
-                }
-            },
-            async mounted() {
-                // Get store data from element
-                const element = document.getElementById('modern-chatbot');
-                this.store = element.dataset.store ? JSON.parse(element.dataset.store) : null;
-
-                // Prefilled question
-                const prefilledQuestion = element.dataset.prefilledQuestion;
-                if (prefilledQuestion) {
-                    this.currentMessage = prefilledQuestion;
-                }
-
-                // Welcome message
-                this.messages.push({
-                    type: 'bot',
-                    content: `Ciao! Sono l'assistente AI di ${this.store?.name || 'il nostro negozio'}. Come posso aiutarti?`,
-                    timestamp: new Date()
-                });
-            },
-            methods: {
-                async sendMessage() {
-                    if (!this.currentMessage.trim()) return;
-
-                    const userMessage = this.currentMessage;
-                    this.messages.push({
-                        type: 'user',
-                        content: userMessage,
-                        timestamp: new Date()
-                    });
-
-                    this.currentMessage = '';
-                    this.isLoading = true;
-
-                    try {
-                        const response = await axios.post(`/api/chatbot/${this.store.slug}`, {
-                            message: userMessage,
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                            }
-                        });
-
-                        this.messages.push({
-                            type: 'bot',
-                            content: response.data.response || 'Risposta ricevuta',
-                            timestamp: new Date()
-                        });
-                    } catch (error) {
-                        console.error('Chat error:', error);
-                        this.messages.push({
-                            type: 'bot',
-                            content: 'Mi dispiace, c\'è stato un errore. Riprova tra qualche istante.',
-                            timestamp: new Date()
-                        });
-                    }
-
-                    this.isLoading = false;
-                    this.$nextTick(() => {
-                        this.scrollToBottom();
-                    });
-                },
-                scrollToBottom() {
-                    const container = this.$refs.messagesContainer;
-                    if (container) {
-                        container.scrollTop = container.scrollHeight;
-                    }
-                }
-            },
-            template: \`
-                <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg overflow-hidden" style="height: 500px;">
-                    <div class="bg-blue-600 text-white p-4">
-                        <h3 class="font-semibold">{{ $store->name }} - AI Chat</h3>
-                        <p class="text-sm opacity-90">Powered by Gemini AI</p>
-                    </div>
-                    <div ref="messagesContainer" class="h-80 overflow-y-auto p-4 space-y-3">
-                        <div v-for="message in messages" :key="message.timestamp"
-                             :class="message.type === 'user' ? 'text-right' : 'text-left'">
-                            <div :class="message.type === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'"
-                                 class="inline-block rounded-lg px-3 py-2 max-w-xs text-sm">
-                                \{\{ message.content \}\}
+            const chatbotElement = document.getElementById('modern-chatbot');
+            if (chatbotElement && chatbotElement.innerHTML.includes('Caricamento chatbot')) {
+                console.error('Vue chatbot failed to load - showing error message');
+                chatbotElement.innerHTML = `
+                    <div class="flex items-center justify-center min-h-screen">
+                        <div class="text-center bg-red-50 border border-red-200 rounded-lg p-8 max-w-md">
+                            <div class="text-red-600 mb-4">
+                                <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
                             </div>
-                        </div>
-                        <div v-if="isLoading" class="text-left">
-                            <div class="bg-gray-200 text-gray-800 inline-block rounded-lg px-3 py-2">
-                                <span class="animate-pulse">Sto scrivendo...</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-4 border-t">
-                        <div class="flex space-x-2">
-                            <input v-model="currentMessage"
-                                   @keyup.enter="sendMessage"
-                                   type="text"
-                                   placeholder="Scrivi un messaggio..."
-                                   class="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                            <button @click="sendMessage"
-                                    :disabled="isLoading || !currentMessage.trim()"
-                                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 text-sm">
-                                Invia
+                            <h3 class="text-lg font-semibold text-red-800 mb-2">Errore di caricamento</h3>
+                            <p class="text-red-600 mb-4">Il chatbot non è riuscito a caricarsi correttamente.</p>
+                            <button onclick="window.location.reload()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+                                Ricarica pagina
                             </button>
                         </div>
                     </div>
-                </div>
-            \`
-        };
-
-        createApp(ChatbotApp).mount('#modern-chatbot');
-        console.log('Vue 3 Chatbot initialized successfully');
-    }
+                `;
+            }
+        }, 5000);
     </script>
 </head>
-<body>
-    <div
-        id="modern-chatbot"
-        data-store="{{ json_encode($store) }}"
-        data-prefilled-question="{{ request()->get('question') }}"
-        data-ref-code="{{ request()->get('ref') }}"
-    >
-        <!-- Vue app will be mounted here -->
-        <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg overflow-hidden mt-10" style="height: 500px;">
-            <div class="bg-blue-600 text-white p-4">
-                <h3 class="font-semibold">{{ $store->name }} - Caricamento...</h3>
-            </div>
-            <div class="h-80 overflow-y-auto p-4 flex items-center justify-center">
-                <div class="text-center">
-                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                    <p class="mt-4 text-gray-600">Caricamento chat...</p>
-                </div>
+<body class="font-sans antialiased">
+    <div id="modern-chatbot"
+         data-store='@json($store)'
+         data-prefilled-question="{{ request('q') }}"
+         data-ref-code="{{ request('ref') }}">
+        <!-- Vue app will mount here -->
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p class="text-gray-600">Caricamento chatbot...</p>
             </div>
         </div>
     </div>

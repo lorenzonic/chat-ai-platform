@@ -102,7 +102,7 @@ class GeminiService
             $maxRetries = 3;
             $retryDelay = 2; // seconds
             $response = null;
-            
+
             // Use longer timeout for web search requests
             $timeout = $needsWebSearch ? 60 : 30;
 
@@ -474,7 +474,7 @@ INFORMAZIONI SPECIFICHE DEL NEGOZIO:
         ];
 
         $messageLower = strtolower($message);
-        
+
         // Check for web search keywords
         foreach ($webSearchKeywords as $keyword) {
             if (strpos($messageLower, $keyword) !== false) {
