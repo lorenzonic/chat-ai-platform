@@ -194,9 +194,13 @@
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-900">{{ $orderItem->product_snapshot['name'] ?? ($orderItem->product->name ?? 'N/A') }}</h1>
             <div class="flex gap-2">
+                <a href="{{ route('admin.products.thermal', $orderItem) }}"
+                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                    🏷️ Stampa Termica ({{ $orderItem->quantity ?? 1 }}x)
+                </a>
                 <button onclick="printLabel()"
                         class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">
-                    🖨️ Stampa Etichetta
+                    🖨️ Stampa Standard
                 </button>
                 <a href="{{ route('admin.dashboard') }}"
                    class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md">

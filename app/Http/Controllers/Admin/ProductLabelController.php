@@ -77,7 +77,25 @@ class ProductLabelController extends Controller
         // Generate label data
         $labelData = $this->prepareLabelData($orderItem);
 
+        // Add quantity for multiple labels
+        $labelData['quantity'] = $orderItem->quantity ?? 1;
+
         return view('admin.products.show', compact('orderItem', 'labelData'));
+    }
+
+    /**
+     * Show multiple labels for thermal printing (Godex G500 optimized)
+     */
+    public function thermalPrint(OrderItem $orderItem): View
+    {
+        // Load related data
+        $orderItem->load(['order', 'store', 'grower', 'product']);
+
+        // Generate label data
+        $labelData = $this->prepareLabelData($orderItem);
+        $labelData['quantity'] = $orderItem->quantity ?? 1;
+
+        return view('admin.products.thermal-print', compact('orderItem', 'labelData'));
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Interaction;
 use App\Models\Lead;
 use App\Models\ChatLog;
+use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -20,28 +21,18 @@ class AnalyticsController extends Controller
     {
         $store = auth()->guard('store')->user();
 
-        // Debug log
-        \Log::info('Analytics request', [
-            'is_ajax' => $request->ajax(),
-            'wants_json' => $request->wantsJson(),
-            'accept_header' => $request->header('Accept'),
-            'store_id' => $store->id
+        // For debugging - use CDN simple version
+        return view('store.analytics.cdn-simple', [
+            'store' => $store
         ]);
-
-        // If this is an AJAX request, return JSON data
-        if ($request->wantsJson() || $request->ajax()) {
-            return $this->getAnalyticsData($request, $store);
-        }
-
-        // Otherwise, return the view
-        return view('store.analytics.index', compact('store'));
     }
 
     /**
-     * Get analytics data as JSON
+     * Get analytics data as JSON (used by AJAX requests and map)
      */
-    private function getAnalyticsData(Request $request, $store): JsonResponse
+    public function getAnalyticsData(Request $request): JsonResponse
     {
+        $store = auth()->guard('store')->user();
 
         // Validate date range
         $request->validate([
@@ -469,6 +460,41 @@ class AnalyticsController extends Controller
             'leads_count' => $leadsCount,
             'recent_interactions' => $recentInteractions,
             'recent_leads' => $recentLeads,
+        ]);
+    }
+
+    /**
+     * Debug geographic data (temporary - no auth required)
+     */
+    public function debugGeographic(Request $request)
+    {
+        // For debug only - use store ID 19
+        $store = Store::find(19);
+
+        if (!$store) {
+            return response()->json(['error' => 'Store not found'], 404);
+        }
+
+        $interactions = Interaction::where('store_id', $store->id)
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->get();
+
+        $leads = Lead::where('store_id', $store->id)
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->get();
+
+        $geographicData = $this->getGeographicData($leads, $interactions);
+
+        return response()->json([
+            'store_id' => $store->id,
+            'store_name' => $store->name,
+            'interactions_with_geo' => $interactions->count(),
+            'leads_with_geo' => $leads->count(),
+            'geographic_data' => $geographicData,
+            'sample_interaction' => $interactions->first(),
+            'sample_lead' => $leads->first(),
         ]);
     }
 }

@@ -4,12 +4,37 @@ import Alpine from 'alpinejs';
 import { createApp } from 'vue';
 import ChatbotApp from './components/ChatbotApp.vue';
 import AnalyticsDashboard from './components/AnalyticsDashboard.vue';
+import AnalyticsDashboardTest from './components/AnalyticsDashboardTest.vue';
 import TrendsDashboard from './components/TrendsDashboard.vue';
 import TrendsDetail from './components/TrendsDetail.vue';
 
 window.Alpine = Alpine;
 
 Alpine.start();
+
+// Funzione globale per inizializzare componenti Vue (per fallback CDN)
+window.initVueComponents = function() {
+    console.log('🔄 Initializing Vue components...');
+
+    // Analytics dashboard component
+    const analyticsElement = document.getElementById('analytics-app');
+    if (analyticsElement && window.Vue) {
+        console.log('Mounting Vue analytics app with CDN Vue...');
+        try {
+            const app = window.Vue.createApp({
+                components: {
+                    'analytics-dashboard': {
+                        template: '<div class="p-4 bg-blue-100 rounded">📊 Analytics Component Loaded via CDN!</div>'
+                    }
+                }
+            });
+            app.mount('#analytics-app');
+            console.log('✅ Vue analytics app mounted with CDN');
+        } catch (error) {
+            console.error('❌ Error mounting Vue analytics app with CDN:', error);
+        }
+    }
+};
 
 // Vue setup per componenti specifici
 document.addEventListener('DOMContentLoaded', function() {
@@ -52,7 +77,8 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const app = createApp({
                 components: {
-                    AnalyticsDashboard
+                    AnalyticsDashboard,
+                    AnalyticsDashboardTest
                 }
             });
 

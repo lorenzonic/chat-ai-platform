@@ -40,8 +40,13 @@ Route::prefix('store')->name('store.')->group(function () {
 
         // Analytics routes
         Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+        Route::get('analytics-data', [AnalyticsController::class, 'getAnalyticsData'])->name('analytics.data');
         Route::get('analytics/export', [AnalyticsController::class, 'exportCsv'])->name('analytics.export');
         Route::get('analytics/test-data', [AnalyticsController::class, 'testData'])->name('analytics.test');
+        Route::get('analytics/debug', function() {
+            $store = auth()->guard('store')->user();
+            return view('store.analytics.debug', compact('store'));
+        })->name('analytics.debug');
 
         // Profile routes
         Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
@@ -54,6 +59,9 @@ Route::prefix('store')->name('store.')->group(function () {
         Route::post('logout', [LoginController::class, 'logout'])->name('logout');
     });
 });
+
+// Debug route (no auth required for testing)
+Route::get('debug/geographic', [AnalyticsController::class, 'debugGeographic'])->name('debug.geographic');
 
 // Store Frontend Routes (for chatbot)
 Route::get('/{store:slug}', function(\App\Models\Store $store) {

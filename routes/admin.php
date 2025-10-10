@@ -123,6 +123,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('products-stickers')->name('products.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Admin\ProductLabelController::class, 'index'])->name('index');
             Route::get('/{orderItem}', [\App\Http\Controllers\Admin\ProductLabelController::class, 'show'])->name('show');
+            Route::get('/{orderItem}/thermal', [\App\Http\Controllers\Admin\ProductLabelController::class, 'thermalPrint'])->name('thermal');
         });
 
                 // Import routes

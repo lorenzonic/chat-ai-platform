@@ -13,14 +13,34 @@
 
     <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Vite Assets (include Alpine.js and Vue) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
-    <!-- Alpine.js fallback if Vite fails -->
+
+    <!-- Vue.js fallback if Vite fails -->
     <script>
-        // Check if Alpine loaded after 2 seconds, if not load from CDN
+        // Check if Vue loaded after 2 seconds, if not load from CDN
         setTimeout(function() {
+            console.log('🔍 Checking Vue.js and Alpine.js loading...');
+            console.log('Vue available:', typeof window.Vue !== 'undefined');
+            console.log('Alpine available:', typeof window.Alpine !== 'undefined');
+
+            if (typeof window.Vue === 'undefined') {
+                console.warn('Vue.js not loaded via Vite, loading from CDN...');
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/vue@3/dist/vue.global.js';
+                script.onload = function() {
+                    console.log('✅ Vue.js loaded from CDN');
+                    // Reinitialize Vue components after loading
+                    if (typeof window.initVueComponents === 'function') {
+                        window.initVueComponents();
+                    }
+                };
+                document.head.appendChild(script);
+            } else {
+                console.log('✅ Vue.js loaded successfully from Vite');
+            }
+
             if (typeof window.Alpine === 'undefined') {
                 console.warn('Alpine.js not loaded via Vite, loading from CDN...');
                 const script = document.createElement('script');
