@@ -21,6 +21,7 @@ class Product extends Model
         'description',
         'quantity',
         'height',
+        'vaso',
         'price',
         'category',
         'transport', // Keep transport as it might be product-specific

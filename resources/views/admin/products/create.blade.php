@@ -95,6 +95,12 @@
                             </div>
 
                             <div>
+                                <label for="vaso" class="block text-sm font-medium text-gray-700">Vaso (cm)</label>
+                                <input type="number" name="vaso" id="vaso" value="{{ old('vaso') }}" min="0"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            </div>
+
+                            <div>
                                 <label for="price" class="block text-sm font-medium text-gray-700">Prezzo Vendita (€)</label>
                                 <input type="number" name="price" id="price" value="{{ old('price') }}" step="0.01" min="0"
                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">

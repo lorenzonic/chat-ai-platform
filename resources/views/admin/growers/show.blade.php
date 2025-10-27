@@ -132,6 +132,20 @@
                         </div>
                     @endif
 
+                    @if($grower->tax_code)
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500">Codice Fiscale</label>
+                            <p class="mt-1 text-sm text-gray-900 font-mono">{{ $grower->tax_code }}</p>
+                        </div>
+                    @endif
+
+                    @if($grower->vat_number)
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500">Partita IVA</label>
+                            <p class="mt-1 text-sm text-gray-900 font-mono">{{ $grower->vat_number }}</p>
+                        </div>
+                    @endif
+
                     @if($grower->description)
                         <div>
                             <label class="block text-sm font-medium text-gray-500">Descrizione</label>

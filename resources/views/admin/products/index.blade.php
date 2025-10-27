@@ -218,6 +218,9 @@
                                 Prezzo
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Stampa Etichette
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 data
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -295,6 +298,26 @@
                                 </div>
                                 <div class="text-xs text-gray-500">
                                     Tot: €{{ number_format((float) ($orderItem->price * $orderItem->quantity), 2, ',', '.') }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if($orderItem->quantity > 1)
+                                    <div class="flex items-center">
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                            ✅ Consigliata
+                                        </span>
+                                        <span class="ml-2 text-sm text-gray-600">{{ $orderItem->quantity }} etichette</span>
+                                    </div>
+                                @else
+                                    <div class="flex items-center">
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            ⚠️ Singola
+                                        </span>
+                                        <span class="ml-2 text-sm text-gray-600">1 etichetta</span>
+                                    </div>
+                                @endif
+                                <div class="text-xs text-gray-500 mt-1">
+                                    Qty: {{ $orderItem->quantity }} pz
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">

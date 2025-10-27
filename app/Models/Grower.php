@@ -16,6 +16,8 @@ class Grower extends Authenticatable
         'password',
         'phone',
         'address',
+        'tax_code',
+        'vat_number',
         'is_active',
     ];
 

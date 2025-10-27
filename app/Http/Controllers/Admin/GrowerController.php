@@ -42,6 +42,8 @@ class GrowerController extends Controller
             'email' => 'nullable|email|max:255|unique:growers,email',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
+            'tax_code' => 'nullable|string|max:20',
+            'vat_number' => 'nullable|string|max:20',
             'description' => 'nullable|string',
             'password' => ['nullable', 'confirmed', Password::min(8)],
         ]);
@@ -108,6 +110,8 @@ class GrowerController extends Controller
             'email' => 'nullable|email|max:255|unique:growers,email,' . $grower->id,
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
+            'tax_code' => 'nullable|string|max:20',
+            'vat_number' => 'nullable|string|max:20',
             'description' => 'nullable|string',
             'password' => ['nullable', 'confirmed', Password::min(8)],
         ]);

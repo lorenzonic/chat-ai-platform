@@ -56,6 +56,7 @@ class TrendsControllerRefactored extends Controller
         $days = $request->get('days', 30);
         $region = $request->get('region');
         $keyword = $request->get('keyword');
+        $tab = $request->get('tab', 'plant'); // Default to plant trends
         $startDate = Carbon::now()->subDays($days);
         $endDate = Carbon::now();
 
@@ -88,6 +89,21 @@ class TrendsControllerRefactored extends Controller
             'sites_validation' => $this->ecommerceService->getSitesValidation(),
         ];
 
+        // If Google tab is selected, add specific Google Trends data
+        if ($tab === 'google') {
+            // Get Google Trends keywords from TrendingKeywordsController logic
+            $trendsData['google_keywords'] = \App\Models\TrendingKeyword::latest()
+                ->when($keyword, function($query, $keyword) {
+                    return $query->where('keyword', 'like', "%{$keyword}%");
+                })
+                ->limit(100)
+                ->get();
+
+            $trendsData['top_google_keywords'] = \App\Models\TrendingKeyword::latest()
+                ->limit(20)
+                ->get();
+        }
+
         // Performance metrics
         $performance = [
             'trending_score' => $this->performanceService->calculateTrendingScore($trendsData),
@@ -112,7 +128,8 @@ class TrendsControllerRefactored extends Controller
             'region',
             'keyword',
             'availableRegions',
-            'availableKeywords'
+            'availableKeywords',
+            'tab'
         ));
     }
 

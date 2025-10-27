@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\TrendingKeywordsController;
 use App\Http\Controllers\Admin\ImportController;
+use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -66,7 +67,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Analytics routes
         Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
         Route::get('analytics/export', [AnalyticsController::class, 'export'])->name('analytics.export');
-        Route::get('analytics/test', [\App\Http\Controllers\Admin\TestAnalyticsController::class, 'test'])->name('analytics.test');
 
         // Trends Analytics routes (using refactored controller)
         Route::get('trends', [\App\Http\Controllers\Admin\TrendsControllerRefactored::class, 'index'])->name('trends.index');
@@ -109,20 +109,23 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'destroy'])->name('destroy');
         });
 
-        // Order Items management routes
-        Route::prefix('order-items')->name('order-items.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\Admin\OrderItemController::class, 'index'])->name('index');
-            Route::get('/{orderItem}', [\App\Http\Controllers\Admin\OrderItemController::class, 'show'])->name('show');
-            Route::get('/{orderItem}/edit', [\App\Http\Controllers\Admin\OrderItemController::class, 'edit'])->name('edit');
-            Route::put('/{orderItem}', [\App\Http\Controllers\Admin\OrderItemController::class, 'update'])->name('update');
-            Route::delete('/{orderItem}', [\App\Http\Controllers\Admin\OrderItemController::class, 'destroy'])->name('destroy');
-            Route::post('/bulk-action', [\App\Http\Controllers\Admin\OrderItemController::class, 'bulkAction'])->name('bulk-action');
+        // Products management routes (NUOVO)
+        Route::prefix('all-products')->name('all-products.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\ProductController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Admin\ProductController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Admin\ProductController::class, 'store'])->name('store');
+            Route::get('/{product}', [\App\Http\Controllers\Admin\ProductController::class, 'show'])->name('show');
+            Route::get('/{product}/edit', [\App\Http\Controllers\Admin\ProductController::class, 'edit'])->name('edit');
+            Route::put('/{product}', [\App\Http\Controllers\Admin\ProductController::class, 'update'])->name('update');
+            Route::delete('/{product}', [\App\Http\Controllers\Admin\ProductController::class, 'destroy'])->name('destroy');
         });
 
         // Product label routes
         Route::prefix('products-stickers')->name('products.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Admin\ProductLabelController::class, 'index'])->name('index');
             Route::get('/{orderItem}', [\App\Http\Controllers\Admin\ProductLabelController::class, 'show'])->name('show');
+            Route::get('/{orderItem}/edit', [\App\Http\Controllers\Admin\ProductLabelController::class, 'edit'])->name('edit');
+            Route::put('/{orderItem}', [\App\Http\Controllers\Admin\ProductLabelController::class, 'update'])->name('update');
             Route::get('/{orderItem}/thermal', [\App\Http\Controllers\Admin\ProductLabelController::class, 'thermalPrint'])->name('thermal');
         });
 
@@ -147,11 +150,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
             // Debug route
             Route::get('/debug-upload/{filename?}', [ImportController::class, 'debugUpload'])->name('debug.upload');
         });
-
-        // Placeholder for future features
-        Route::get('placeholder', function () {
-            return view('admin.placeholder');
-        })->name('placeholder');
 
         // Debug route per verificare file temporanei
         Route::get('debug/temp-files', function () {
@@ -183,5 +181,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
             return response()->json($info, 200, [], JSON_PRETTY_PRINT);
         })->name('debug.temp-files');
+    });
+
+    // Offer management routes
+    Route::prefix('offers')->name('offers.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\OfferController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\OfferController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\OfferController::class, 'store'])->name('store');
+        Route::get('/{offer}', [\App\Http\Controllers\Admin\OfferController::class, 'show'])->name('show');
+        Route::get('/{offer}/edit', [\App\Http\Controllers\Admin\OfferController::class, 'edit'])->name('edit');
+        Route::put('/{offer}', [\App\Http\Controllers\Admin\OfferController::class, 'update'])->name('update');
+        Route::delete('/{offer}', [\App\Http\Controllers\Admin\OfferController::class, 'destroy'])->name('destroy');
+        Route::patch('/{offer}/toggle-status', [\App\Http\Controllers\Admin\OfferController::class, 'toggleStatus'])->name('toggle-status');
     });
 });

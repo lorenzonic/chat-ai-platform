@@ -22,17 +22,42 @@ class ProductController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Product::with(['store', 'grower']);
+        $query = Product::with(['grower']);
 
-        // Filter by store if provided
-        if ($request->filled('store')) {
-            $query->where('store_id', $request->store);
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('code', 'like', "%{$search}%")
+                  ->orWhere('ean', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by grower if provided
+        if ($request->filled('grower')) {
+            $query->where('grower_id', $request->grower);
+        }
+
+        // Stock status filter
+        if ($request->filled('stock_status')) {
+            switch ($request->stock_status) {
+                case 'in_stock':
+                    $query->where('quantity', '>', 50);
+                    break;
+                case 'low_stock':
+                    $query->whereBetween('quantity', [1, 50]);
+                    break;
+                case 'out_of_stock':
+                    $query->where('quantity', '<=', 0);
+                    break;
+            }
         }
 
         $products = $query->orderBy('created_at', 'desc')->paginate(20);
-        $stores = Store::where('is_active', true)->get();
+        $growers = Grower::where('is_active', true)->orderBy('name')->get();
 
-        return view('admin.products.index', compact('products', 'stores'));
+        return view('admin.products.all-products', compact('products', 'growers'));
     }
 
     /**
@@ -40,10 +65,9 @@ class ProductController extends Controller
      */
     public function create(): View
     {
-        $stores = Store::where('is_active', true)->orderBy('name')->get();
         $growers = Grower::where('is_active', true)->orderBy('name')->get();
 
-        return view('admin.products.create', compact('stores', 'growers'));
+        return view('admin.products.create', compact('growers'));
     }
 
     /**
@@ -52,20 +76,20 @@ class ProductController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'store_id' => 'required|exists:stores,id',
-            'grower_id' => 'nullable|exists:growers,id',
+            'grower_id' => 'required|exists:growers,id',
             'name' => 'required|string|max:255',
             'code' => 'nullable|string|max:100',
             'ean' => 'nullable|string|max:20',
             'quantity' => 'required|integer|min:0',
             'price' => 'nullable|numeric|min:0',
             'height' => 'nullable|numeric|min:0',
+            'vaso' => 'nullable|integer|min:0',
         ]);
 
         Product::create($request->all());
 
         return redirect()
-            ->route('admin.products.index')
+            ->route('admin.all-products.index')
             ->with('success', 'Prodotto creato con successo!');
     }
 
@@ -74,11 +98,11 @@ class ProductController extends Controller
      */
     public function show(Product $product): View
     {
-        $product->load(['store', 'grower']);
+        $product->load(['grower']);
 
         // Generate label data with barcode and QR code
         $labelService = new LabelService();
-        $labelData = $labelService->generateLabelData($product, $product->store);
+        $labelData = $labelService->generateLabelData($product, null);
 
         return view('admin.products.show', compact('product', 'labelData'));
     }
@@ -88,10 +112,9 @@ class ProductController extends Controller
      */
     public function edit(Product $product): View
     {
-        $stores = Store::where('is_active', true)->orderBy('name')->get();
         $growers = Grower::where('is_active', true)->orderBy('name')->get();
 
-        return view('admin.products.edit', compact('product', 'stores', 'growers'));
+        return view('admin.products.edit-all-products', compact('product', 'growers'));
     }
 
     /**
@@ -100,20 +123,22 @@ class ProductController extends Controller
     public function update(Request $request, Product $product): RedirectResponse
     {
         $request->validate([
-            'store_id' => 'required|exists:stores,id',
-            'grower_id' => 'nullable|exists:growers,id',
+            'grower_id' => 'required|exists:growers,id',
             'name' => 'required|string|max:255',
             'code' => 'nullable|string|max:100',
             'ean' => 'nullable|string|max:20',
             'quantity' => 'required|integer|min:0',
             'price' => 'nullable|numeric|min:0',
             'height' => 'nullable|numeric|min:0',
+            'vaso' => 'nullable|integer|min:0',
+            'category' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
         ]);
 
         $product->update($request->all());
 
         return redirect()
-            ->route('admin.products.show', $product)
+            ->route('admin.all-products.show', $product)
             ->with('success', 'Prodotto aggiornato con successo!');
     }
 

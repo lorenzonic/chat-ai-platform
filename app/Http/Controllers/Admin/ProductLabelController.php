@@ -84,6 +84,70 @@ class ProductLabelController extends Controller
     }
 
     /**
+     * Show the form for editing the order item data
+     */
+    public function edit(OrderItem $orderItem): View
+    {
+        // Load related data
+        $orderItem->load(['order', 'store', 'grower', 'product']);
+
+        // Generate label data
+        $labelData = $this->prepareLabelData($orderItem);
+
+        // Add quantity for multiple labels
+        $labelData['quantity'] = $orderItem->quantity ?? 1;
+
+        return view('admin.products.edit', compact('orderItem', 'labelData'));
+    }
+
+    /**
+     * Update the order item data
+     */
+    public function update(Request $request, OrderItem $orderItem)
+    {
+        $request->validate([
+            'ean' => 'nullable|string|max:50',
+            'prezzo_rivendita' => 'required|numeric|min:0',
+            'vaso' => 'nullable|integer|min:0',
+            'link' => 'nullable|url|max:500',
+            'product_name' => 'required|string|max:255',
+            'notes' => 'nullable|string|max:1000'
+        ]);
+
+        // Update the order item
+        $orderItem->update([
+            'ean' => $request->ean,
+            'prezzo_rivendita' => $request->prezzo_rivendita,
+            'notes' => $request->notes
+        ]);
+
+        // Update product snapshot if exists
+        $snapshot = $orderItem->product_snapshot ?? [];
+        $snapshot['ean'] = $request->ean;
+        $snapshot['name'] = $request->product_name;
+        $snapshot['vaso'] = $request->vaso;
+        $snapshot['link'] = $request->link;
+
+        $orderItem->update(['product_snapshot' => $snapshot]);
+
+        // Update the related QR code if it exists and link is provided
+        if ($request->link) {
+            $qrCode = QrCode::where('order_id', $orderItem->order_id)
+                           ->where('store_id', $orderItem->store_id)
+                           ->where('product_id', $orderItem->product_id)
+                           ->first();
+
+            if ($qrCode) {
+                $qrCode->update(['ean_code' => $request->ean]);
+            }
+        }
+
+        return redirect()
+            ->route('admin.products.show', $orderItem)
+            ->with('success', 'Dati prodotto aggiornati con successo!');
+    }
+
+    /**
      * Show multiple labels for thermal printing (Godex G500 optimized)
      */
     public function thermalPrint(OrderItem $orderItem): View
@@ -95,7 +159,19 @@ class ProductLabelController extends Controller
         $labelData = $this->prepareLabelData($orderItem);
         $labelData['quantity'] = $orderItem->quantity ?? 1;
 
-        return view('admin.products.thermal-print', compact('orderItem', 'labelData'));
+        // Check if should print (conditional logic)
+        $shouldPrint = $orderItem->quantity > 1;
+        $printWarning = null;
+
+        if (!$shouldPrint) {
+            $printWarning = [
+                'type' => 'single_item',
+                'message' => 'Questo order item ha quantità = 1. Per efficienza e risparmio, normalmente si stampano etichette solo quando quantità > 1.',
+                'suggestion' => 'Puoi comunque procedere con la stampa se necessario.'
+            ];
+        }
+
+        return view('admin.products.thermal-print', compact('orderItem', 'labelData', 'shouldPrint', 'printWarning'));
     }
 
     /**

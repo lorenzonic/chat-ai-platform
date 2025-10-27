@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Order extends Model
 {
@@ -103,5 +104,32 @@ class Order extends Model
         }
 
         return $this->products;
+    }
+
+    /**
+     * Applied offers for this order
+     */
+    public function offers(): BelongsToMany
+    {
+        return $this->belongsToMany(Offer::class, 'order_offers')
+                    ->withPivot('discount_amount', 'offer_code', 'offer_snapshot')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Calculate total discount from applied offers
+     */
+    public function getTotalDiscountAttribute(): float
+    {
+        return (float) $this->offers()->sum('order_offers.discount_amount');
+    }
+
+    /**
+     * Get final total after discounts
+     */
+    public function getFinalTotalAttribute(): float
+    {
+        $baseTotal = $this->total_amount ?: $this->getCalculatedTotalAttribute();
+        return max(0, $baseTotal - $this->getTotalDiscountAttribute());
     }
 }

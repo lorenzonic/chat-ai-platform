@@ -5,7 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stampa Etichette Termiche - {{ $labelData['name'] }}</title>
     <style>
-        /* Reset and base styles */
+        /* R        <div class="no-print" style="margin-bottom: 30px;">
+            <h1>🏷️ Stampa Etichette Termiche - Godex G500</h1>
+            <p><strong>Prodotto:</strong> {{ $labelData['name'] }}</p>
+            <p><strong>Ordine:</strong> {{ $labelData['order_info']['number'] }} - {{ $labelData['order_info']['customer'] }}</p>
+
+            @if(isset($printWarning))
+                <div class="alert-warning" style="margin: 20px 0; padding: 15px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px;">
+                    <h4 style="color: #856404; margin: 0 0 10px 0;">⚠️ Attenzione - Stampa per singolo pezzo</h4>
+                    <p style="color: #856404; margin: 5px 0;"><strong>{{ $printWarning['message'] }}</strong></p>
+                    <p style="color: #856404; margin: 5px 0; font-style: italic;">{{ $printWarning['suggestion'] }}</p>
+
+                    <div style="margin-top: 15px;">
+                        <label style="color: #856404;">
+                            <input type="checkbox" id="force-print" style="margin-right: 8px;">
+                            Confermo di voler stampare comunque l'etichetta per questo singolo pezzo
+                        </label>
+                    </div>
+                </div>
+            @endif
+
+            <div class="quantity-info">
+                <strong>📦 Quantità: {{ $labelData['quantity'] }} pezzi</strong>
+                @if($shouldPrint)
+                    <span style="color: green;">→ ✅ Verranno stampate {{ $labelData['quantity'] }} etichette (consigliato)</span>
+                @else
+                    <span style="color: orange;">→ ⚠️ Stampa singola etichetta (solo se necessario)</span>
+                @endif
+            </div>
+
+            <div class="print-controls">
+                @if($shouldPrint)
+                    <button onclick="window.print()" class="btn btn-primary">🖨️ Stampa {{ $labelData['quantity'] }} Etichette</button>
+                @else
+                    <button onclick="checkAndPrint()" class="btn btn-warning" id="print-btn" disabled>
+                        🖨️ Stampa 1 Etichetta (Conferma Richiesto)
+                    </button>
+                @endif
+                <a href="{{ route('admin.products.show', $orderItem) }}" class="btn btn-secondary">← Anteprima Standard</a>
+                <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">📋 Lista Prodotti</a>
+            </div>
+        </div>yles */
         * {
             margin: 0;
             padding: 0;
@@ -376,18 +416,58 @@
             console.log('🏷️ Thermal label printing ready');
             console.log('📊 Labels to print: {{ $labelData['quantity'] }}');
 
+            @if(!$shouldPrint)
+                // Enable print button when checkbox is checked for single items
+                const checkbox = document.getElementById('force-print');
+                const printBtn = document.getElementById('print-btn');
+
+                if (checkbox && printBtn) {
+                    checkbox.addEventListener('change', function() {
+                        if (this.checked) {
+                            printBtn.disabled = false;
+                            printBtn.className = 'btn btn-primary';
+                            printBtn.innerHTML = '🖨️ Stampa 1 Etichetta (Confermato)';
+                        } else {
+                            printBtn.disabled = true;
+                            printBtn.className = 'btn btn-warning';
+                            printBtn.innerHTML = '🖨️ Stampa 1 Etichetta (Conferma Richiesto)';
+                        }
+                    });
+                }
+            @endif
+
             // Setup keyboard shortcuts
             document.addEventListener('keydown', function(e) {
                 if (e.ctrlKey && e.key === 'p') {
                     e.preventDefault();
-                    window.print();
+                    @if($shouldPrint)
+                        window.print();
+                    @else
+                        checkAndPrint();
+                    @endif
                 }
             });
         });
 
+        @if(!$shouldPrint)
+        // Function to check confirmation before printing single items
+        function checkAndPrint() {
+            const checkbox = document.getElementById('force-print');
+            if (checkbox && checkbox.checked) {
+                console.log('🖨️ User confirmed single item printing');
+                window.print();
+            } else {
+                alert('⚠️ Per stampare un singolo pezzo, devi confermare spuntando la casella sopra.');
+            }
+        }
+        @endif
+
         // Print optimization
         window.addEventListener('beforeprint', function() {
             console.log('🖨️ Starting thermal print job for {{ $labelData['quantity'] }} labels');
+            @if(!$shouldPrint)
+                console.log('⚠️ Warning: Single item print (quantity = 1)');
+            @endif
             // Show print version
             document.querySelector('.print-only').style.display = 'block';
         });

@@ -4,15 +4,30 @@
 
 @section('content')
 <style>
-    /* Print-specific styles */
+    /* Print-specific styles for Godex G500 */
     @media print {
-        body { background: white !important; margin: 0; padding: 0; }
-        .no-print { display: none !important; }
+        @page {
+            size: 50mm 25mm;
+            margin: 0;
+        }
+
+        body {
+            background: white !important;
+            margin: 0;
+            padding: 0;
+        }
+
+        .no-print {
+            display: none !important;
+        }
+
         .label-container {
             box-shadow: none !important;
             border: 2px solid black !important;
             page-break-inside: avoid;
+            margin: 0 !important;
         }
+
         /* Force barcode bars black, background white for print */
         .label-barcode-container .barcode .bar,
         .label-barcode-container .barcode div[style*="background"],
@@ -22,6 +37,7 @@
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
+
         .label-barcode-container .barcode {
             background-color: white !important;
         }
@@ -357,8 +373,9 @@ function printLabel() {
             <title>Etichetta Order Item - {{ $labelData['product_name'] }}</title>
             <style>
                 @page {
-                    margin: 5mm;
-                    size: A4;
+                    margin: 0;
+                    size: 50mm 25mm;
+                    /* Landscape orientation for 50x25mm label */
                 }
 
                 body {

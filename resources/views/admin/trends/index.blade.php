@@ -34,9 +34,13 @@
         <div class="bg-white shadow-sm rounded-lg mb-6">
             <div class="border-b border-gray-200">
                 <nav class="-mb-px flex space-x-8 px-6">
-                    <a href="{{ route('admin.trends.index') }}"
-                       class="border-indigo-500 text-indigo-600 border-b-2 py-4 px-1 text-sm font-medium">
-                        📊 Trends Base
+                    <a href="{{ route('admin.trends.index') }}?tab=plant"
+                       class="{{ request('tab', 'plant') === 'plant' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} border-b-2 py-4 px-1 text-sm font-medium">
+                        🌱 Plant Trends
+                    </a>
+                    <a href="{{ route('admin.trends.index') }}?tab=google"
+                       class="{{ request('tab') === 'google' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} border-b-2 py-4 px-1 text-sm font-medium">
+                        � Google Trends
                     </a>
                     <a href="{{ route('admin.trends.advanced') }}"
                        class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 border-b-2 py-4 px-1 text-sm font-medium">
@@ -54,6 +58,9 @@
         <div class="bg-white shadow-sm rounded-lg mb-6">
             <div class="p-6">
                 <form method="GET" action="" class="flex flex-wrap gap-4 items-end">
+                    <!-- Hidden field to maintain tab state -->
+                    <input type="hidden" name="tab" value="{{ request('tab', 'plant') }}">
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Periodo</label>
                         <select name="days" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
@@ -87,36 +94,100 @@
             </div>
         </div>
 
-        {{-- TABELLA DETTAGLIATA --}}
-        <div class="bg-white shadow-sm rounded-lg mb-6">
-            <div class="p-6">
-                <h2 class="text-lg font-semibold mb-4 flex items-center">
-                    <span class="text-2xl mr-2">📊</span> Trending Keywords (Database Reale)
-                </h2>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 text-xs">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-3 py-2 text-left">Keyword</th>
-                                <th class="px-3 py-2 text-left">Score</th>
-                                <th class="px-3 py-2 text-left">Regione</th>
-                                <th class="px-3 py-2 text-left">Data</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($trendsData['google_trends'] as $trend)
+        @if(request('tab', 'plant') === 'plant')
+            {{-- PLANT TRENDS CONTENT --}}
+            {{-- TABELLA DETTAGLIATA --}}
+            <div class="bg-white shadow-sm rounded-lg mb-6">
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center">
+                        <span class="text-2xl mr-2">🌱</span> Plant Trending Keywords (Database Reale)
+                    </h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 text-xs">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <td class="px-3 py-2 font-medium">{{ $trend->keyword }}</td>
-                                    <td class="px-3 py-2">{{ $trend->score }}</td>
-                                    <td class="px-3 py-2">{{ $trend->region }}</td>
-                                    <td class="px-3 py-2">{{ $trend->collected_at->format('Y-m-d') }}</td>
+                                    <th class="px-3 py-2 text-left">Keyword</th>
+                                    <th class="px-3 py-2 text-left">Score</th>
+                                    <th class="px-3 py-2 text-left">Regione</th>
+                                    <th class="px-3 py-2 text-left">Data</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach($trendsData['google_trends'] as $trend)
+                                    <tr>
+                                        <td class="px-3 py-2 font-medium">{{ $trend->keyword }}</td>
+                                        <td class="px-3 py-2">{{ $trend->score }}</td>
+                                        <td class="px-3 py-2">{{ $trend->region }}</td>
+                                        <td class="px-3 py-2">{{ $trend->collected_at->format('Y-m-d') }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
+
+        @elseif(request('tab') === 'google')
+            {{-- GOOGLE TRENDS CONTENT --}}
+            <div class="bg-white shadow-sm rounded-lg mb-6">
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center">
+                        <span class="text-2xl mr-2">🔍</span> Google Trends Keywords
+                    </h2>
+
+                    @if(isset($trendsData['google_keywords']) && $trendsData['google_keywords']->count() > 0)
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 text-xs">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left">Keyword</th>
+                                        <th class="px-3 py-2 text-left">Search Volume</th>
+                                        <th class="px-3 py-2 text-left">Growth</th>
+                                        <th class="px-3 py-2 text-left">Data</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach($trendsData['google_keywords'] as $gKeyword)
+                                        <tr>
+                                            <td class="px-3 py-2 font-medium">{{ $gKeyword->keyword }}</td>
+                                            <td class="px-3 py-2">{{ number_format($gKeyword->search_volume ?? 0) }}</td>
+                                            <td class="px-3 py-2">
+                                                @if($gKeyword->growth_rate > 0)
+                                                    <span class="text-green-600">+{{ $gKeyword->growth_rate }}%</span>
+                                                @elseif($gKeyword->growth_rate < 0)
+                                                    <span class="text-red-600">{{ $gKeyword->growth_rate }}%</span>
+                                                @else
+                                                    <span class="text-gray-600">0%</span>
+                                                @endif
+                                            </td>
+                                            <td class="px-3 py-2">{{ $gKeyword->created_at->format('Y-m-d') }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-8">
+                            <div class="text-4xl mb-4">🔍</div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Nessun dato Google Trends</h3>
+                            <p class="text-gray-600">Non ci sono ancora keyword Google Trends da mostrare.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- TOP GOOGLE KEYWORDS CHART --}}
+            @if(isset($trendsData['top_google_keywords']) && $trendsData['top_google_keywords']->count() > 0)
+            <div class="bg-white shadow-sm rounded-lg mb-6">
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center">
+                        <span class="text-2xl mr-2">📊</span> Top Google Keywords
+                    </h2>
+                    <canvas id="googleTrendsChart" height="120"></canvas>
+                </div>
+            </div>
+            @endif
+        @endif
 
         {{-- GRAFICO TOP KEYWORDS --}}
         <div class="bg-white shadow-sm rounded-lg mb-6">
@@ -727,5 +798,49 @@ createApp({
         }, 1000);
     }
 }).mount('#trendsApp');
+
+// Google Trends Chart
+@if(request('tab') === 'google' && isset($trendsData['top_google_keywords']) && $trendsData['top_google_keywords']->count() > 0)
+const googleCtx = document.getElementById('googleTrendsChart').getContext('2d');
+new Chart(googleCtx, {
+    type: 'bar',
+    data: {
+        labels: @json($trendsData['top_google_keywords']->pluck('keyword')),
+        datasets: [{
+            label: 'Search Volume',
+            data: @json($trendsData['top_google_keywords']->pluck('search_volume')),
+            backgroundColor: 'rgba(59, 130, 246, 0.6)',
+            borderColor: 'rgba(59, 130, 246, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return value.toLocaleString();
+                    }
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return 'Volume: ' + context.parsed.y.toLocaleString();
+                    }
+                }
+            }
+        }
+    }
+});
+@endif
 </script>
 @endsection

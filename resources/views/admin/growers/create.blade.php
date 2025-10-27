@@ -103,6 +103,38 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
+
+                <!-- Tax Code -->
+                <div>
+                    <label for="tax_code" class="block text-sm font-medium text-gray-700 mb-2">
+                        Codice Fiscale
+                    </label>
+                    <input type="text"
+                           id="tax_code"
+                           name="tax_code"
+                           value="{{ old('tax_code') }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('tax_code') border-red-500 @enderror"
+                           placeholder="RSSMRA80A01H501Z">
+                    @error('tax_code')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- VAT Number -->
+                <div>
+                    <label for="vat_number" class="block text-sm font-medium text-gray-700 mb-2">
+                        Partita IVA
+                    </label>
+                    <input type="text"
+                           id="vat_number"
+                           name="vat_number"
+                           value="{{ old('vat_number') }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('vat_number') border-red-500 @enderror"
+                           placeholder="12345678901">
+                    @error('vat_number')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <!-- Description -->

@@ -194,6 +194,10 @@
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-900">{{ $orderItem->product_snapshot['name'] ?? ($orderItem->product->name ?? 'N/A') }}</h1>
             <div class="flex gap-2">
+                <a href="{{ route('admin.products.edit', $orderItem) }}"
+                   class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md">
+                    ✏️ Modifica Dati
+                </a>
                 <a href="{{ route('admin.products.thermal', $orderItem) }}"
                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
                     🏷️ Stampa Termica ({{ $orderItem->quantity ?? 1 }}x)
