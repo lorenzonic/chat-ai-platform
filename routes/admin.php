@@ -57,6 +57,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('stores/{store}', [AccountController::class, 'destroyStore'])->name('stores.destroy');
             Route::patch('stores/{store}/toggle-status', [AccountController::class, 'toggleStoreStatus'])->name('stores.toggle-status');
             Route::patch('stores/{store}/toggle-premium', [AccountController::class, 'toggleStorePremium'])->name('stores.toggle-premium');
+            Route::patch('stores/{store}/toggle-label', [AccountController::class, 'toggleStoreLabel'])->name('stores.toggle-label');
 
             // Admin account routes
             Route::get('admins/create', [AccountController::class, 'createAdmin'])->name('admins.create');

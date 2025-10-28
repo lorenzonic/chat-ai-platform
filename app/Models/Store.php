@@ -32,6 +32,7 @@ class Store extends Authenticatable
         'website',
         'is_active',
         'is_premium',
+        'is_label_store',
         'assistant_name',
         'chat_context',
         'opening_hours',
@@ -66,6 +67,7 @@ class Store extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
             'is_premium' => 'boolean',
+            'is_label_store' => 'boolean',
             'opening_hours' => 'array',
             'chat_enabled' => 'boolean',
             'chat_suggestions' => 'array',
@@ -162,18 +164,8 @@ class Store extends Authenticatable
             return $this->getDefaultSuggestions();
         }
 
-        // Se è già un array (per via del cast), restituiscilo
-        if (is_array($this->chat_suggestions)) {
-            return $this->chat_suggestions;
-        }
-
-        // Se è una stringa JSON, prova a decodificarla
-        try {
-            $decoded = json_decode($this->chat_suggestions, true);
-            return is_array($decoded) ? $decoded : $this->getDefaultSuggestions();
-        } catch (\Exception $e) {
-            return $this->getDefaultSuggestions();
-        }
+        // Il campo è già castato come array da Laravel, quindi restituiscilo direttamente
+        return $this->chat_suggestions;
     }
 
     /**

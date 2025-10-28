@@ -76,6 +76,11 @@
                                                     Premium
                                                 </span>
                                             @endif
+                                            @if($store->is_label_store)
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
+                                                    Etichette
+                                                </span>
+                                            @endif
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -101,6 +106,13 @@
                                                 @method('PATCH')
                                                 <button type="submit" class="text-purple-600 hover:text-purple-900">
                                                     {{ $store->is_premium ? 'Remove Premium' : 'Make Premium' }}
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ route('admin.accounts.stores.toggle-label', $store) }}" class="inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="text-orange-600 hover:text-orange-900">
+                                                    {{ $store->is_label_store ? 'Disabilita Etichette' : 'Abilita Etichette' }}
                                                 </button>
                                             </form>
                                         </div>

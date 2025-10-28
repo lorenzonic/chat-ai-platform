@@ -23,6 +23,11 @@ class ProductLabelController extends Controller
     {
         $query = OrderItem::with(['order', 'store', 'grower', 'product']);
 
+        // Only show order items from stores that are enabled for labels
+        $query->whereHas('store', function($storeQuery) {
+            $storeQuery->where('is_label_store', true);
+        });
+
         // Filter by order ID
         if ($request->filled('order_id')) {
             $query->where('order_id', $request->order_id);
@@ -54,7 +59,7 @@ class ProductLabelController extends Controller
                            ->withQueryString();
 
         // Get options for filters
-        $stores = \App\Models\Store::orderBy('name')->get();
+        $stores = \App\Models\Store::where('is_label_store', true)->orderBy('name')->get();
         $growers = \App\Models\Grower::orderBy('name')->get();
 
         // Get selected order info if filtering by order
@@ -74,6 +79,11 @@ class ProductLabelController extends Controller
         // Load related data
         $orderItem->load(['order', 'store', 'grower', 'product']);
 
+        // Check if store is allowed to have labels
+        if (!$orderItem->store->is_label_store) {
+            abort(403, 'Questo store non è abilitato alla generazione di etichette.');
+        }
+
         // Generate label data
         $labelData = $this->prepareLabelData($orderItem);
 
@@ -90,6 +100,11 @@ class ProductLabelController extends Controller
     {
         // Load related data
         $orderItem->load(['order', 'store', 'grower', 'product']);
+
+        // Check if store is allowed to have labels
+        if (!$orderItem->store->is_label_store) {
+            abort(403, 'Questo store non è abilitato alla generazione di etichette.');
+        }
 
         // Generate label data
         $labelData = $this->prepareLabelData($orderItem);
@@ -154,6 +169,11 @@ class ProductLabelController extends Controller
     {
         // Load related data
         $orderItem->load(['order', 'store', 'grower', 'product']);
+
+        // Check if store is allowed to have labels
+        if (!$orderItem->store->is_label_store) {
+            abort(403, 'Questo store non è abilitato alla generazione di etichette.');
+        }
 
         // Generate label data
         $labelData = $this->prepareLabelData($orderItem);

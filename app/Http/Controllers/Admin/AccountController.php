@@ -223,4 +223,16 @@ class AccountController extends Controller
         return redirect()->back()
             ->with('success', "Store account {$status} successfully!");
     }
+
+    /**
+     * Toggle store label status
+     */
+    public function toggleStoreLabel(Store $store)
+    {
+        $store->update(['is_label_store' => !$store->is_label_store]);
+
+        $status = $store->is_label_store ? 'abilitato alle etichette' : 'disabilitato dalle etichette';
+        return redirect()->back()
+            ->with('success', "Store {$status} con successo!");
+    }
 }
