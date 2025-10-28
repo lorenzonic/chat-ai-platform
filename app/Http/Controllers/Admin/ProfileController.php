@@ -15,7 +15,7 @@ class ProfileController extends Controller
      */
     public function show()
     {
-        $admin = Auth::user();
+        $admin = Auth::guard('admin')->user();
         return view('admin.profile.show', compact('admin'));
     }
 
@@ -24,7 +24,7 @@ class ProfileController extends Controller
      */
     public function edit()
     {
-        $admin = Auth::user();
+        $admin = Auth::guard('admin')->user();
         return view('admin.profile.edit', compact('admin'));
     }
 
@@ -33,7 +33,7 @@ class ProfileController extends Controller
      */
     public function update(Request $request)
     {
-        $admin = Auth::user();
+        $admin = Auth::guard('admin')->user();
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -66,7 +66,7 @@ class ProfileController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        $admin = Auth::user();
+        $admin = Auth::guard('admin')->user();
 
         if (!Hash::check($request->current_password, $admin->password)) {
             return back()->withErrors(['current_password' => 'La password attuale non è corretta.']);
