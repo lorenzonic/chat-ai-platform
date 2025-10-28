@@ -63,6 +63,22 @@ Route::prefix('store')->name('store.')->group(function () {
 // Debug route (no auth required for testing)
 Route::get('debug/geographic', [AnalyticsController::class, 'debugGeographic'])->name('debug.geographic');
 
+// GS1 Digital Link Route - Must be before generic store route
+// Format: /{store:slug}/01/{gtin}?question=...&ref=...
+Route::get('/{store:slug}/01/{gtin}', function(\App\Models\Store $store, string $gtin) {
+    // Validate GTIN format (EAN-13 = 13 digits)
+    if (!preg_match('/^\d{13}$/', $gtin)) {
+        abort(404, 'Invalid GTIN format');
+    }
+    
+    // Pass the GTIN to the chatbot view for potential product-specific handling
+    return view('store.frontend.chatbot-vue', [
+        'store' => $store,
+        'gtin' => $gtin,
+        'gs1_digital_link' => true
+    ]);
+})->name('store.chatbot.gs1');
+
 // Store Frontend Routes (for chatbot)
 Route::get('/{store:slug}', function(\App\Models\Store $store) {
     return view('store.frontend.chatbot-vue', compact('store'));

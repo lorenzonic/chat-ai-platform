@@ -81,7 +81,8 @@ class QrCode extends Model
     }
 
     /**
-     * Generate the QR code URL.
+     * Generate the QR code URL with GS1 Digital Link format.
+     * Format: https://domain/{store-slug}/01/{GTIN}?question={encoded_question}&ref={ref_code}
      */
     public function getQrUrl(): string
     {
@@ -98,12 +99,22 @@ class QrCode extends Model
             $baseUrl = str_replace('http://', 'https://', $baseUrl);
         }
 
-        $url = "{$baseUrl}/{$this->store->slug}";
+        // GS1 Digital Link format: /{store-slug}/01/{GTIN}
+        // If product has EAN/GTIN, use GS1 Digital Link format
+        if ($this->product && $this->product->ean) {
+            // GS1 Digital Link with GTIN (AI 01)
+            $url = "{$baseUrl}/{$this->store->slug}/01/{$this->product->ean}";
+        } else {
+            // Fallback to standard format if no EAN
+            $url = "{$baseUrl}/{$this->store->slug}";
+        }
 
+        // Add question parameter
         if ($this->question) {
             $url .= '?question=' . urlencode($this->question);
         }
 
+        // Add reference code for tracking
         $url .= ($this->question ? '&' : '?') . 'ref=' . $this->ref_code;
 
         return $url;

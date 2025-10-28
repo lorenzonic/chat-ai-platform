@@ -51,13 +51,21 @@ class LabelService
     }
 
     /**
-     * Generate QR code for plant care chat
+     * Generate QR code for plant care chat with GS1 Digital Link support
      */
     public function generateCareQRCode($product, $store)
     {
         // Create the chat URL with pre-filled question
         $careQuestion = "Come si cura " . $product->name . "?";
-        $chatUrl = url("/{$store->slug}") . "?q=" . urlencode($careQuestion);
+        
+        // Use GS1 Digital Link format if product has EAN
+        if ($product->ean && strlen($product->ean) === 13) {
+            // GS1 Digital Link format: /{store-slug}/01/{GTIN}?question=...
+            $chatUrl = url("/{$store->slug}/01/{$product->ean}") . "?question=" . urlencode($careQuestion);
+        } else {
+            // Fallback to standard format
+            $chatUrl = url("/{$store->slug}") . "?q=" . urlencode($careQuestion);
+        }
 
         // Generate QR code as SVG (doesn't require Imagick)
         $qrCodeSvg = QrCode::format('svg')->size(200)->generate($chatUrl);
@@ -65,7 +73,8 @@ class LabelService
         return [
             'url' => $chatUrl,
             'svg' => $qrCodeSvg,
-            'question' => $careQuestion
+            'question' => $careQuestion,
+            'gs1_format' => $product->ean && strlen($product->ean) === 13
         ];
     }
 
