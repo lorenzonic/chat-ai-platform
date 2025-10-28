@@ -83,9 +83,6 @@ class QrCodeController extends Controller
             $this->generateQrCodeImage($qrCode);
         }
 
-        // Track admin view as a scan for analytics
-        $this->trackAdminView($qrCode);
-
         // Generate dummy stats for now (you can implement real analytics later)
         $stats = $qrCode->stats;
 
@@ -249,33 +246,5 @@ class QrCodeController extends Controller
     {
         $qrCode->load('store');
         return view('admin.qr-codes.label', compact('qrCode'));
-    }
-
-    /**
-     * Track admin view of QR code for analytics
-     */
-    private function trackAdminView(QrCode $qrCode)
-    {
-        try {
-            // Detect device type from user agent
-            $ua = request()->userAgent();
-            $deviceType = 'desktop'; // Default
-
-            if (preg_match('/Mobile|Android|iPhone|iPad/', $ua)) {
-                $deviceType = preg_match('/iPad/', $ua) ? 'tablet' : 'mobile';
-            }
-
-            \App\Models\QrScan::create([
-                'store_id' => $qrCode->store_id,
-                'qr_code_id' => $qrCode->id,
-                'ip_address' => request()->ip(),
-                'user_agent' => $ua,
-                'referer' => request()->header('referer'),
-                'device_type' => $deviceType,
-            ]);
-        } catch (\Exception $e) {
-            // Don't block the admin if analytics fails; log and continue
-            Log::error('Failed to track admin QR view: ' . $e->getMessage());
-        }
     }
 }
