@@ -43,14 +43,35 @@ class ProductLabelController extends Controller
             $query->where('grower_id', $request->grower_id);
         }
 
-        // Search by product name (in product_snapshot)
-        if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
-                $search = $request->search;
-                $q->whereJsonContains('product_snapshot->name', $search)
-                  ->orWhereHas('product', function($productQuery) use ($search) {
-                      $productQuery->where('name', 'like', '%' . $search . '%');
-                  });
+        // Filter by date range
+        if ($request->filled('date_from')) {
+            $query->whereHas('order', function($orderQuery) use ($request) {
+                $orderQuery->whereDate('delivery_date', '>=', $request->date_from);
+            });
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereHas('order', function($orderQuery) use ($request) {
+                $orderQuery->whereDate('delivery_date', '<=', $request->date_to);
+            });
+        }
+
+        // Filter by label store status (override the default filter)
+        if ($request->filled('label_store_filter')) {
+            if ($request->label_store_filter === 'enabled') {
+                $query->whereHas('store', function($storeQuery) {
+                    $storeQuery->where('is_label_store', true);
+                });
+            } elseif ($request->label_store_filter === 'disabled') {
+                $query->whereHas('store', function($storeQuery) {
+                    $storeQuery->where('is_label_store', false);
+                });
+            }
+            // If 'all', don't apply any filter
+        } else {
+            // Default behavior: only show enabled stores
+            $query->whereHas('store', function($storeQuery) {
+                $storeQuery->where('is_label_store', true);
             });
         }
 
@@ -370,5 +391,99 @@ class ProductLabelController extends Controller
 
         // If single word, truncate with ellipsis
         return substr($customer, 0, 12) . '...';
+    }
+
+    /**
+     * Bulk print labels for filtered order items
+     */
+    public function bulkPrint(Request $request): View
+    {
+        $query = OrderItem::with(['order', 'store', 'grower', 'product']);
+
+        // Apply the same filters as index method
+        $this->applyFilters($query, $request);
+
+        $orderItems = $query->orderBy('created_at', 'desc')->get();
+
+        // Generate label data for all items
+        $bulkLabels = [];
+        foreach ($orderItems as $orderItem) {
+            // Check if store is allowed to have labels
+            if (!$orderItem->store->is_label_store) {
+                continue; // Skip this item
+            }
+
+            $labelData = $this->prepareLabelData($orderItem);
+            $labelData['quantity'] = $orderItem->quantity ?? 1;
+            $labelData['order_item_id'] = $orderItem->id;
+
+            $bulkLabels[] = $labelData;
+        }
+
+        return view('admin.products.bulk-print', compact('bulkLabels', 'orderItems'));
+    }
+
+    /**
+     * Apply filters to query (shared method)
+     */
+    private function applyFilters($query, Request $request)
+    {
+        // Filter by order ID
+        if ($request->filled('order_id')) {
+            $query->where('order_id', $request->order_id);
+        }
+
+        // Filter by store
+        if ($request->filled('store_id')) {
+            $query->where('store_id', $request->store_id);
+        }
+
+        // Filter by grower
+        if ($request->filled('grower_id')) {
+            $query->where('grower_id', $request->grower_id);
+        }
+
+        // Filter by date range
+        if ($request->filled('date_from')) {
+            $query->whereHas('order', function($orderQuery) use ($request) {
+                $orderQuery->whereDate('delivery_date', '>=', $request->date_from);
+            });
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereHas('order', function($orderQuery) use ($request) {
+                $orderQuery->whereDate('delivery_date', '<=', $request->date_to);
+            });
+        }
+
+        // Filter by label store status
+        if ($request->filled('label_store_filter')) {
+            if ($request->label_store_filter === 'enabled') {
+                $query->whereHas('store', function($storeQuery) {
+                    $storeQuery->where('is_label_store', true);
+                });
+            } elseif ($request->label_store_filter === 'disabled') {
+                $query->whereHas('store', function($storeQuery) {
+                    $storeQuery->where('is_label_store', false);
+                });
+            }
+            // If 'all', don't apply any filter
+        } else {
+            // Default behavior: only show enabled stores
+            $query->whereHas('store', function($storeQuery) {
+                $storeQuery->where('is_label_store', true);
+            });
+        }
+
+        // Search by product name
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $search = $request->search;
+                $q->whereJsonContains('product_snapshot->name', $search)
+                  ->orWhereHas('product', function($productQuery) use ($search) {
+                      $productQuery->where('name', 'like', '%' . $search . '%');
+                  });
+            });
+        }
     }
 }

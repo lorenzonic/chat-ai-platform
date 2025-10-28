@@ -132,6 +132,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Product label routes
         Route::prefix('products-stickers')->name('products.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Admin\ProductLabelController::class, 'index'])->name('index');
+            Route::get('/bulk-print', [\App\Http\Controllers\Admin\ProductLabelController::class, 'bulkPrint'])->name('bulk-print');
             Route::get('/{orderItem}', [\App\Http\Controllers\Admin\ProductLabelController::class, 'show'])->name('show');
             Route::get('/{orderItem}/edit', [\App\Http\Controllers\Admin\ProductLabelController::class, 'edit'])->name('edit');
             Route::put('/{orderItem}', [\App\Http\Controllers\Admin\ProductLabelController::class, 'update'])->name('update');

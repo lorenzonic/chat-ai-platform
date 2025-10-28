@@ -110,7 +110,7 @@
         </div>
         <div class="p-6">
             <form method="GET" action="{{ route('admin.products.index') }}" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <!-- Search by Name -->
                     <div>
                         <label for="search" class="block text-sm font-medium text-gray-700 mb-1">
@@ -158,6 +158,50 @@
                         </select>
                     </div>
 
+                    <!-- Filter by Date From -->
+                    <div>
+                        <label for="date_from" class="block text-sm font-medium text-gray-700 mb-1">
+                            Data Da
+                        </label>
+                        <input type="date"
+                               id="date_from"
+                               name="date_from"
+                               value="{{ request('date_from') }}"
+                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+
+                    <!-- Filter by Date To -->
+                    <div>
+                        <label for="date_to" class="block text-sm font-medium text-gray-700 mb-1">
+                            Data A
+                        </label>
+                        <input type="date"
+                               id="date_to"
+                               name="date_to"
+                               value="{{ request('date_to') }}"
+                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+
+                    <!-- Filter by Label Store Status -->
+                    <div>
+                        <label for="label_store_filter" class="block text-sm font-medium text-gray-700 mb-1">
+                            Etichette Store
+                        </label>
+                        <select id="label_store_filter"
+                                name="label_store_filter"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <option value="enabled" {{ request('label_store_filter', 'enabled') === 'enabled' ? 'selected' : '' }}>
+                                Solo Abilitati
+                            </option>
+                            <option value="disabled" {{ request('label_store_filter') === 'disabled' ? 'selected' : '' }}>
+                                Solo Disabilitati
+                            </option>
+                            <option value="all" {{ request('label_store_filter') === 'all' ? 'selected' : '' }}>
+                                Tutti
+                            </option>
+                        </select>
+                    </div>
+
                     <!-- Order ID (hidden if already filtered) -->
                     @if(request('order_id'))
                         <input type="hidden" name="order_id" value="{{ request('order_id') }}">
@@ -175,6 +219,13 @@
                        class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         🔄 Reset Filtri
                     </a>
+
+                    @if($orderItems->count() > 0)
+                        <a href="{{ route('admin.products.bulk-print', request()->query()) }}"
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                            🖨️ Stampa Tutto ({{ $orderItems->count() }} etichette)
+                        </a>
+                    @endif
 
                     @if(request()->hasAny(['search', 'store_id', 'grower_id', 'order_id']))
                         <span class="text-sm text-gray-500">
@@ -201,29 +252,29 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Prodotto
                             </th>
 
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Fornitore
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Ordine
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Store
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Prezzo
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Stampa Etichette
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 data
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Azioni
                             </th>
                         </tr>
@@ -231,10 +282,10 @@
                                         <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($orderItems as $orderItem)
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-2 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="text-sm font-medium text-gray-900">
-                                        {{ $orderItem->product_snapshot['name'] ?? ($orderItem->product->name ?? 'N/A') }}
+                                        {{ Str::limit($orderItem->product_snapshot['name'] ?? ($orderItem->product->name ?? 'N/A'), 35) }}
                                     </div>
                                     @if($orderItem->product_snapshot['variety'] ?? ($orderItem->product->variety ?? null))
                                         <div class="text-sm text-gray-500 ml-2">
@@ -249,16 +300,16 @@
                                     @endif
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-2 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-8 w-8">
-                                        <div class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                                    <div class="flex-shrink-0 h-6 w-6">
+                                        <div class="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center">
                                             <span class="text-green-600 font-medium text-xs">
                                                 🌱
                                             </span>
                                         </div>
                                     </div>
-                                    <div class="ml-3">
+                                    <div class="ml-2">
                                         <div class="text-sm font-medium text-gray-900">
                                             <a href="{{ route('admin.products.index', ['grower_id' => $orderItem->grower->id ?? '']) }}"
                                                class="text-green-700 hover:text-green-900 hover:underline">
@@ -273,7 +324,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-2 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">
                                     <a href="{{ route('admin.products.index', ['order_id' => $orderItem->order_id]) }}"
                                        class="text-blue-700 hover:text-blue-900 hover:underline">
@@ -284,7 +335,7 @@
                                     Cliente: {{ $orderItem->order->client ?? ($orderItem->store->name ?? 'N/A') }}
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-2 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">
                                     <a href="{{ route('admin.products.index', ['store_id' => $orderItem->store->id ?? '']) }}"
                                        class="text-indigo-700 hover:text-indigo-900 hover:underline">
@@ -292,7 +343,7 @@
                                     </a>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-2 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">
                                     €{{ number_format((float) $orderItem->prezzo_rivendita, 2, ',', '.') }}
                                 </div>
@@ -300,7 +351,7 @@
                                     Tot: €{{ number_format((float) ($orderItem->price * $orderItem->quantity), 2, ',', '.') }}
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-2 whitespace-nowrap">
                                 @if($orderItem->quantity > 1)
                                     <div class="flex items-center">
                                         <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
@@ -320,12 +371,19 @@
                                     Qty: {{ $orderItem->quantity }} pz
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-2 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">
-                                    {{ $orderItem->order->delivery_date ? date('d/m/Y', strtotime($orderItem->order->delivery_date)) : 'N/A' }}
+                                    @if($orderItem->order->delivery_date)
+                                        <a href="{{ route('admin.orders.show', $orderItem->order) }}"
+                                           class="text-blue-700 hover:text-blue-900 hover:underline">
+                                            {{ date('d/m/Y', strtotime($orderItem->order->delivery_date)) }}
+                                        </a>
+                                    @else
+                                        <span class="text-gray-400">N/A</span>
+                                    @endif
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <td class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
                                 <a href="{{ route('admin.products.show', $orderItem) }}"
                                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
                                     🏷️ Stampa Etichetta
