@@ -147,8 +147,15 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">
-                                    {{ $order->store->name ?? 'N/A' }}
+                                <div class="text-sm font-medium text-gray-900">
+                                    @if($order->store)
+                                        <a href="{{ route('admin.accounts.stores.show', $order->store) }}"
+                                           class="text-blue-600 hover:text-blue-800 hover:underline">
+                                            {{ $order->store->name }}
+                                        </a>
+                                    @else
+                                        N/A
+                                    @endif
                                 </div>
                                 <div class="text-sm text-gray-500">
                                     {{ $order->store->email ?? 'N/A' }}
@@ -156,7 +163,10 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">
-                                    {{ $order->products->count() }} prodotti
+                                    <a href="{{ route('admin.products.index', ['order_id' => $order->id]) }}"
+                                       class="text-blue-600 hover:text-blue-800 hover:underline">
+                                        {{ $order->products->count() }} prodotti
+                                    </a>
                                 </div>
                                 @if($order->products->count() > 0)
                                     <div class="text-sm text-gray-500">

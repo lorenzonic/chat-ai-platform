@@ -31,16 +31,6 @@
                             <i class="fas fa-chart-line mr-2"></i>
                             Dashboard
                         </a>
-                        <a href="{{ route('admin.trends.index') }}"
-                           class="flex items-center justify-center border-2 rounded-3xl px-4 py-1 {{ request()->routeIs('admin.trends.*') ? 'text-indigo-900 border-black' : 'text-gray-700 hover:bg-gray-50 border-gray-300' }} font-medium text-sm transition-colors duration-200">
-                            <i class="fas fa-chart-bar mr-2"></i>
-                            Trends
-                        </a>
-                        <a href="{{ route('admin.all-products.index') }}"
-                           class="flex items-center justify-center border-2 rounded-3xl px-4 py-1 {{ request()->routeIs('admin.all-products.*') ? 'text-indigo-900 border-black' : 'text-gray-700 hover:bg-gray-50 border-gray-300' }} font-medium text-sm transition-colors duration-200">
-                            <i class="fas fa-seedling mr-2"></i>
-                            All Products
-                        </a>
                         <a href="{{ route('admin.orders.index') }}"
                            class="flex items-center justify-center border-2 rounded-3xl px-4 py-1 {{ request()->routeIs('admin.orders.*') ? 'text-indigo-900 border-black' : 'text-gray-700 hover:bg-gray-50 border-gray-300' }} font-medium text-sm transition-colors duration-200">
                             <i class="fas fa-shopping-cart mr-2"></i>
@@ -51,6 +41,11 @@
                             <i class="fas fa-box mr-2"></i>
                             Labels
                         </a>
+                        <a href="{{ route('admin.qr-codes.index') }}"
+                           class="flex items-center justify-center border-2 rounded-3xl px-4 py-1 {{ request()->routeIs('admin.qr-codes.*') ? 'text-indigo-900 border-black' : 'text-gray-700 hover:bg-gray-50 border-gray-300' }} font-medium text-sm transition-colors duration-200">
+                            <i class="fas fa-qrcode mr-2"></i>
+                            QR Codes
+                        </a>
                         <a href="{{ route('admin.accounts.index') }}"
                            class="flex items-center justify-center border-2 rounded-3xl px-4 py-1 {{ request()->routeIs('admin.accounts.*') ? 'text-indigo-900 border-black' : 'text-gray-700 hover:bg-gray-50 border-gray-300' }} font-medium text-sm transition-colors duration-200">
                             <i class="fas fa-users mr-2"></i>
@@ -60,11 +55,6 @@
                            class="flex items-center justify-center border-2 rounded-3xl px-4 py-1 {{ request()->routeIs('admin.growers.*') ? 'text-indigo-900 border-black' : 'text-gray-700 hover:bg-gray-50 border-gray-300' }} font-medium text-sm transition-colors duration-200">
                             <i class="fas fa-leaf mr-2"></i>
                             Growers
-                        </a>
-                        <a href="{{ route('admin.offers.index') }}"
-                           class="flex items-center justify-center border-2 rounded-3xl px-4 py-1 {{ request()->routeIs('admin.offers.*') ? 'text-indigo-900 border-black' : 'text-gray-700 hover:bg-gray-50 border-gray-300' }} font-medium text-sm transition-colors duration-200">
-                            <i class="fas fa-tag mr-2"></i>
-                            Offerte
                         </a>
                     </div>
                 </div>
@@ -80,7 +70,7 @@
                         </button>
                     </div>
                     @else
-                    <a href="{{ route('login') }}" class="text-sm text-gray-700 hover:text-gray-900">Login</a>
+                    <a href="{{ route('admin.profile.show') }}" class="text-sm text-gray-700 hover:text-gray-900">Il mio profilo</a>
                     @endauth
                 </div>
             </div>

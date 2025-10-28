@@ -57,7 +57,7 @@ class LabelService
     {
         // Create the chat URL with pre-filled question
         $careQuestion = "Come si cura " . $product->name . "?";
-        
+
         // Use GS1 Digital Link format if product has EAN
         if ($product->ean && strlen($product->ean) === 13) {
             // GS1 Digital Link format: /{store-slug}/01/{GTIN}?question=...

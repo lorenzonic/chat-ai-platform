@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\TrendingKeywordsController;
 use App\Http\Controllers\Admin\ImportController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,6 +29,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('isAdmin')->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+
+        // Profile routes
+        Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
+        Route::get('profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::get('profile/password', [ProfileController::class, 'editPassword'])->name('profile.password.edit');
+        Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
 
         // QR Code management
         Route::resource('qr-codes', QrCodeController::class);

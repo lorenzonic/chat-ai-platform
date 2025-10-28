@@ -70,7 +70,37 @@ Route::get('/{store:slug}/01/{gtin}', function(\App\Models\Store $store, string 
     if (!preg_match('/^\d{13}$/', $gtin)) {
         abort(404, 'Invalid GTIN format');
     }
-    
+
+    // If a tracking ref is present, record a QrScan immediately so scans are counted
+    try {
+        $ref = request('ref');
+        if ($ref) {
+            $qrCode = \App\Models\QrCode::where('ref_code', $ref)
+                ->where('store_id', $store->id)
+                ->first();
+
+            if ($qrCode) {
+                $ua = request()->userAgent();
+                $deviceType = 'desktop';
+                if (preg_match('/Mobile|Android|iPhone|iPad/', $ua)) {
+                    $deviceType = preg_match('/iPad/', $ua) ? 'tablet' : 'mobile';
+                }
+
+                \App\Models\QrScan::create([
+                    'store_id' => $store->id,
+                    'qr_code_id' => $qrCode->id,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => $ua,
+                    'referer' => request()->header('referer'),
+                    'device_type' => $deviceType,
+                ]);
+            }
+        }
+    } catch (\Exception $e) {
+        // Don't block the user if analytics fails; log and continue
+        \Log::warning('GS1 scan tracking failed', ['error' => $e->getMessage(), 'store_id' => $store->id, 'gtin' => $gtin]);
+    }
+
     // Pass the GTIN to the chatbot view for potential product-specific handling
     return view('store.frontend.chatbot-vue', [
         'store' => $store,
@@ -81,5 +111,34 @@ Route::get('/{store:slug}/01/{gtin}', function(\App\Models\Store $store, string 
 
 // Store Frontend Routes (for chatbot)
 Route::get('/{store:slug}', function(\App\Models\Store $store) {
+    // Support tracking for legacy/non-GS1 QR links that include a ref query param
+    try {
+        $ref = request('ref');
+        if ($ref) {
+            $qrCode = \App\Models\QrCode::where('ref_code', $ref)
+                ->where('store_id', $store->id)
+                ->first();
+
+            if ($qrCode) {
+                $ua = request()->userAgent();
+                $deviceType = 'desktop';
+                if (preg_match('/Mobile|Android|iPhone|iPad/', $ua)) {
+                    $deviceType = preg_match('/iPad/', $ua) ? 'tablet' : 'mobile';
+                }
+
+                \App\Models\QrScan::create([
+                    'store_id' => $store->id,
+                    'qr_code_id' => $qrCode->id,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => $ua,
+                    'referer' => request()->header('referer'),
+                    'device_type' => $deviceType,
+                ]);
+            }
+        }
+    } catch (\Exception $e) {
+        \Log::warning('Scan tracking failed', ['error' => $e->getMessage(), 'store_id' => $store->id]);
+    }
+
     return view('store.frontend.chatbot-vue', compact('store'));
 })->name('store.chatbot');
