@@ -302,6 +302,15 @@ class ProductLabelController extends Controller
             $productName = $orderItem->product_snapshot['name'] ?? ($orderItem->product ? $orderItem->product->name : 'Product');
             $productEan = $orderItem->product_snapshot['ean'] ?? ($orderItem->product ? $orderItem->product->ean : null);
 
+            // Check if a QR code with this EAN code already exists
+            if ($productEan) {
+                $existingQrCode = QrCode::where('ean_code', $productEan)->first();
+                if ($existingQrCode) {
+                    // Return existing QR code instead of creating a new one
+                    return $existingQrCode;
+                }
+            }
+
             // Generate unique ref_code for the order item
             $baseRefCode = 'OI-' . strtoupper(substr(md5($productName . $orderItem->id), 0, 8));
             $refCode = $baseRefCode;
