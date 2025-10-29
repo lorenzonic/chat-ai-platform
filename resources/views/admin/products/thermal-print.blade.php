@@ -169,7 +169,7 @@
         }
 
         .thermal-product-name {
-            font-size: 10px;
+            font-size: 12px;
             font-weight: bold;
             line-height: 1.1;
             max-height: 32px;
@@ -179,7 +179,7 @@
         }
 
         .thermal-price {
-            font-size: 12px;
+            font-size: 14px;
             font-weight: bold;
             color: #000;
             text-align: left;
@@ -219,7 +219,7 @@
         }
 
         .thermal-ean-text {
-            font-size: 8px;
+            font-size: 10px;
             font-weight: bold;
             flex-shrink: 0;
         }
@@ -382,11 +382,9 @@
                         </div>
 
                         <!-- Price -->
-                        @if($labelData['price'] != 'N/A' && (float)$labelData['price'] > 0)
                         <div class="thermal-price">
                             {{ $labelData['formatted_price'] }}
                         </div>
-                        @endif
                     </div>
                 </div>
 
