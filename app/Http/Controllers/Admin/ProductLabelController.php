@@ -302,8 +302,8 @@ class ProductLabelController extends Controller
             $productName = $orderItem->product_snapshot['name'] ?? ($orderItem->product ? $orderItem->product->name : 'Product');
             $productEan = $orderItem->product_snapshot['ean'] ?? ($orderItem->product ? $orderItem->product->ean : null);
 
-            // Check if a QR code with this EAN code already exists
-            if ($productEan) {
+            // Check if a QR code with this EAN code already exists (only if EAN is not empty)
+            if ($productEan && trim($productEan) !== '') {
                 $existingQrCode = QrCode::where('ean_code', $productEan)->first();
                 if ($existingQrCode) {
                     // Return existing QR code instead of creating a new one
@@ -338,7 +338,7 @@ class ProductLabelController extends Controller
                 'question' => $question,
                 'ref_code' => $refCode,
                 'is_active' => true,
-                'ean_code' => $productEan,
+                'ean_code' => $productEan && trim($productEan) !== '' ? $productEan : null,
             ]);
 
             // Generate QR code image
