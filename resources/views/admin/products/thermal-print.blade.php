@@ -78,7 +78,7 @@
                 width: 50mm;
                 height: 25mm;
                 border: none !important;
-                margin: 0 !important;
+                margin: 0 0 0 3mm !important; /* Added 3mm left margin */
                 padding: 1mm !important;
                 background: white !important;
                 overflow: hidden;
@@ -169,7 +169,7 @@
         }
 
         .thermal-product-name {
-            font-size: 8px;
+            font-size: 10px;
             font-weight: bold;
             line-height: 1.1;
             max-height: 32px;
@@ -219,6 +219,7 @@
         }
 
         .thermal-ean-text {
+            font-size: 8px;
             font-weight: bold;
             flex-shrink: 0;
         }
@@ -316,9 +317,11 @@
                             </div>
 
                             <!-- Price -->
+                            @if($labelData['price'] != 'N/A' && (float)$labelData['price'] > 0)
                             <div class="thermal-price">
                                 {{ $labelData['formatted_price'] }}
                             </div>
+                            @endif
                         </div>
                     </div>
 
@@ -379,9 +382,11 @@
                         </div>
 
                         <!-- Price -->
+                        @if($labelData['price'] != 'N/A' && (float)$labelData['price'] > 0)
                         <div class="thermal-price">
                             {{ $labelData['formatted_price'] }}
                         </div>
+                        @endif
                     </div>
                 </div>
 

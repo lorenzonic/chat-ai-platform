@@ -28,6 +28,10 @@ class ProductLabelController extends Controller
             $storeQuery->where('is_label_store', true);
         });
 
+        // Filter out items with null or empty rivendita price
+        $query->whereNotNull('rivendita_price')
+              ->where('rivendita_price', '>', 0);
+
         // Filter by order ID
         if ($request->filled('order_id')) {
             $query->where('order_id', $request->order_id);
