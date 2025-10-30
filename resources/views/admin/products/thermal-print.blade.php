@@ -4,8 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stampa Etichette Termiche - {{ $labelData['name'] }}</title>
-    <link rel="stylesheet" media="screen" href="https://fontlibrary.org//face/idautomationhc39m-code-39-barcode" type="text/css"/>
     <style>
+        /* Import IDAutomation barcode font */
+        @font-face {
+            font-family: 'IDAutomationHC39M';
+            src: url('{{ asset('fonts/IDAutomationHC39M.ttf') }}') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         /* R        <div class="no-print" style="margin-bottom: 30px;">
             <h1>🏷️ Stampa Etichette Termiche - Godex G500</h1>
             <p><strong>Prodotto:</strong> {{ $labelData['name'] }}</p>
@@ -203,7 +210,7 @@
         }
 
         .thermal-barcode-container .barcode {
-            font-family: 'IDAHC39MCode39BarcodeRegular', monospace;
+            font-family: 'IDAutomationHC39M', monospace;
             font-size: 24px;
             letter-spacing: 0;
             line-height: 1;
