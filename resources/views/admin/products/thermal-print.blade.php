@@ -211,7 +211,7 @@
 
         .thermal-barcode-container .barcode {
             font-family: 'IDAutomationHC39M', monospace;
-            font-size: 24px;
+            font-size: 10px;
             letter-spacing: 0;
             line-height: 1;
             height: 20px;
