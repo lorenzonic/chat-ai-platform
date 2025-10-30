@@ -204,10 +204,12 @@
 
         .thermal-barcode-container .barcode {
             font-family: 'IDAHC39MCode39BarcodeRegular', monospace;
-            transform: scale(0.8);
-            transform-origin: left top;
+            font-size: 24px;
+            letter-spacing: 0;
+            line-height: 1;
             height: 20px;
             overflow: hidden;
+            text-align: left;
         }
 
         /* Bottom info line - EAN left, Client right */
@@ -333,7 +335,7 @@
                         @if($labelData['barcode'])
                         <div class="thermal-barcode-container">
                             <div class="barcode">
-                                {!! $labelData['barcode']['html'] !!}
+                                *{{ $labelData['barcode']['code'] }}*
                             </div>
                         </div>
                         @endif
@@ -396,7 +398,7 @@
                     @if($labelData['barcode'])
                     <div class="thermal-barcode-container">
                         <div class="barcode">
-                            {!! $labelData['barcode']['html'] !!}
+                            *{{ $labelData['barcode']['code'] }}*
                         </div>
                     </div>
                     @endif
