@@ -233,7 +233,7 @@ class ProductLabelController extends Controller
         $productVariety = $orderItem->product_snapshot['variety'] ?? ($product ? $product->variety : null);
         $productEan = $orderItem->product_snapshot['ean'] ?? ($product ? $product->ean : null);
 
-        // Generate barcode for EAN
+        // Generate barcode for EAN using EAN13 format with IDAutomationHC39M font
         $barcode = null;
         $barcodeGenerator = new BarcodeGeneratorHTML();
 
