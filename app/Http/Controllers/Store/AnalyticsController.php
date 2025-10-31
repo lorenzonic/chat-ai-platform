@@ -21,9 +21,15 @@ class AnalyticsController extends Controller
     {
         $store = auth()->guard('store')->user();
 
-        // For debugging - use CDN simple version
+        // Get real analytics data
+        $frequentQuestions = $this->getFrequentQuestions($store);
+        $popularPlants = $this->getPopularPlants($store);
+
+        // For debugging - use CDN simple version with real data
         return view('store.analytics.cdn-simple', [
-            'store' => $store
+            'store' => $store,
+            'frequentQuestions' => $frequentQuestions,
+            'popularPlants' => $popularPlants
         ]);
     }
 
@@ -496,5 +502,104 @@ class AnalyticsController extends Controller
             'sample_interaction' => $interactions->first(),
             'sample_lead' => $leads->first(),
         ]);
+    }
+
+    /**
+     * Get frequent questions from interactions
+     */
+    private function getFrequentQuestions($store)
+    {
+        $questions = Interaction::where('store_id', $store->id)
+            ->whereNotNull('question')
+            ->where('question', '!=', '')
+            ->select('question', DB::raw('count(*) as count'))
+            ->groupBy('question')
+            ->orderByDesc('count')
+            ->limit(10)
+            ->get();
+
+        return $questions->map(function($q) {
+            return [
+                'question' => $q->question,
+                'count' => $q->count
+            ];
+        });
+    }
+
+    /**
+     * Get popular plants from interactions and chat logs
+     */
+    private function getPopularPlants($store)
+    {
+        // Lista di nomi di piante comuni da cercare
+        $plantKeywords = [
+            'rosa', 'rose', 'basilico', 'lavanda', 'geranio', 'cactus', 'orchidea',
+            'ficus', 'pothos', 'succulenta', 'succulente', 'petunia', 'begonia',
+            'ciclamino', 'azalea', 'camelia', 'ibisco', 'gelsomino', 'gardenia',
+            'margherita', 'tulipano', 'narciso', 'giglio', 'iris', 'viola',
+            'primula', 'dalia', 'zinnia', 'salvia', 'rosmarino', 'timo',
+            'menta', 'prezzemolo', 'ortensia', 'aloe', 'agave', 'yucca',
+            'palma', 'felce', 'edera', 'monstera', 'sansevieria', 'croton',
+            'dipladenia', 'mandevilla', 'bouganville', 'gerbera', 'anthurium'
+        ];
+
+        $plantCounts = [];
+
+        // Cerca nelle domande degli interactions
+        foreach ($plantKeywords as $plant) {
+            $count = Interaction::where('store_id', $store->id)
+                ->where(function($query) use ($plant) {
+                    $query->where('question', 'LIKE', "%{$plant}%")
+                          ->orWhere('answer', 'LIKE', "%{$plant}%");
+                })
+                ->count();
+
+            if ($count > 0) {
+                $plantCounts[$plant] = ($plantCounts[$plant] ?? 0) + $count;
+            }
+        }
+
+        // Cerca anche nei chat logs
+        foreach ($plantKeywords as $plant) {
+            $count = ChatLog::where('store_id', $store->id)
+                ->where(function($query) use ($plant) {
+                    $query->where('user_message', 'LIKE', "%{$plant}%")
+                          ->orWhere('ai_response', 'LIKE', "%{$plant}%");
+                })
+                ->count();
+
+            if ($count > 0) {
+                $plantCounts[$plant] = ($plantCounts[$plant] ?? 0) + $count;
+            }
+        }
+
+        // Ordina per count e prendi i top 8
+        arsort($plantCounts);
+        $topPlants = array_slice($plantCounts, 0, 8, true);
+
+        // Emoji per piante
+        $plantEmojis = [
+            'rosa' => '🌹', 'rose' => '🌹', 'basilico' => '🌿', 'lavanda' => '💜',
+            'geranio' => '🌺', 'cactus' => '🌵', 'orchidea' => '🌸', 'ficus' => '🍃',
+            'pothos' => '🌱', 'succulenta' => '🌵', 'succulente' => '🌵', 'petunia' => '🌺',
+            'begonia' => '🌸', 'ciclamino' => '🌺', 'azalea' => '🌸', 'camelia' => '🌺',
+            'ibisco' => '🌺', 'gelsomino' => '🌼', 'gardenia' => '🌸', 'margherita' => '🌼',
+            'tulipano' => '🌷', 'narciso' => '🌼', 'giglio' => '🌸', 'iris' => '💐',
+            'viola' => '💜', 'primula' => '🌼', 'dalia' => '🌺', 'zinnia' => '🌻',
+            'salvia' => '🌿', 'rosmarino' => '🌿', 'timo' => '🌿', 'menta' => '🌿',
+            'prezzemolo' => '🌿', 'ortensia' => '💐', 'aloe' => '🌵', 'agave' => '🌵',
+            'yucca' => '🌴', 'palma' => '🌴', 'felce' => '🌿', 'edera' => '🌿',
+            'monstera' => '🍃', 'sansevieria' => '🌿', 'croton' => '🍃',
+            'dipladenia' => '🌺', 'mandevilla' => '🌺', 'bouganville' => '🌺',
+            'gerbera' => '🌼', 'anthurium' => '🌺'
+        ];
+
+        return collect($topPlants)->map(function($count, $plant) use ($plantEmojis) {
+            return [
+                'name' => ucfirst($plant),
+                'count' => $count,
+                'emoji' => $plantEmojis[$plant] ?? '🌱'
+            ];
+        })->values();
     }
 }

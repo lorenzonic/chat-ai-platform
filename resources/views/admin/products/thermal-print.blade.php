@@ -66,12 +66,23 @@
             line-height: 1;
         }
 
-        /* Print styles - Ottimizzato per Godex G500 */
+        /* ==========================================
+           UNIVERSAL THERMAL PRINTER CONFIGURATION
+           Compatible: Godex, Zebra, Dymo, Brother, TSC, etc.
+           ========================================== */
+        @page {
+            size: 50mm 25mm;           /* Standard label size */
+            margin: 0mm;               /* Zero margins */
+        }
+
         @media print {
-            body {
+            html, body {
+                width: 50mm !important;
+                height: 25mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
                 background: white !important;
-                margin: 0;
-                padding: 0;
+                overflow: hidden !important;
             }
 
             .no-print {
@@ -83,27 +94,30 @@
             }
 
             .thermal-label {
-                width: 50mm;
-                height: 25mm;
+                width: 50mm !important;
+                height: 25mm !important;
                 border: none !important;
-                margin: 0 0 0 3mm !important; /* Added 3mm left margin */
-                padding: 1mm !important;
+                margin: 0 !important;
+                padding: 2mm !important;
                 background: white !important;
-                overflow: hidden;
-                page-break-inside: avoid;
-                page-break-after: auto;
+                overflow: hidden !important;
+                page-break-after: always !important;
+                page-break-inside: avoid !important;
             }
 
-            /* Force black text for thermal printing */
+            .thermal-label:last-child {
+                page-break-after: auto !important;
+            }
+
+            /* Force black colors for all thermal printers */
             .thermal-label * {
                 color: black !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
 
-            /* Barcode optimization for thermal */
-            .thermal-barcode .barcode div {
-                background-color: black !important;
+            .barcode {
+                font-family: 'IDAutomationHC39M', 'Courier New', monospace !important;
             }
         }
 
@@ -177,13 +191,14 @@
         }
 
         .thermal-product-name {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
-            line-height: 1.1;
-            max-height: 32px;
+            line-height: 1.2;
+            max-height: 35px;
             overflow: hidden;
             text-align: left;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
+            word-wrap: break-word;
         }
 
         .thermal-price {
@@ -204,33 +219,34 @@
 
         /* Barcode styling */
         .thermal-barcode-container {
-            height: 20px;
+            height: 18px;
             margin-bottom: 2px;
             overflow: hidden;
         }
 
         .thermal-barcode-container .barcode {
-            font-family: 'IDAutomationHC39M', monospace;
-            font-size: 10px;
+            font-family: 'IDAutomationHC39M', 'Courier New', monospace;
+            font-size: 12px;
             letter-spacing: 0;
             line-height: 1;
-            height: 20px;
+            height: 18px;
             overflow: hidden;
-            text-align: left;
+            text-align: center;
+            font-weight: normal;
         }
 
         /* Bottom info line - EAN left, Client right */
         .thermal-bottom-info {
             display: flex;
             justify-content: space-between;
-            font-size: 6px;
+            font-size: 7px;
             color: black;
             line-height: 1.1;
             gap: 4px;
         }
 
         .thermal-ean-text {
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
             flex-shrink: 0;
         }
@@ -289,13 +305,23 @@
     <!-- Preview Container -->
     <div class="preview-container no-print">
         <div class="preview-header">
-            <h1>🏷️ Stampa Etichette Termiche - Godex G500</h1>
+            <h1>🏷️ Stampa Etichette Termiche</h1>
             <p><strong>Prodotto:</strong> {{ $labelData['name'] }}</p>
             <p><strong>Ordine:</strong> {{ $labelData['order_info']['number'] }} - {{ $labelData['order_info']['customer'] }}</p>
 
             <div class="quantity-info">
                 <strong>📦 Quantità: {{ $labelData['quantity'] }} pezzi</strong>
                 <span>→ Verranno stampate {{ $labelData['quantity'] }} etichette</span>
+            </div>
+
+            <div style="background: #e3f2fd; padding: 12px; border-radius: 4px; margin-bottom: 15px; font-size: 14px;">
+                <strong>📋 Configurazione stampante:</strong>
+                <ul style="margin: 8px 0 0 20px; line-height: 1.6;">
+                    <li><strong>Formato etichetta:</strong> 50mm x 25mm</li>
+                    <li><strong>Margini:</strong> 0mm (tutti i lati)</li>
+                    <li><strong>Scala:</strong> 100% (non ridimensionare)</li>
+                    <li><strong>Compatibile:</strong> Godex, Zebra, Dymo, Brother, TSC</li>
+                </ul>
             </div>
 
             <div class="print-controls">
@@ -308,56 +334,7 @@
         <h3>🔍 Anteprima Etichette ({{ $labelData['quantity'] }} pz)</h3>
         <div class="labels-grid">
             @for ($i = 1; $i <= min($labelData['quantity'], 8); $i++)
-                <div class="thermal-label">
-                    <!-- Top section: QR + Product Info -->
-                    <div class="thermal-top-section">
-                        <!-- QR Code (Product-specific) -->
-                        <div class="thermal-qr-container">
-                            @if($labelData['qrcode']['svg'])
-                                {!! $labelData['qrcode']['svg'] !!}
-                            @else
-                                <div style="font-size: 6px; text-align: center;">QR<br>N/A</div>
-                            @endif
-                        </div>
-
-                        <!-- Product Info -->
-                        <div class="thermal-product-info">
-                            <!-- Product Name -->
-                            <div class="thermal-product-name">
-                                {{ $labelData['name'] }}
-                            </div>
-
-                            <!-- Price -->
-                            @if($labelData['price'] != 'N/A' && (float)$labelData['price'] > 0)
-                            <div class="thermal-price">
-                                {{ $labelData['formatted_price'] }}
-                            </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Bottom section: Long Barcode + EAN/Client -->
-                    <div class="thermal-bottom-section">
-                        <!-- Long horizontal barcode -->
-                        @if($labelData['barcode'])
-                        <div class="thermal-barcode-container">
-                            <div class="barcode">
-                                *{{ $labelData['barcode']['code'] }}*
-                            </div>
-                        </div>
-                        @endif
-
-                        <!-- Bottom info: EAN left, Client right -->
-                        <div class="thermal-bottom-info">
-                            <div class="thermal-ean-text">
-                                {{ $orderItem->product_snapshot['ean'] ?? ($orderItem->product->ean ?? '') }}
-                            </div>
-                            <div class="thermal-client-code">
-                                {{ $labelData['order_info']['customer_short'] ?: 'N/A' }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @include('admin.products.partials.thermal-label', ['labelData' => $labelData, 'orderItem' => $orderItem])
             @endfor
 
             @if($labelData['quantity'] > 8)
@@ -371,124 +348,35 @@
 
     <!-- Print Version - All Labels in continuous flow -->
     <div class="print-only" style="display: none;">
-
         @for ($i = 1; $i <= $labelData['quantity']; $i++)
-            <div class="thermal-label">
-                <!-- Top section: QR + Product Info -->
-                <div class="thermal-top-section">
-                    <!-- QR Code (Product-specific) -->
-                    <div class="thermal-qr-container">
-                        @if($labelData['qrcode']['svg'])
-                            {!! $labelData['qrcode']['svg'] !!}
-                        @else
-                            <div style="font-size: 6px; text-align: center;">QR<br>N/A</div>
-                        @endif
-                    </div>
-
-                    <!-- Product Info -->
-                    <div class="thermal-product-info">
-                        <!-- Product Name -->
-                        <div class="thermal-product-name">
-                            {{ $labelData['name'] }}
-                        </div>
-
-                        <!-- Price -->
-                        <div class="thermal-price">
-                            {{ $labelData['formatted_price'] }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bottom section: Long Barcode + EAN/Client -->
-                <div class="thermal-bottom-section">
-                    <!-- Long horizontal barcode -->
-                    @if($labelData['barcode'])
-                    <div class="thermal-barcode-container">
-                        <div class="barcode">
-                            *{{ $labelData['barcode']['code'] }}*
-                        </div>
-                    </div>
-                    @endif
-
-                    <!-- Bottom info: EAN left, Client right -->
-                    <div class="thermal-bottom-info">
-                        <div class="thermal-ean-text">
-                            {{ $orderItem->product_snapshot['ean'] ?? ($orderItem->product->ean ?? '') }}
-                        </div>
-                        <div class="thermal-client-code">
-                            {{ $labelData['order_info']['customer_short'] ?: 'N/A' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @include('admin.products.partials.thermal-label', ['labelData' => $labelData, 'orderItem' => $orderItem])
         @endfor
     </div>
 
     <script>
-        // Auto-setup for thermal printing
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🏷️ Thermal label printing ready');
-            console.log('📊 Labels to print: {{ $labelData['quantity'] }}');
+            console.log('🏷️ Thermal printing system ready');
+            console.log('📊 Labels configured: {{ $labelData['quantity'] }}');
+            console.log('� Format: 50mm x 25mm');
 
-            @if(!$shouldPrint)
-                // Enable print button when checkbox is checked for single items
-                const checkbox = document.getElementById('force-print');
-                const printBtn = document.getElementById('print-btn');
-
-                if (checkbox && printBtn) {
-                    checkbox.addEventListener('change', function() {
-                        if (this.checked) {
-                            printBtn.disabled = false;
-                            printBtn.className = 'btn btn-primary';
-                            printBtn.innerHTML = '🖨️ Stampa 1 Etichetta (Confermato)';
-                        } else {
-                            printBtn.disabled = true;
-                            printBtn.className = 'btn btn-warning';
-                            printBtn.innerHTML = '🖨️ Stampa 1 Etichetta (Conferma Richiesto)';
-                        }
-                    });
-                }
-            @endif
-
-            // Setup keyboard shortcuts
+            // Keyboard shortcut for print
             document.addEventListener('keydown', function(e) {
                 if (e.ctrlKey && e.key === 'p') {
                     e.preventDefault();
-                    @if($shouldPrint)
-                        window.print();
-                    @else
-                        checkAndPrint();
-                    @endif
+                    window.print();
                 }
             });
         });
 
-        @if(!$shouldPrint)
-        // Function to check confirmation before printing single items
-        function checkAndPrint() {
-            const checkbox = document.getElementById('force-print');
-            if (checkbox && checkbox.checked) {
-                console.log('🖨️ User confirmed single item printing');
-                window.print();
-            } else {
-                alert('⚠️ Per stampare un singolo pezzo, devi confermare spuntando la casella sopra.');
-            }
-        }
-        @endif
-
-        // Print optimization
+        // Show print version when printing starts
         window.addEventListener('beforeprint', function() {
-            console.log('🖨️ Starting thermal print job for {{ $labelData['quantity'] }} labels');
-            @if(!$shouldPrint)
-                console.log('⚠️ Warning: Single item print (quantity = 1)');
-            @endif
-            // Show print version
+            console.log('🖨️ Starting thermal print job');
             document.querySelector('.print-only').style.display = 'block';
         });
 
+        // Hide print version after printing
         window.addEventListener('afterprint', function() {
-            console.log('✅ Print job completed');
-            // Hide print version
+            console.log('✅ Print job sent to printer');
             document.querySelector('.print-only').style.display = 'none';
         });
     </script>

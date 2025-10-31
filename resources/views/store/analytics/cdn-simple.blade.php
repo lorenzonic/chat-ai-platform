@@ -287,52 +287,38 @@
         function loadFrequentQuestions() {
             console.log('❓ Loading frequent questions...');
 
-            // Simulate loading frequent questions from interactions
-            fetch('/debug/geographic')
-            .then(response => response.json())
-            .then(data => {
-                // For now, create some sample questions based on plant-related topics
-                const sampleQuestions = [
-                    { question: "Come curare le piante grasse?", count: 15 },
-                    { question: "Quando annaffiare le rose?", count: 12 },
-                    { question: "Quali piante per il giardino?", count: 10 },
-                    { question: "Piante che resistono al sole?", count: 8 },
-                    { question: "Come potare le siepi?", count: 7 },
-                    { question: "Fertilizzante per piante da appartamento", count: 6 },
-                    { question: "Piante per balcone piccolo", count: 5 },
-                    { question: "Malattie delle piante", count: 4 }
-                ];
+            // Use real data from controller
+            const questions = @json($frequentQuestions ?? []);
 
-                displayFrequentQuestions(sampleQuestions);
-            })
-            .catch(error => {
-                console.error('Error loading questions:', error);
+            if (questions.length === 0) {
                 document.getElementById('frequent-questions').innerHTML = `
                     <div class="text-center py-8">
-                        <div class="text-red-400 text-lg">⚠️</div>
-                        <p class="text-red-500">Errore nel caricamento delle domande</p>
+                        <div class="text-gray-400 text-lg">💬</div>
+                        <p class="text-gray-500">Nessuna domanda ancora disponibile</p>
                     </div>
                 `;
-            });
+            } else {
+                displayFrequentQuestions(questions);
+            }
         }
 
         // Load popular plants
         function loadPopularPlants() {
             console.log('🌱 Loading popular plants...');
 
-            // Simulate loading plant names from interactions/chats
-            const samplePlants = [
-                { name: "Rosa", count: 25, emoji: "🌹" },
-                { name: "Basilico", count: 20, emoji: "🌿" },
-                { name: "Lavanda", count: 18, emoji: "💜" },
-                { name: "Geranio", count: 15, emoji: "🌺" },
-                { name: "Cactus", count: 12, emoji: "🌵" },
-                { name: "Orchidea", count: 10, emoji: "🌸" },
-                { name: "Ficus", count: 8, emoji: "🍃" },
-                { name: "Pothos", count: 6, emoji: "🌱" }
-            ];
+            // Use real data from controller
+            const plants = @json($popularPlants ?? []);
 
-            displayPopularPlants(samplePlants);
+            if (plants.length === 0) {
+                document.getElementById('popular-plants').innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="text-gray-400 text-lg">�</div>
+                        <p class="text-gray-500">Nessuna pianta ancora ricercata</p>
+                    </div>
+                `;
+            } else {
+                displayPopularPlants(plants);
+            }
         }
 
         // Display frequent questions
