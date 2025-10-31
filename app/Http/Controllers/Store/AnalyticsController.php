@@ -66,8 +66,8 @@ class AnalyticsController extends Controller
             }
         }
 
-        // Get chat logs data (replacing interactions)
-        $chatLogs = ChatLog::where('store_id', $store->id)
+        // Get interactions data (contains all analytics info: device, browser, geo, UTM)
+        $interactions = Interaction::where('store_id', $store->id)
             ->whereBetween('created_at', [$from, $to])
             ->get();
 
@@ -76,12 +76,9 @@ class AnalyticsController extends Controller
             ->whereBetween('created_at', [$from, $to])
             ->get();
 
-        // Get QR scans data
-        $qrScans = DB::table('qr_scans')
-            ->join('qr_codes', 'qr_scans.qr_code_id', '=', 'qr_codes.id')
-            ->where('qr_codes.store_id', $store->id)
-            ->whereBetween('qr_scans.created_at', [$from, $to])
-            ->select('qr_scans.*')
+        // Get chat logs data (for conversation content)
+        $chatLogs = ChatLog::where('store_id', $store->id)
+            ->whereBetween('created_at', [$from, $to])
             ->get();
 
         // Debug log
@@ -90,16 +87,16 @@ class AnalyticsController extends Controller
             'period' => $period,
             'from' => $from->toDateTimeString(),
             'to' => $to->toDateTimeString(),
+            'interactions_count' => $interactions->count(),
             'chat_logs_count' => $chatLogs->count(),
             'leads_count' => $leads->count(),
-            'qr_scans_count' => $qrScans->count(),
         ]);
 
-        // Daily chat sessions
-        $dailyInteractions = $chatLogs->groupBy(function($item) {
-            return Carbon::parse($item->created_at)->format('Y-m-d');
-        })->map(function($dayLogs) {
-            return $dayLogs->count();
+        // Daily interactions
+        $dailyInteractions = $interactions->groupBy(function($item) {
+            return $item->created_at->format('Y-m-d');
+        })->map(function($dayInteractions) {
+            return $dayInteractions->count();
         });
 
         // Daily leads
@@ -109,43 +106,34 @@ class AnalyticsController extends Controller
             return $dayLeads->count();
         });
 
-        // Top questions from chat logs
-        $topQuestions = $chatLogs->where('user_message', '!=', null)
-            ->groupBy('user_message')
+        // Top questions from interactions
+        $topQuestions = $interactions->where('question', '!=', null)
+            ->groupBy('question')
             ->map(function($questionGroup) {
                 return $questionGroup->count();
             })
             ->sortDesc()
             ->take(10);
 
-        // Device breakdown from chat logs (if metadata exists)
-        $deviceBreakdown = $chatLogs->filter(function($log) {
-            return isset($log->metadata['device_type']);
-        })->groupBy(function($log) {
-            return $log->metadata['device_type'] ?? 'unknown';
-        })->map(function($deviceGroup) {
-            return $deviceGroup->count();
-        });
+        // Device breakdown from interactions
+        $deviceBreakdown = $interactions->groupBy('device_type')
+            ->map(function($deviceGroup) {
+                return $deviceGroup->count();
+            });
 
-        // Browser breakdown from user_agent
-        $browserBreakdown = $chatLogs->groupBy(function($log) {
-            $userAgent = $log->user_agent ?? '';
-            if (str_contains($userAgent, 'Chrome')) return 'Chrome';
-            if (str_contains($userAgent, 'Safari')) return 'Safari';
-            if (str_contains($userAgent, 'Firefox')) return 'Firefox';
-            if (str_contains($userAgent, 'Edge')) return 'Edge';
-            return 'Other';
-        })->map(function($browserGroup) {
-            return $browserGroup->count();
-        });
+        // Browser breakdown from interactions
+        $browserBreakdown = $interactions->groupBy('browser')
+            ->map(function($browserGroup) {
+                return $browserGroup->count();
+            });
 
-        // QR Code performance
-        $qrPerformance = $qrScans->groupBy('qr_code_id')
+        // QR Code performance from interactions
+        $qrPerformance = $interactions->where('qr_code_id', '!=', null)
+            ->groupBy('qr_code_id')
             ->map(function($qrGroup) {
-                $qrCode = \App\Models\QrCode::find($qrGroup->first()->qr_code_id);
                 return [
                     'count' => $qrGroup->count(),
-                    'qr_code' => $qrCode
+                    'qr_code' => $qrGroup->first()->qrCode
                 ];
             });
 
@@ -168,20 +156,20 @@ class AnalyticsController extends Controller
             ->take(10);
 
         // Geographic data for map
-        $geographicData = $this->getGeographicData($leads, $chatLogs);
+        $geographicData = $this->getGeographicData($leads, $interactions);
 
-        // Conversion rate (leads / total chat sessions)
-        $conversionRate = $chatLogs->count() > 0
-            ? ($leads->count() / $chatLogs->count()) * 100
+        // Conversion rate (leads / total interactions)
+        $conversionRate = $interactions->count() > 0
+            ? ($leads->count() / $interactions->count()) * 100
             : 0;
 
         // Premium features
         $premiumData = [];
         if ($store->is_premium) {
             $premiumData = [
-                'hourly_breakdown' => $this->getHourlyBreakdown($chatLogs),
-                'utm_analysis' => $this->getUTMAnalysis($chatLogs),
-                'session_duration' => $this->getSessionDuration($chatLogs),
+                'hourly_breakdown' => $this->getHourlyBreakdown($interactions),
+                'utm_analysis' => $this->getUTMAnalysis($interactions),
+                'session_duration' => $this->getSessionDuration($interactions),
                 'detailed_geography' => $this->getDetailedGeography($leads),
             ];
         }
@@ -193,11 +181,11 @@ class AnalyticsController extends Controller
                 'to' => $to->toDateString()
             ],
             'summary' => [
-                'total_interactions' => $chatLogs->count(),
+                'total_interactions' => $interactions->count(),
                 'total_leads' => $leads->count(),
                 'total_chats' => $chatLogs->count(),
                 'conversion_rate' => round($conversionRate, 2),
-                'unique_visitors' => $chatLogs->unique('ip_address')->count(),
+                'unique_visitors' => $interactions->unique('ip')->count(),
             ],
             'daily_interactions' => $dailyInteractions,
             'daily_leads' => $dailyLeads,
@@ -391,7 +379,7 @@ class AnalyticsController extends Controller
     /**
      * Get geographic data for map visualization
      */
-    private function getGeographicData($leads, $chatLogs)
+    private function getGeographicData($leads, $interactions)
     {
         $mapData = [];
 
@@ -409,7 +397,7 @@ class AnalyticsController extends Controller
                     'city' => $lead->city ?? 'Sconosciuta',
                     'country' => $lead->country ?? 'Sconosciuto',
                     'leads_count' => 0,
-                    'chats_count' => 0,
+                    'interactions_count' => 0,
                     'type' => 'lead'
                 ];
             }
@@ -417,34 +405,31 @@ class AnalyticsController extends Controller
             $mapData[$key]['leads_count']++;
         }
 
-        // Aggiungi dati da chat logs che hanno coordinate nel metadata
-        $chatsWithCoords = $chatLogs->filter(function($log) {
-            return isset($log->metadata['latitude']) && isset($log->metadata['longitude']);
-        });
+        // Aggiungi dati da interactions che hanno coordinate
+        $interactionsWithCoords = $interactions->where('latitude', '!=', null)
+                                               ->where('longitude', '!=', null);
 
-        foreach ($chatsWithCoords as $chat) {
-            $lat = $chat->metadata['latitude'];
-            $lng = $chat->metadata['longitude'];
-            $key = $lat . ',' . $lng;
+        foreach ($interactionsWithCoords as $interaction) {
+            $key = $interaction->latitude . ',' . $interaction->longitude;
 
             if (!isset($mapData[$key])) {
                 $mapData[$key] = [
-                    'lat' => (float) $lat,
-                    'lng' => (float) $lng,
-                    'city' => $chat->metadata['city'] ?? 'Sconosciuta',
-                    'country' => $chat->metadata['country'] ?? 'Sconosciuto',
+                    'lat' => (float) $interaction->latitude,
+                    'lng' => (float) $interaction->longitude,
+                    'city' => $interaction->city ?? 'Sconosciuta',
+                    'country' => $interaction->country ?? 'Sconosciuto',
                     'leads_count' => 0,
-                    'chats_count' => 0,
-                    'type' => 'chat'
+                    'interactions_count' => 0,
+                    'type' => 'interaction'
                 ];
             }
 
-            $mapData[$key]['chats_count']++;
+            $mapData[$key]['interactions_count']++;
         }
 
         // Aggiungi totale per ogni punto
         foreach ($mapData as &$point) {
-            $point['total'] = $point['leads_count'] + $point['chats_count'];
+            $point['total'] = $point['leads_count'] + $point['interactions_count'];
         }
 
         return array_values($mapData);

@@ -20,7 +20,7 @@ class DashboardController extends Controller
 
         // Get statistics
         $stats = [
-            'chat_sessions' => $store->chatLogs()
+            'chat_sessions' => $store->interactions()
                 ->where('created_at', '>=', $thisMonth)
                 ->distinct('session_id')
                 ->count('session_id'),
