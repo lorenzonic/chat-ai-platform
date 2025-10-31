@@ -20,16 +20,18 @@ class DashboardController extends Controller
 
         // Get statistics
         $stats = [
-            'chat_sessions' => $store->interactions()
+            'chat_sessions' => $store->chatLogs()
                 ->where('created_at', '>=', $thisMonth)
-                ->distinct('ip')
-                ->count(),
+                ->distinct('session_id')
+                ->count('session_id'),
             'leads_generated' => $store->leads()->count(),
-            'qr_scans' => $store->interactions()
-                ->where('created_at', '>=', $thisMonth)
-                ->whereNotNull('qr_code_id')
-                ->count(),
-            'ai_responses' => $store->interactions()->count(),
+            'qr_scans' => $store->qrCodes()
+                ->withCount(['scans' => function($query) use ($thisMonth) {
+                    $query->where('created_at', '>=', $thisMonth);
+                }])
+                ->get()
+                ->sum('scans_count'),
+            'ai_responses' => $store->chatLogs()->count(),
         ];
 
         return view('store.dashboard', compact('stats'));
