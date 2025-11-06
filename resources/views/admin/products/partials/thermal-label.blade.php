@@ -26,7 +26,7 @@
         </div>
     </div>
 
-    <!-- Bottom section: Long Barcode + EAN/Client -->
+    <!-- Bottom section: Long Barcode only -->
     <div class="thermal-bottom-section">
         <!-- Long horizontal barcode -->
         @if($labelData['barcode'])
@@ -36,15 +36,5 @@
             </div>
         </div>
         @endif
-
-        <!-- Bottom info: EAN left, Client right -->
-        <div class="thermal-bottom-info">
-            <div class="thermal-ean-text">
-                {{ $orderItem->product_snapshot['ean'] ?? ($orderItem->product->ean ?? '') }}
-            </div>
-            <div class="thermal-client-code">
-                {{ $labelData['order_info']['customer_short'] ?: 'N/A' }}
-            </div>
-        </div>
     </div>
 </div>
