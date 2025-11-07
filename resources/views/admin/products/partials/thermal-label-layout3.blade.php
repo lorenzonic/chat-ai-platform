@@ -75,12 +75,12 @@
         background: white !important;
         border: none !important;
     }
-    
+
     .thermal-label-layout3 .layout3-qr-container svg {
         image-rendering: pixelated !important;
         shape-rendering: crispEdges !important;
     }
-    
+
     /* Force crisp rendering without changing colors */
     .thermal-label-layout3 .layout3-qr-container svg * {
         shape-rendering: crispEdges !important;
@@ -132,7 +132,7 @@
 .thermal-label-layout3 .layout3-barcode-container .barcode {
     font-family: 'IDAutomationHC39M', 'Courier New', monospace !important;
     font-size: 16px; /* PIÙ GRANDE del layout 1 */
-    letter-spacing: 0.4px;
+    letter-spacing: 0; /* Nessuna spaziatura - font barcode la gestisce */
     line-height: 1;
     text-align: center;
     font-weight: normal !important;

@@ -65,12 +65,12 @@
         background: white !important;
         border: none !important;
     }
-    
+
     .thermal-label-layout4 .layout4-qr-container svg {
         image-rendering: pixelated !important;
         shape-rendering: crispEdges !important;
     }
-    
+
     /* Force crisp rendering without changing colors */
     .thermal-label-layout4 .layout4-qr-container svg * {
         shape-rendering: crispEdges !important;
@@ -109,7 +109,7 @@
 .thermal-label-layout4 .layout4-barcode-container .barcode {
     font-family: 'IDAutomationHC39M', 'Courier New', monospace !important;
     font-size: 20px; /* BARCODE GIGANTE! */
-    letter-spacing: 0.6px;
+    letter-spacing: 0; /* Nessuna spaziatura - font barcode la gestisce */
     line-height: 1;
     text-align: center;
     font-weight: normal !important;

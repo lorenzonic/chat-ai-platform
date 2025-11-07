@@ -241,7 +241,7 @@
 
         /* Barcode styling - OTTIMIZZATO PER STAMPANTE TERMICA */
         .thermal-barcode-container {
-            height: 20px; /* Ridotto per evitare overflow su etichetta 50mm */
+            height: 35px; /* Ridotto per evitare overflow su etichetta 50mm */
 
 
             overflow: hidden; /* Permetti espansione verticale */
@@ -252,7 +252,7 @@
         .thermal-barcode-container .barcode {
             font-family: 'IDAutomationHC39M', 'Courier New', monospace;
             font-size: 11px; /* Bilanciato: leggibile ma compatto */
-            letter-spacing: 0.3px; /* Separazione barre ottimale */
+            letter-spacing: 0; /* Nessuna spaziatura - font barcode la gestisce */
             line-height: 1.2; /* Migliore definizione verticale */
             height: 20px;
             overflow: visible;
