@@ -76,31 +76,40 @@
         }
 
         @media print {
-            html, body {
-                width: 50mm !important;
-                height: 25mm !important;
+            /* Reset page size per stampante termica */
+            @page {
+                size: 50mm 25mm;
+                margin: 0mm;
+            }
+
+            body {
                 margin: 0 !important;
                 padding: 0 !important;
                 background: white !important;
-                overflow: hidden !important;
             }
 
-            .no-print {
+            /* Nascondi tutto tranne print-only */
+            body > *:not(.print-only) {
                 display: none !important;
             }
 
-            /* .print-only visibility is controlled by JavaScript */
+            /* Mostra solo i layout per la stampa */
+            .print-only {
+                display: block !important;
+            }
 
             .thermal-label {
                 width: 50mm !important;
                 height: 25mm !important;
                 border: none !important;
                 margin: 0 !important;
-                padding: 2mm !important;
+                padding: 0.5mm 1.5mm !important; /* Ridotto margine laterale */
                 background: white !important;
                 overflow: hidden !important;
-                page-break-after: always !important;
                 page-break-inside: avoid !important;
+                page-break-after: always !important;
+                display: block !important;
+                box-sizing: border-box !important;
             }
 
             .thermal-label:last-child {
@@ -163,21 +172,21 @@
             margin-bottom: 3px;
         }
 
-        /* QR Code - Top left */
+        /* QR Code - Top left - INGRANDITO */
         .thermal-qr-container {
-            width: 50px;
-            height: 50px;
+            width: 56px;  /* Aumentato da 50px */
+            height: 56px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid #ddd;
-            margin-right: 6px;
+            border: none;  /* Rimosso border */
+            margin-right: 4px;  /* Ridotto da 6px */
             background: white;  /* White background for QR contrast */
         }
 
         .thermal-qr-container svg {
-            width: 48px !important;
-            height: 48px !important;
+            width: 56px !important;  /* Riempie tutto il container */
+            height: 56px !important;
             display: block;  /* Remove inline spacing */
         }
 
@@ -257,7 +266,6 @@
             height: 20px;
             overflow: visible;
             text-align: left;
-            font-weight: 900; /* Extra-bold per stampante termica */
             color: #000000; /* Nero puro per massimo contrasto */
             transform: scaleY(1.1); /* Allunga verticalmente senza allargare */
             -webkit-print-color-adjust: exact;
@@ -360,10 +368,10 @@
             </div>
         </div>
 
-        <h3>🔍 Scegli il Layout Migliore - Confronta e Stampa</h3>
+        <h3 class="no-print">🔍 Scegli il Layout Migliore - Confronta e Stampa</h3>
 
         <!-- Layout 1: Originale (QR piccolo + Barcode) -->
-        <div style="margin-bottom: 40px;">
+        <div style="margin-bottom: 40px;" class="no-print">
             <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                 <h4 style="color: #495057; margin-bottom: 8px;">📐 Layout 1: Originale - QR 13mm + Barcode</h4>
                 <p style="color: #6c757d; margin: 0; font-size: 13px;">QR Code 13mm | Barcode Code39 11px | Include EAN + Cliente</p>
@@ -379,7 +387,7 @@
         </div>
 
         <!-- Layout 2: QR Grande (solo QR + Nome + Prezzo) -->
-        <div style="margin-bottom: 40px;">
+        <div style="margin-bottom: 40px;" class="no-print">
             <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                 <h4 style="color: #1976d2; margin-bottom: 8px;">📐 Layout 2: QR Grande - Minimalista</h4>
                 <p style="color: #0d47a1; margin: 0; font-size: 13px;">QR Code 20mm (grande) | Solo Nome Prodotto + Prezzo | Nessun barcode</p>
@@ -394,51 +402,22 @@
             </div>
         </div>
 
-        <!-- Layout 3: Bilanciato (QR 15mm + Barcode ottimizzato) -->
-        <div style="margin-bottom: 40px;">
-            <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                <h4 style="color: #e65100; margin-bottom: 8px;">📐 Layout 3: Bilanciato - QR 15mm + Barcode Leggibile</h4>
-                <p style="color: #bf360c; margin: 0; font-size: 13px;">QR Code 15mm | Barcode 16px (più grande) | Solo EAN sotto</p>
-                <button onclick="printLayout('layout3')" class="btn" style="background: #ff9800; color: white; margin-top: 10px;">
-                    🖨️ Stampa Solo Layout 3
-                </button>
-            </div>
-            <div class="labels-grid" id="layout3">
-                @for ($i = 1; $i <= min($labelData['quantity'], 4); $i++)
-                    @include('admin.products.partials.thermal-label-layout3', ['labelData' => $labelData, 'orderItem' => $orderItem])
-                @endfor
-            </div>
-        </div>
-
-        <!-- Layout 4: Barcode Dominante (QR piccolo + Barcode EXTRA grande) -->
-        <div style="margin-bottom: 40px;">
-            <div style="background: #f3e5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                <h4 style="color: #6a1b9a; margin-bottom: 8px;">📐 Layout 4: Barcode Dominante - Massima Scansionabilità</h4>
-                <p style="color: #4a148c; margin: 0; font-size: 13px;">QR Code 12mm | Barcode 20px GRANDE (70% etichetta) | Solo nome breve</p>
-                <button onclick="printLayout('layout4')" class="btn" style="background: #9c27b0; color: white; margin-top: 10px;">
-                    🖨️ Stampa Solo Layout 4
-                </button>
-            </div>
-            <div class="labels-grid" id="layout4">
-                @for ($i = 1; $i <= min($labelData['quantity'], 4); $i++)
-                    @include('admin.products.partials.thermal-label-layout4', ['labelData' => $labelData, 'orderItem' => $orderItem])
-                @endfor
-            </div>
-        </div>
-
-        <div style="background: #fffde7; padding: 15px; border-radius: 8px; border-left: 4px solid #f57f17;">
+        <div style="background: #fffde7; padding: 15px; border-radius: 8px; border-left: 4px solid #f57f17;" class="no-print">
             <h4 style="color: #f57f17; margin-bottom: 8px;">💡 Suggerimenti per la Scelta</h4>
             <ul style="margin: 8px 0 0 20px; line-height: 1.8; color: #827717;">
-                <li><strong>Layout 1:</strong> Buono per chi usa sia QR che barcode scanner classici</li>
-                <li><strong>Layout 2:</strong> Ideale se usi principalmente smartphone per QR, massima leggibilità QR</li>
-                <li><strong>Layout 3:</strong> Compromesso perfetto tra QR e barcode, entrambi leggibili</li>
-                <li><strong>Layout 4:</strong> Ottimo per scanner barcode professionali, barcode gigante</li>
+                <li><strong>Layout 1:</strong> Originale - QR Code + Barcode + EAN + Cliente - buono per uso generale</li>
+                <li><strong>Layout 2:</strong> QR Grande - solo QR Code grande + Nome + Prezzo - ideale per smartphone</li>
             </ul>
+            <div style="margin-top: 12px; padding: 10px; background: #fff9c4; border-radius: 4px;">
+                <strong style="color: #f57f17;">⚠️ NOTA TERMICA:</strong>
+                <span style="color: #827717;"> Le stampanti termiche stampano SOLO in NERO. Tutti i colori visualizzati sono solo per preview schermo.</span>
+            </div>
         </div>
     </div>
 
     <!-- Print Versions per ogni layout -->
     <div class="print-only" id="print-layout1" style="display: none;">
+        {{-- DEBUG: Quantity = {{ $labelData['quantity'] }} --}}
         @for ($i = 1; $i <= $labelData['quantity']; $i++)
             @include('admin.products.partials.thermal-label', ['labelData' => $labelData, 'orderItem' => $orderItem])
         @endfor
@@ -447,18 +426,6 @@
     <div class="print-only" id="print-layout2" style="display: none;">
         @for ($i = 1; $i <= $labelData['quantity']; $i++)
             @include('admin.products.partials.thermal-label-layout2', ['labelData' => $labelData, 'orderItem' => $orderItem])
-        @endfor
-    </div>
-
-    <div class="print-only" id="print-layout3" style="display: none;">
-        @for ($i = 1; $i <= $labelData['quantity']; $i++)
-            @include('admin.products.partials.thermal-label-layout3', ['labelData' => $labelData, 'orderItem' => $orderItem])
-        @endfor
-    </div>
-
-    <div class="print-only" id="print-layout4" style="display: none;">
-        @for ($i = 1; $i <= $labelData['quantity']; $i++)
-            @include('admin.products.partials.thermal-label-layout4', ['labelData' => $labelData, 'orderItem' => $orderItem])
         @endfor
     </div>
 
@@ -487,16 +454,47 @@
         // Show correct print version based on selected layout
         window.addEventListener('beforeprint', function() {
             console.log('🖨️ Starting thermal print job - Layout:', currentLayout);
+            const totalQuantity = {{ $labelData['quantity'] }};
 
-            // Hide all print layouts first
-            document.querySelectorAll('.print-only').forEach(el => el.style.display = 'none');
+            // Hide all print layouts and clear them
+            document.querySelectorAll('.print-only').forEach(el => {
+                el.style.display = 'none';
+                el.innerHTML = ''; // Svuota
+                console.log('Nascondo:', el.id);
+            });
 
             // Show selected layout
             if (currentLayout !== 'all') {
-                document.getElementById('print-' + currentLayout).style.display = 'block';
+                const selectedPrintDiv = document.getElementById('print-' + currentLayout);
+                const sourceGrid = document.getElementById(currentLayout);
+
+                if (selectedPrintDiv && sourceGrid) {
+                    // Prendi la PRIMA etichetta template dalla griglia
+                    const templateLabel = sourceGrid.querySelector('.thermal-label');
+
+                    if (templateLabel) {
+                        console.log('Template etichetta trovato, genero', totalQuantity, 'copie');
+
+                        // Genera tutte le etichette necessarie (non solo 4!)
+                        for (let i = 0; i < totalQuantity; i++) {
+                            const clone = templateLabel.cloneNode(true);
+                            selectedPrintDiv.appendChild(clone);
+                        }
+
+                        selectedPrintDiv.style.display = 'block';
+                        console.log('✅ Mostro:', selectedPrintDiv.id, 'con', totalQuantity, 'etichette');
+                    } else {
+                        console.error('❌ Template etichetta non trovato');
+                    }
+                } else {
+                    console.error('❌ Layout non trovato:', currentLayout);
+                }
             } else {
                 // Print all layouts (default button)
-                document.querySelectorAll('.print-only').forEach(el => el.style.display = 'block');
+                document.querySelectorAll('.print-only').forEach(el => {
+                    el.style.display = 'block';
+                    console.log('Mostro tutto:', el.id);
+                });
             }
         });
 

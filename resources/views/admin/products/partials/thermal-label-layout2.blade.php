@@ -63,12 +63,12 @@
         background: white !important;
         border: none !important;
     }
-    
+
     .thermal-label-layout2 .layout2-qr-container svg {
         image-rendering: pixelated !important;
         shape-rendering: crispEdges !important;
     }
-    
+
     /* Force crisp rendering without changing colors */
     .thermal-label-layout2 .layout2-qr-container svg * {
         shape-rendering: crispEdges !important;
