@@ -66,24 +66,19 @@ php artisan storage:link || echo "⚠️ Storage link già esistente"
 if [ "$APP_ENV" = "production" ]; then
     echo "📊 Esecuzione migrazioni database..."
     php artisan migrate:status || echo "⚠️ Cannot check migration status"
-    # Forza l'esecuzione delle migrazioni pending
+    
+    # SOLO migrate --force (NON fresh!)
+    # migrate:fresh CANCELLA TUTTI I DATI - mai usare in produzione!
     php artisan migrate --force || {
-        echo "⚠️ Standard migration failed, trying Railway fix..."
-        php artisan railway:migrate-fix || {
-            echo "⚠️ Railway fix failed, trying fresh migration..."
-            php artisan migrate:fresh --force --seed || echo "⚠️ Fresh migration also failed"
-        }
+        echo "⚠️ Migration failed - PRESERVING EXISTING DATA"
+        echo "🔧 Check database connection and migration files"
+        echo "� Database will NOT be wiped - data preserved"
     }
 
-    # Seed admin and essential data if needed
+    # Seed admin and essential data SOLO se non esistono già
     echo "👤 Verifica accounts essenziali..."
-    php artisan db:seed --class=AdminSeeder --force || echo "⚠️ Admin seed failed"
-    php artisan db:seed --class=GrowerSeeder --force || echo "⚠️ Grower seed failed"
-
-    # Seed admin and essential data if needed
-    echo "👤 Verifica accounts essenziali..."
-    php artisan db:seed --class=AdminSeeder --force || echo "⚠️ Admin seed failed"
-    php artisan db:seed --class=GrowerSeeder --force || echo "⚠️ Grower seed failed"
+    php artisan db:seed --class=AdminSeeder --force || echo "⚠️ Admin seed skipped (may already exist)"
+    php artisan db:seed --class=GrowerSeeder --force || echo "⚠️ Grower seed skipped (may already exist)"
 fi
 
 # Ottimizzazioni per produzione
