@@ -182,8 +182,7 @@
         }
 
         /* QR Code SVG optimization for thermal printing */
-        .thermal-qr-container svg path,
-        .thermal-qr-container svg rect {
+        .thermal-qr-container svg {
             shape-rendering: crispEdges !important;  /* Sharp edges, no anti-aliasing */
         }
 
@@ -198,9 +197,8 @@
                 shape-rendering: crispEdges !important;
             }
 
-            .thermal-qr-container svg path,
-            .thermal-qr-container svg rect {
-                fill: black !important;  /* Force pure black */
+            /* Force crisp rendering without changing colors */
+            .thermal-qr-container svg * {
                 shape-rendering: crispEdges !important;
             }
         }

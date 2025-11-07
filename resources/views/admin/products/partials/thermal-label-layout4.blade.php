@@ -56,8 +56,7 @@
 }
 
 /* QR optimization for thermal printing - Layout 4 */
-.thermal-label-layout4 .layout4-qr-container svg path,
-.thermal-label-layout4 .layout4-qr-container svg rect {
+.thermal-label-layout4 .layout4-qr-container svg {
     shape-rendering: crispEdges !important;
 }
 
@@ -72,9 +71,8 @@
         shape-rendering: crispEdges !important;
     }
     
-    .thermal-label-layout4 .layout4-qr-container svg path,
-    .thermal-label-layout4 .layout4-qr-container svg rect {
-        fill: black !important;
+    /* Force crisp rendering without changing colors */
+    .thermal-label-layout4 .layout4-qr-container svg * {
         shape-rendering: crispEdges !important;
     }
 }
