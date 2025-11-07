@@ -89,9 +89,7 @@
                 display: none !important;
             }
 
-            .print-only {
-                display: block !important;
-            }
+            /* .print-only visibility is controlled by JavaScript */
 
             .thermal-label {
                 width: 50mm !important;
@@ -339,7 +337,7 @@
         </div>
 
         <h3>🔍 Scegli il Layout Migliore - Confronta e Stampa</h3>
-        
+
         <!-- Layout 1: Originale (QR piccolo + Barcode) -->
         <div style="margin-bottom: 40px;">
             <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
@@ -465,10 +463,10 @@
         // Show correct print version based on selected layout
         window.addEventListener('beforeprint', function() {
             console.log('🖨️ Starting thermal print job - Layout:', currentLayout);
-            
+
             // Hide all print layouts first
             document.querySelectorAll('.print-only').forEach(el => el.style.display = 'none');
-            
+
             // Show selected layout
             if (currentLayout !== 'all') {
                 document.getElementById('print-' + currentLayout).style.display = 'block';
