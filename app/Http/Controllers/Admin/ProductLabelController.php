@@ -373,12 +373,20 @@ class ProductLabelController extends Controller
     }
 
     /**
-     * Generate QR code SVG
+     * Generate QR code SVG optimized for thermal printing
+     * 
+     * Uses square pixels (no rounding), high error correction,
+     * minimal margin, and larger size for better scanning on printed labels
      */
     private function generateQrCodeSvg(string $url): string
     {
-        return QrCodeGenerator::size(100)
-                             ->style('round')
+        return QrCodeGenerator::format('svg')
+                             ->size(200)  // Larger size for thermal printing (was 100)
+                             ->margin(0)  // Minimal margin to maximize QR size
+                             ->errorCorrection('H')  // Highest error correction (30% recovery)
+                             ->style('square')  // Square pixels for better scanning (no round)
+                             ->color(0, 0, 0)  // Pure black
+                             ->backgroundColor(255, 255, 255)  // Pure white
                              ->generate($url);
     }
 

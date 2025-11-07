@@ -44,10 +44,38 @@
     align-items: center;
     justify-content: center;
     border: 1px solid #1976d2;
+    background: white;
 }
 
 .thermal-label-layout2 .layout2-qr-container svg {
     width: 73px !important;
+    height: 73px !important;
+    display: block;
+}
+
+/* QR optimization for thermal printing - Layout 2 */
+.thermal-label-layout2 .layout2-qr-container svg path,
+.thermal-label-layout2 .layout2-qr-container svg rect {
+    shape-rendering: crispEdges !important;
+}
+
+@media print {
+    .thermal-label-layout2 .layout2-qr-container {
+        background: white !important;
+        border: none !important;
+    }
+    
+    .thermal-label-layout2 .layout2-qr-container svg {
+        image-rendering: pixelated !important;
+        shape-rendering: crispEdges !important;
+    }
+    
+    .thermal-label-layout2 .layout2-qr-container svg path,
+    .thermal-label-layout2 .layout2-qr-container svg rect {
+        fill: black !important;
+        shape-rendering: crispEdges !important;
+    }
+}
     height: 73px !important;
 }
 

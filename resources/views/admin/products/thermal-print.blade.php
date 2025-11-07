@@ -172,11 +172,37 @@
             justify-content: center;
             border: 1px solid #ddd;
             margin-right: 6px;
+            background: white;  /* White background for QR contrast */
         }
 
         .thermal-qr-container svg {
             width: 48px !important;
             height: 48px !important;
+            display: block;  /* Remove inline spacing */
+        }
+
+        /* QR Code SVG optimization for thermal printing */
+        .thermal-qr-container svg path,
+        .thermal-qr-container svg rect {
+            shape-rendering: crispEdges !important;  /* Sharp edges, no anti-aliasing */
+        }
+
+        @media print {
+            .thermal-qr-container {
+                background: white !important;
+                border: none !important;
+            }
+
+            .thermal-qr-container svg {
+                image-rendering: pixelated !important;  /* Prevent smoothing on print */
+                shape-rendering: crispEdges !important;
+            }
+
+            .thermal-qr-container svg path,
+            .thermal-qr-container svg rect {
+                fill: black !important;  /* Force pure black */
+                shape-rendering: crispEdges !important;
+            }
         }
 
         /* Product info - Top right */
