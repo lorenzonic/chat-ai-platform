@@ -15,6 +15,39 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
+/**
+ * Helper function to get geo location from IP address
+ */
+if (!function_exists('getGeoLocationFromIP')) {
+    function getGeoLocationFromIP($ip) {
+        if (!$ip || $ip === '127.0.0.1' || $ip === '::1') {
+            return null;
+        }
+
+        try {
+            $geoData = @file_get_contents("http://ip-api.com/json/{$ip}?fields=status,country,city,lat,lon", false, stream_context_create([
+                'http' => ['timeout' => 3]
+            ]));
+
+            if ($geoData) {
+                $geo = json_decode($geoData, true);
+                if ($geo && isset($geo['status']) && $geo['status'] === 'success') {
+                    return [
+                        'lat' => $geo['lat'] ?? null,
+                        'lng' => $geo['lon'] ?? null,
+                        'city' => $geo['city'] ?? null,
+                        'country' => $geo['country'] ?? null,
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::debug('Geo location API failed', ['ip' => $ip, 'error' => $e->getMessage()]);
+        }
+
+        return null;
+    }
+}
+
 // Store Authentication Routes
 Route::prefix('store')->name('store.')->group(function () {
     // Guest routes (not authenticated)
@@ -86,12 +119,16 @@ Route::get('/{store:slug}/01/{gtin}', function(\App\Models\Store $store, string 
                     $deviceType = preg_match('/iPad/', $ua) ? 'tablet' : 'mobile';
                 }
 
+                $ip = request()->ip();
+                $geoLocation = getGeoLocationFromIP($ip);
+
                 \App\Models\QrScan::create([
                     'store_id' => $store->id,
                     'qr_code_id' => $qrCode->id,
-                    'ip_address' => request()->ip(),
+                    'ip_address' => $ip,
                     'user_agent' => $ua,
                     'referer' => request()->header('referer'),
+                    'geo_location' => $geoLocation,
                     'device_type' => $deviceType,
                 ]);
             }
@@ -126,12 +163,16 @@ Route::get('/{store:slug}', function(\App\Models\Store $store) {
                     $deviceType = preg_match('/iPad/', $ua) ? 'tablet' : 'mobile';
                 }
 
+                $ip = request()->ip();
+                $geoLocation = getGeoLocationFromIP($ip);
+
                 \App\Models\QrScan::create([
                     'store_id' => $store->id,
                     'qr_code_id' => $qrCode->id,
-                    'ip_address' => request()->ip(),
+                    'ip_address' => $ip,
                     'user_agent' => $ua,
                     'referer' => request()->header('referer'),
+                    'geo_location' => $geoLocation,
                     'device_type' => $deviceType,
                 ]);
             }

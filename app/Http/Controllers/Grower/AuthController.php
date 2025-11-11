@@ -10,8 +10,17 @@ use App\Models\Grower;
 
 class AuthController extends Controller
 {
+    /**
+     * Show the grower login form.
+     * If already logged in, redirect to dashboard.
+     */
     public function showLogin()
     {
+        // Se il grower è già autenticato, redirect alla dashboard
+        if (Auth::guard('grower')->check()) {
+            return redirect()->route('grower.dashboard');
+        }
+
         return view('grower.auth.login');
     }
 

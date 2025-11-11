@@ -158,11 +158,19 @@
                         timestamp: new Date()
                     });
 
-                    // Auto-send prefilled question if present
+                    // If there's a prefilled question, just keep it in the input (don't auto-send)
+                    // User can review and modify it before sending
                     if (this.currentMessage) {
+                        console.log('Prefilled question:', this.currentMessage);
+                        // Focus the input field after a short delay
                         setTimeout(() => {
-                            this.sendMessage();
-                        }, 1000);
+                            const inputField = document.querySelector('input[type="text"]');
+                            if (inputField) {
+                                inputField.focus();
+                                // Move cursor to end of text
+                                inputField.setSelectionRange(inputField.value.length, inputField.value.length);
+                            }
+                        }, 500);
                     }
                 },
                 methods: {
@@ -414,7 +422,7 @@
 <body class="font-sans antialiased">
     <div id="modern-chatbot"
          data-store='@json($store)'
-         data-prefilled-question="{{ request('q') }}"
+         data-prefilled-question="{{ request('question') ?? request('q') }}"
          data-ref-code="{{ request('ref') }}">
         <!-- Vue app will mount here -->
         <div class="flex items-center justify-center min-h-screen">

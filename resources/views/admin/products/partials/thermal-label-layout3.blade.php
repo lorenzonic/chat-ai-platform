@@ -1,8 +1,8 @@
-{{-- Layout 3: Bilanciato - QR 15mm + Barcode ottimizzato --}}
+{{-- Layout 3: BILANCIATO PRO - QR 16mm + Barcode dentro --}}
 <div class="thermal-label thermal-label-layout3">
-    <!-- Top: QR + Product Name -->
+    <!-- Top: QR + Product Info -->
     <div class="layout3-top-section">
-        <!-- QR Code - 15mm -->
+        <!-- QR Code - 16mm -->
         <div class="layout3-qr-container">
             @if($labelData['qrcode']['svg'])
                 {!! $labelData['qrcode']['svg'] !!}
@@ -11,140 +11,170 @@
             @endif
         </div>
 
-        <!-- Product Name + Price -->
+        <!-- Product Info -->
         <div class="layout3-product-info">
             <div class="layout3-product-name">
-                {{ $labelData['name'] }}
+                {{ Str::limit($labelData['name'], 45) }}
             </div>
             @if($labelData['price'] != 'N/A' && (float)$labelData['price'] > 0)
             <div class="layout3-price">
                 {{ $labelData['formatted_price'] }}
             </div>
             @endif
+            <div class="layout3-ean-text">
+                EAN: {{ $orderItem->product_snapshot['ean'] ?? ($orderItem->product->ean ?? 'N/A') }}
+            </div>
         </div>
     </div>
 
-    <!-- Bottom: Barcode GRANDE + EAN -->
+    <!-- Bottom: Barcode CENTRATO -->
     <div class="layout3-bottom-section">
         @if($labelData['barcode'])
         <div class="layout3-barcode-container">
-            <div class="barcode">
+            <div class="barcode layout3-barcode">
                 *{{ $labelData['barcode']['code'] }}*
             </div>
-        </div>
-        <div class="layout3-ean-text">
-            {{ $orderItem->product_snapshot['ean'] ?? ($orderItem->product->ean ?? '') }}
         </div>
         @endif
     </div>
 </div>
 
 <style>
-/* Layout 3 Specific Styles - BILANCIATO */
-.thermal-label-layout3 .layout3-top-section {
-    height: 57px; /* ~15mm */
+/* === LAYOUT 3: BILANCIATO PRO - THERMAL ONLY BLACK === */
+
+.thermal-label-layout3 {
+    width: 50mm;
+    height: 25mm;
     display: flex;
-    gap: 4px;
-    margin-bottom: 2px;
+    flex-direction: column;
+    background: white;
+    border: 2px solid #000;
+    position: relative;
+    overflow: hidden;
 }
 
-.thermal-label-layout3 .layout3-qr-container {
-    width: 57px; /* ~15mm - QR MEDIO */
-    height: 57px;
-    flex-shrink: 0;
+/* Top Section: QR + Product Info */
+.layout3-top-section {
+    display: flex;
+    gap: 2mm;
+    padding: 1mm;
+    height: 16mm;
+    border-bottom: 1px solid #000;
+}
+
+/* QR Container - 16mm */
+.layout3-qr-container {
+    width: 16mm;
+    height: 16mm;
+    min-width: 16mm;
+    min-height: 16mm;
+    max-width: 16mm;
+    max-height: 16mm;
+    border: 1px solid #000;
+    background: white;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #ff9800;
-    background: white;
+    flex-shrink: 0;
 }
 
-.thermal-label-layout3 .layout3-qr-container svg {
-    width: 55px !important;
-    height: 55px !important;
-    display: block;
+.layout3-qr-container svg {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    display: block !important;
+    shape-rendering: crispEdges;
+    image-rendering: pixelated;
 }
 
-/* QR optimization for thermal printing - Layout 3 */
-.thermal-label-layout3 .layout3-qr-container svg {
-    shape-rendering: crispEdges !important;
-}
-
-@media print {
-    .thermal-label-layout3 .layout3-qr-container {
-        background: white !important;
-        border: none !important;
-    }
-
-    .thermal-label-layout3 .layout3-qr-container svg {
-        image-rendering: pixelated !important;
-        shape-rendering: crispEdges !important;
-    }
-
-    /* Force crisp rendering without changing colors */
-    .thermal-label-layout3 .layout3-qr-container svg * {
-        shape-rendering: crispEdges !important;
-    }
-}
-
-.thermal-label-layout3 .layout3-product-info {
+/* Product Info */
+.layout3-product-info {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding: 2px;
+    gap: 1mm;
+    min-width: 0;
+    padding: 0.5mm;
 }
 
-.thermal-label-layout3 .layout3-product-name {
-    font-size: 11px;
-    font-weight: bold;
-    line-height: 1.2;
+.layout3-product-name {
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1.1;
     color: #000;
     overflow: hidden;
-    max-height: 40px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
 }
 
-.thermal-label-layout3 .layout3-price {
-    font-size: 14px;
-    font-weight: bold;
-    color: #ff9800;
-}
-
-/* Barcode section */
-.thermal-label-layout3 .layout3-bottom-section {
-    height: 30px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.thermal-label-layout3 .layout3-barcode-container {
-    width: 100%;
-    height: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: white;
-    margin-bottom: 1px;
-}
-
-.thermal-label-layout3 .layout3-barcode-container .barcode {
-    font-family: 'IDAutomationHC39M', 'Courier New', monospace !important;
-    font-size: 16px; /* PIÙ GRANDE del layout 1 */
-    letter-spacing: 0; /* Nessuna spaziatura - font barcode la gestisce */
-    line-height: 1;
-    text-align: center;
-    font-weight: normal !important;
-    color: #000000 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-}
-
-.thermal-label-layout3 .layout3-ean-text {
-    font-size: 8px;
-    font-weight: bold;
+.layout3-price {
+    font-size: 11px;
+    font-weight: 800;
     color: #000;
+    margin-top: 1mm;
+}
+
+.layout3-ean-text {
+    font-size: 7px;
+    font-weight: 600;
+    color: #000;
+    margin-top: auto;
+    font-family: 'Courier New', monospace;
+}
+
+/* Bottom: Barcode CENTRATO */
+.layout3-bottom-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2mm;
+}
+
+.layout3-barcode-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.layout3-barcode {
+    font-family: 'IDAutomationHC39M', 'Libre Barcode 39', monospace;
+    font-size: 18px !important;
+    line-height: 1 !important;
+    letter-spacing: 0 !important;
+    color: #000000;
+    transform: scaleY(1.3);
     text-align: center;
+    white-space: nowrap;
+    padding: 0;
+    margin: 0;
+}
+
+/* Print Optimizations */
+@media print {
+    .thermal-label-layout3 {
+        page-break-inside: avoid;
+        background: white !important;
+        border: 1px solid #000 !important;
+    }
+
+    .thermal-label-layout3 * {
+        color: #000 !important;
+    }
+
+    .layout3-qr-container svg {
+        shape-rendering: crispEdges !important;
+        image-rendering: pixelated !important;
+    }
+
+    .layout3-barcode {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
 }
 </style>

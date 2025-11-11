@@ -66,7 +66,7 @@ php artisan storage:link || echo "⚠️ Storage link già esistente"
 if [ "$APP_ENV" = "production" ]; then
     echo "📊 Esecuzione migrazioni database..."
     php artisan migrate:status || echo "⚠️ Cannot check migration status"
-    
+
     # SOLO migrate --force (NON fresh!)
     # migrate:fresh CANCELLA TUTTI I DATI - mai usare in produzione!
     php artisan migrate --force || {

@@ -150,7 +150,7 @@ class AccountController extends Controller
             'country' => 'nullable|string|max:100',
             'is_active' => 'boolean',
             'is_premium' => 'boolean',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:1024',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Max 2MB
         ]);
 
         $updateData = [
@@ -172,7 +172,8 @@ class AccountController extends Controller
             if ($store->logo && \Storage::disk('public')->exists($store->logo)) {
                 \Storage::disk('public')->delete($store->logo);
             }
-            $updateData['logo'] = $request->file('logo')->store('store-logos', 'public');
+            // Salva nella stessa directory della route upload-logo
+            $updateData['logo'] = $request->file('logo')->store('stores/logos', 'public');
         }
 
         // Only update password if provided
@@ -234,5 +235,39 @@ class AccountController extends Controller
         $status = $store->is_label_store ? 'abilitato alle etichette' : 'disabilitato dalle etichette';
         return redirect()->back()
             ->with('success', "Store {$status} con successo!");
+    }
+
+    /**
+     * Upload store logo for QR codes
+     */
+    public function uploadStoreLogo(Request $request, Store $store)
+    {
+        $request->validate([
+            'logo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Max 2MB
+        ]);
+
+        try {
+            // Delete old logo if exists
+            if ($store->logo && \Storage::disk('public')->exists($store->logo)) {
+                \Storage::disk('public')->delete($store->logo);
+            }
+
+            // Store new logo
+            $path = $request->file('logo')->store('stores/logos', 'public');
+
+            // Update store
+            $store->update(['logo' => $path]);
+
+            return redirect()->back()
+                ->with('success', '✅ Logo caricato con successo! Verrà mostrato nei QR code delle etichette.');
+        } catch (\Exception $e) {
+            \Log::error('Store logo upload failed', [
+                'store_id' => $store->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->back()
+                ->with('error', '❌ Errore durante il caricamento del logo: ' . $e->getMessage());
+        }
     }
 }

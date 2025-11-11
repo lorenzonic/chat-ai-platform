@@ -5,16 +5,23 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\QrCode;
 use App\Models\Store;
+use App\Services\QrCodeService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
-use SimpleSoftwareIO\QrCode\Facades\QrCode as QrCodeGenerator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
 class QrCodeController extends Controller
 {
+    protected $qrCodeService;
+
+    public function __construct(QrCodeService $qrCodeService)
+    {
+        $this->qrCodeService = $qrCodeService;
+    }
+
     /**
      * Display a listing of QR codes.
      */
@@ -174,20 +181,14 @@ class QrCodeController extends Controller
             ? rtrim(config('app.url'), '/') . '/qr/' . $qrCode->ean_code
             : $qrCode->getQrUrl();
 
-        // Recupera logo store se esiste
-        $storeLogoPath = $qrCode->store && $qrCode->store->logo ? storage_path('app/public/' . $qrCode->store->logo) : null;
-        $hasLogo = $storeLogoPath && file_exists($storeLogoPath);
-
         try {
-            $qr = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
-                ->size(300)
-                ->margin(1)
-                ->errorCorrection('H')
-                ->color(0,0,0)
-                ->backgroundColor(255,255,255);
-            $qrContent = $qr->generate($qrContentString);
-            $fileName = 'qr-codes/' . $qrCode->ref_code . '.svg';
-            Storage::disk('public')->put($fileName, $qrContent);
+            // Use QrCodeService for generation
+            $fileName = $this->qrCodeService->generateAndSaveQrImage(
+                $qrContentString,
+                $qrCode->ref_code,
+                'svg'
+            );
+
             $qrCode->update(['qr_code_image' => $fileName]);
 
         } catch (\Exception $e) {

@@ -21,6 +21,7 @@ class QrCode extends Model
         'name',
         'question',
         'qr_code_image',
+        'qr_url',
         'ref_code',
         'is_active',
         'ean_code',
@@ -86,6 +87,12 @@ class QrCode extends Model
      */
     public function getQrUrl(): string
     {
+        // Se qr_url è già impostato nel database, usalo (URL ottimizzato)
+        if (!empty($this->qr_url)) {
+            return $this->qr_url;
+        }
+
+        // Altrimenti genera URL (fallback per compatibilità)
         // Get base URL with fallback for production
         $baseUrl = config('app.url');
 
@@ -99,11 +106,19 @@ class QrCode extends Model
             $baseUrl = str_replace('http://', 'https://', $baseUrl);
         }
 
-        // GS1 Digital Link format: /{store-slug}/01/{GTIN}
+        // GS1 Digital Link format: /{store-slug}/01/{GTIN-14}
         // If product has EAN/GTIN, use GS1 Digital Link format
         if ($this->product && $this->product->ean) {
+            // Convert EAN-13 to GTIN-14 by prepending indicator digit 0
+            // GTIN-14 = 0 + EAN-13 (for consumer unit level)
+            $gtin14 = '0' . $this->product->ean;
+
             // GS1 Digital Link with GTIN (AI 01)
-            $url = "{$baseUrl}/{$this->store->slug}/01/{$this->product->ean}";
+            $url = "{$baseUrl}/{$this->store->slug}/01/{$gtin14}";
+        } elseif ($this->ean_code && trim($this->ean_code) !== '') {
+            // Use EAN from QR code table if product not available
+            $gtin14 = '0' . $this->ean_code;
+            $url = "{$baseUrl}/{$this->store->slug}/01/{$gtin14}";
         } else {
             // Fallback to standard format if no EAN
             $url = "{$baseUrl}/{$this->store->slug}";

@@ -1,9 +1,23 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Middleware\DetectQrFormat;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+
+// QR Code Optimization System - Short URL with Intelligent Redirect
+// Pattern: /{short_code}/01/{gtin14}?r={ref}
+Route::get('/{shortCode}/01/{gtin14}', function () {
+    // Gestito dal middleware DetectQrFormat
+    return response('QR Redirect Handler', 200);
+})
+->middleware(DetectQrFormat::class)
+->where([
+    'shortCode' => '[a-z]\d+',      // es: f6, v22, b21
+    'gtin14' => '\d{14}',            // 14 cifre GTIN
+])
+->name('qr.short.redirect');
 
 Route::get('/', function () {
     return view('home');
@@ -144,3 +158,16 @@ if (file_exists(__DIR__.'/demo.php')) {
 
 // QR EAN/GTIN redirect route
 Route::get('/qr/{ean_code}', [\App\Http\Controllers\QrRedirectController::class, 'redirect'])->name('qr.redirect');
+
+// QR Code short URLs con redirect intelligente (GS1 Digital Link format)
+// Pattern: /{short_code}/01/{gtin14}?r={ref}
+Route::middleware([\App\Http\Middleware\DetectQrFormat::class])
+    ->group(function () {
+        Route::get('/{shortCode}/01/{gtin14}', function () {
+            // Gestito dal middleware DetectQrFormat
+            return response()->json(['error' => 'Middleware should handle this'], 500);
+        })->where([
+            'shortCode' => '[a-z]\d+',
+            'gtin14' => '\d{14}',
+        ])->name('qr.short');
+    });

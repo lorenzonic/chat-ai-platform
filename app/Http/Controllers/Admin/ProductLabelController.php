@@ -7,15 +7,22 @@ use App\Models\Product;
 use App\Models\OrderItem;
 use App\Models\Order;
 use App\Models\QrCode;
+use App\Services\QrCodeService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
-use SimpleSoftwareIO\QrCode\Facades\QrCode as QrCodeGenerator;
 use Picqer\Barcode\BarcodeGeneratorHTML;
 
 class ProductLabelController extends Controller
 {
+    protected $qrCodeService;
+
+    public function __construct(QrCodeService $qrCodeService)
+    {
+        $this->qrCodeService = $qrCodeService;
+    }
+
     /**
      * Display a listing of order items for label printing
      */
@@ -267,7 +274,7 @@ class ProductLabelController extends Controller
 
             // QR Code and Barcode
             'qrcode' => [
-                'svg' => $qrCode ? $this->generateQrCodeSvg($qrCode->getQrUrl()) : null,
+                'svg' => $qrCode ? $this->generateQrCodeSvg($qrCode->getQrUrl(), $orderItem->store) : null,
                 'url' => $qrCode ? $qrCode->getQrUrl() : null
             ],
             'barcode' => $barcode,
@@ -341,7 +348,12 @@ class ProductLabelController extends Controller
                 'ean_code' => $productEan && trim($productEan) !== '' ? $productEan : null,
             ]);
 
-            // Generate QR code image
+            // PRIMA genera URL ottimizzato
+            $optimizedUrl = $this->qrCodeService->generateOptimizedQrUrl($qrCode);
+            $qrCode->qr_url = $optimizedUrl;
+            $qrCode->save();
+
+            // POI genera immagine QR con URL già ottimizzato
             $this->generateQrCodeImage($qrCode);
         }
 
@@ -354,13 +366,11 @@ class ProductLabelController extends Controller
     private function generateQrCodeImage(QrCode $qrCode): void
     {
         try {
-            $qrCodeContent = QrCodeGenerator::size(300)
-                                           ->format('svg')
-                                           ->style('round')
-                                           ->generate($qrCode->getQrUrl());
-
-            $filename = 'qr-codes/' . $qrCode->ref_code . '.svg';
-            Storage::disk('public')->put($filename, $qrCodeContent);
+            $filename = $this->qrCodeService->generateAndSaveQrImage(
+                $qrCode->getQrUrl(),
+                $qrCode->ref_code,
+                'svg'
+            );
 
             $qrCode->update(['qr_code_image' => $filename]);
         } catch (\Exception $e) {
@@ -374,20 +384,29 @@ class ProductLabelController extends Controller
 
     /**
      * Generate QR code SVG optimized for thermal printing
-     * 
-     * Uses square pixels (no rounding), high error correction,
-     * minimal margin, and larger size for better scanning on printed labels
+     *
+     * Uses endroid/qr-code with square pixels, high error correction,
+     * minimal margin, and larger size for better scanning on printed labels.
+     * Optionally embeds store logo in the center.
+     *
+     * @param string $url URL to encode
+     * @param \App\Models\Store|null $store Store for logo (optional)
      */
-    private function generateQrCodeSvg(string $url): string
+    private function generateQrCodeSvg(string $url, ?\App\Models\Store $store = null): string
     {
-        return QrCodeGenerator::format('svg')
-                             ->size(200)  // Larger size for thermal printing (was 100)
-                             ->margin(0)  // Minimal margin to maximize QR size
-                             ->errorCorrection('H')  // Highest error correction (30% recovery)
-                             ->style('square')  // Square pixels for better scanning (no round)
-                             ->color(0, 0, 0)  // Pure black
-                             ->backgroundColor(255, 255, 255)  // Pure white
-                             ->generate($url);
+        $logoPath = null;
+
+        // Check if store has a logo
+        if ($store && $store->logo) {
+            $logoPath = storage_path('app/public/' . $store->logo);
+
+            // Verify logo file exists
+            if (!file_exists($logoPath)) {
+                $logoPath = null;
+            }
+        }
+
+        return $this->qrCodeService->generateThermalPrintQrSvg($url, $logoPath);
     }
 
     /**

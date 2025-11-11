@@ -12,9 +12,15 @@ class LoginController extends Controller
 {
     /**
      * Show the store login form.
+     * If already logged in, redirect to dashboard.
      */
-    public function showLoginForm(): View
+    public function showLoginForm(): View|RedirectResponse
     {
+        // Se lo store è già autenticato, redirect alla dashboard
+        if (Auth::guard('store')->check()) {
+            return redirect()->route('store.dashboard');
+        }
+
         return view('store.auth.login');
     }
 

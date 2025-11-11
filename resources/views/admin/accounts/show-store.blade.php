@@ -153,6 +153,62 @@
                             </div>
                         </div>
 
+                        <!-- Logo QR Section -->
+                        <div class="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-lg border-2 border-purple-200 mb-6">
+                            <h3 class="text-lg font-semibold mb-3 text-purple-900 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                Logo per QR Code
+                            </h3>
+
+                            @if($store->logo)
+                                <div class="text-center mb-4">
+                                    <img src="{{ asset('storage/' . $store->logo) }}"
+                                         alt="{{ $store->name }} logo"
+                                         class="inline-block max-w-[100px] max-h-[100px] rounded-lg shadow-md border-2 border-white">
+                                    <p class="text-xs text-purple-700 mt-2">✅ Logo attivo nei QR code</p>
+                                </div>
+                            @else
+                                <div class="text-center mb-4 p-4 bg-white/50 rounded-lg border-2 border-dashed border-purple-300">
+                                    <svg class="w-12 h-12 mx-auto text-purple-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <p class="text-sm text-purple-600">Nessun logo caricato</p>
+                                </div>
+                            @endif
+
+                            <form method="POST"
+                                  action="{{ route('admin.accounts.stores.upload-logo', $store) }}"
+                                  enctype="multipart/form-data"
+                                  class="space-y-3">
+                                @csrf
+                                <div>
+                                    <label for="logo" class="block text-xs font-medium text-purple-700 mb-2">
+                                        📁 Carica nuovo logo (PNG, JPG, max 2MB)
+                                    </label>
+                                    <input type="file"
+                                           name="logo"
+                                           id="logo"
+                                           accept="image/png,image/jpeg,image/jpg,image/gif"
+                                           class="w-full text-xs px-3 py-2 border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                           required>
+                                    @error('logo')
+                                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <button type="submit"
+                                        class="w-full px-4 py-2 text-sm font-medium bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 rounded-lg shadow-md transition-all">
+                                    {{ $store->logo ? '🔄 Sostituisci Logo' : '⬆️ Carica Logo' }}
+                                </button>
+                            </form>
+
+                            <p class="text-xs text-purple-600 mt-3 leading-relaxed">
+                                💡 <strong>Il logo verrà mostrato al centro dei QR code</strong> sulle etichette termiche stampate.
+                                Usa un'immagine quadrata e semplice per migliore leggibilità.
+                            </p>
+                        </div>
+
                         <div class="bg-red-50 p-6 rounded-lg border border-red-200">
                             <h3 class="text-lg font-semibold mb-4 text-red-800">Danger Zone</h3>
                             <p class="text-sm text-red-700 mb-4">

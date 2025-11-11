@@ -31,6 +31,11 @@
                             <i class="fas fa-chart-line mr-2"></i>
                             Dashboard
                         </a>
+                        <a href="{{ route('admin.analytics.index') }}"
+                           class="flex items-center justify-center border-2 rounded-3xl px-4 py-1 {{ request()->routeIs('admin.analytics.*') ? 'text-indigo-900 border-black' : 'text-gray-700 hover:bg-gray-50 border-gray-300' }} font-medium text-sm transition-colors duration-200">
+                            <i class="fas fa-chart-bar mr-2"></i>
+                            Analytics
+                        </a>
                         <a href="{{ route('admin.orders.index') }}"
                            class="flex items-center justify-center border-2 rounded-3xl px-4 py-1 {{ request()->routeIs('admin.orders.*') ? 'text-indigo-900 border-black' : 'text-gray-700 hover:bg-gray-50 border-gray-300' }} font-medium text-sm transition-colors duration-200">
                             <i class="fas fa-shopping-cart mr-2"></i>

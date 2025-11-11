@@ -58,6 +58,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::patch('stores/{store}/toggle-status', [AccountController::class, 'toggleStoreStatus'])->name('stores.toggle-status');
             Route::patch('stores/{store}/toggle-premium', [AccountController::class, 'toggleStorePremium'])->name('stores.toggle-premium');
             Route::patch('stores/{store}/toggle-label', [AccountController::class, 'toggleStoreLabel'])->name('stores.toggle-label');
+            Route::post('stores/{store}/upload-logo', [AccountController::class, 'uploadStoreLogo'])->name('stores.upload-logo');
 
             // Admin account routes
             Route::get('admins/create', [AccountController::class, 'createAdmin'])->name('admins.create');

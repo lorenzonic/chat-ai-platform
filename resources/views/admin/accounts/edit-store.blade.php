@@ -58,18 +58,56 @@
                                        required>
                             </div>
 
-                            <div>
-                                <label for="logo" class="block text-sm font-medium text-gray-700 mb-2">Logo Store</label>
-                                @if($store->logo)
-                                    <div class="mb-2">
-                                        <img src="{{ asset('storage/' . $store->logo) }}" alt="Logo attuale" style="max-width: 80px; max-height: 80px; border-radius: 8px;">
+                            <div class="md:col-span-2">
+                                <div class="bg-gradient-to-br from-purple-50 to-blue-50 p-4 rounded-lg border-2 border-purple-200">
+                                    <label for="logo" class="block text-sm font-medium text-purple-900 mb-3 flex items-center">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        Logo Store per QR Code
+                                    </label>
+
+                                    @if($store->logo)
+                                        <div class="mb-3 text-center bg-white/60 p-3 rounded-lg border border-purple-200">
+                                            <img src="{{ asset('storage/' . $store->logo) }}"
+                                                 alt="Logo attuale"
+                                                 class="inline-block max-w-[100px] max-h-[100px] rounded-lg shadow-md border-2 border-white">
+                                            <p class="text-xs text-purple-700 mt-2">✅ Logo attuale (verrà sostituito se ne carichi uno nuovo)</p>
+                                        </div>
+                                    @else
+                                        <div class="mb-3 text-center p-4 bg-white/50 rounded-lg border-2 border-dashed border-purple-300">
+                                            <svg class="w-12 h-12 mx-auto text-purple-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            <p class="text-sm text-purple-600">Nessun logo caricato</p>
+                                        </div>
+                                    @endif
+
+                                    <input type="file"
+                                           name="logo"
+                                           id="logo"
+                                           accept="image/png,image/jpeg,image/jpg,image/gif"
+                                           class="w-full px-3 py-2 border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-sm">
+
+                                    @error('logo')
+                                        <p class="text-sm text-red-600 mt-2 bg-red-50 p-2 rounded">{{ $message }}</p>
+                                    @enderror
+
+                                    <div class="mt-3 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                                        <p class="text-xs text-blue-800 leading-relaxed">
+                                            <strong>💡 Info:</strong> Il logo verrà mostrato al centro dei QR code sulle etichette termiche stampate.
+                                        </p>
+                                        <ul class="text-xs text-blue-700 mt-2 space-y-1">
+                                            <li>✅ Formato: PNG, JPG, GIF</li>
+                                            <li>✅ Dimensione consigliata: 200x200 px (quadrato)</li>
+                                            <li>✅ Peso massimo: 2 MB</li>
+                                            <li>✅ Sfondo trasparente preferibile (PNG)</li>
+                                        </ul>
+                                        <p class="text-xs text-blue-600 mt-2 italic">
+                                            Lascia vuoto per mantenere il logo attuale{{ $store->logo ? '' : ' (nessuno)' }}.
+                                        </p>
                                     </div>
-                                @endif
-                                <input type="file" name="logo" id="logo" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                @error('logo')
-                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                                @enderror
-                                <p class="text-xs text-gray-500 mt-1">Carica un logo quadrato, PNG o JPEG, max 1MB. Lascia vuoto per non cambiare.</p>
+                                </div>
                             </div>
 
                             <div>

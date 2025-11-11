@@ -20,6 +20,7 @@ class Store extends Authenticatable
         'name',
         'logo',
         'slug',
+        'short_code',
         'email',
         'password',
         'description',
@@ -230,5 +231,46 @@ class Store extends Authenticatable
     public function getOpeningMessage(): string
     {
         return $this->chat_opening_message ?: $this->getDefaultOpeningMessage();
+    }
+
+    /**
+     * Genera o recupera short code univoco per QR ottimizzati
+     * Formato: iniziale + ID (es: "f1", "g2", "b3")
+     */
+    public function getOrGenerateShortCode(): string
+    {
+        if ($this->short_code) {
+            return $this->short_code;
+        }
+
+        $initial = strtolower(substr($this->slug, 0, 1));
+        $shortCode = $initial . $this->id;
+
+        // Verifica unicità
+        $counter = 0;
+        while (static::where('short_code', $shortCode)->where('id', '!=', $this->id)->exists()) {
+            $counter++;
+            $shortCode = $initial . $this->id . $counter;
+        }
+
+        $this->update(['short_code' => $shortCode]);
+
+        return $shortCode;
+    }
+
+    /**
+     * URL breve per QR code (GS1 compatibile)
+     * Formato: /{short_code}/01/{gtin14}?r={ref}
+     */
+    public function getShortQrUrl(string $gtin14, ?string $refCode = null): string
+    {
+        $shortCode = $this->getOrGenerateShortCode();
+        $url = url("/{$shortCode}/01/{$gtin14}");
+
+        if ($refCode) {
+            $url .= "?r={$refCode}"; // Query param abbreviato
+        }
+
+        return $url;
     }
 }

@@ -12,9 +12,15 @@ class LoginController extends Controller
 {
     /**
      * Show the admin login form.
+     * If already logged in, redirect to dashboard.
      */
-    public function showLoginForm(): View
+    public function showLoginForm(): View|RedirectResponse
     {
+        // Se l'admin è già autenticato, redirect alla dashboard
+        if (Auth::guard('admin')->check()) {
+            return redirect()->route('admin.dashboard');
+        }
+
         return view('admin.auth.login');
     }
 

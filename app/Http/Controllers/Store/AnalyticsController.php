@@ -7,6 +7,7 @@ use App\Models\Interaction;
 use App\Models\Lead;
 use App\Models\ChatLog;
 use App\Models\Store;
+use App\Models\QrScan;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -87,6 +88,11 @@ class AnalyticsController extends Controller
             ->whereBetween('created_at', [$from, $to])
             ->get();
 
+        // Get QR scans data
+        $qrScans = QrScan::where('store_id', $store->id)
+            ->whereBetween('created_at', [$from, $to])
+            ->get();
+
         // Debug log
         \Log::info('Analytics data counts', [
             'store_id' => $store->id,
@@ -96,6 +102,7 @@ class AnalyticsController extends Controller
             'interactions_count' => $interactions->count(),
             'chat_logs_count' => $chatLogs->count(),
             'leads_count' => $leads->count(),
+            'qr_scans_count' => $qrScans->count(),
         ]);
 
         // Daily interactions
@@ -161,8 +168,8 @@ class AnalyticsController extends Controller
             ->sortByDesc('count')
             ->take(10);
 
-        // Geographic data for map
-        $geographicData = $this->getGeographicData($leads, $interactions);
+        // Geographic data for map (includes QR scans)
+        $geographicData = $this->getGeographicData($leads, $interactions, $qrScans);
 
         // Conversion rate (leads / total interactions)
         $conversionRate = $interactions->count() > 0
@@ -190,6 +197,7 @@ class AnalyticsController extends Controller
                 'total_interactions' => $interactions->count(),
                 'total_leads' => $leads->count(),
                 'total_chats' => $chatLogs->count(),
+                'total_qr_scans' => $qrScans->count(),
                 'conversion_rate' => round($conversionRate, 2),
                 'unique_visitors' => $interactions->unique('ip')->count(),
             ],
@@ -199,6 +207,14 @@ class AnalyticsController extends Controller
             'device_breakdown' => $deviceBreakdown,
             'browser_breakdown' => $browserBreakdown,
             'qr_performance' => $qrPerformance,
+            'qr_scans' => [
+                'total' => $qrScans->count(),
+                'by_device' => $qrScans->groupBy('device_type')->map(fn($g) => $g->count()),
+                'by_qr_code' => $qrScans->groupBy('qr_code_id')->map(fn($g) => [
+                    'count' => $g->count(),
+                    'qr_code' => $g->first()->qrCode ?? null
+                ]),
+            ],
             'lead_sources' => $leadSources,
             'top_cities' => $topCities,
             'geographic_data' => $geographicData,
@@ -385,7 +401,7 @@ class AnalyticsController extends Controller
     /**
      * Get geographic data for map visualization
      */
-    private function getGeographicData($leads, $interactions)
+    private function getGeographicData($leads, $interactions, $qrScans = null)
     {
         $mapData = [];
 
@@ -404,6 +420,7 @@ class AnalyticsController extends Controller
                     'country' => $lead->country ?? 'Sconosciuto',
                     'leads_count' => 0,
                     'interactions_count' => 0,
+                    'qr_scans_count' => 0,
                     'type' => 'lead'
                 ];
             }
@@ -426,6 +443,7 @@ class AnalyticsController extends Controller
                     'country' => $interaction->country ?? 'Sconosciuto',
                     'leads_count' => 0,
                     'interactions_count' => 0,
+                    'qr_scans_count' => 0,
                     'type' => 'interaction'
                 ];
             }
@@ -433,9 +451,36 @@ class AnalyticsController extends Controller
             $mapData[$key]['interactions_count']++;
         }
 
+        // Aggiungi dati da QR scans che hanno coordinate (nel campo geo_location)
+        if ($qrScans !== null) {
+            foreach ($qrScans as $scan) {
+                $geoLocation = $scan->geo_location;
+
+                // Check if geo_location has lat/lng
+                if ($geoLocation && isset($geoLocation['lat']) && isset($geoLocation['lng'])) {
+                    $key = $geoLocation['lat'] . ',' . $geoLocation['lng'];
+
+                    if (!isset($mapData[$key])) {
+                        $mapData[$key] = [
+                            'lat' => (float) $geoLocation['lat'],
+                            'lng' => (float) $geoLocation['lng'],
+                            'city' => $geoLocation['city'] ?? 'Sconosciuta',
+                            'country' => $geoLocation['country'] ?? 'Sconosciuto',
+                            'leads_count' => 0,
+                            'interactions_count' => 0,
+                            'qr_scans_count' => 0,
+                            'type' => 'qr_scan'
+                        ];
+                    }
+
+                    $mapData[$key]['qr_scans_count']++;
+                }
+            }
+        }
+
         // Aggiungi totale per ogni punto
         foreach ($mapData as &$point) {
-            $point['total'] = $point['leads_count'] + $point['interactions_count'];
+            $point['total'] = $point['leads_count'] + $point['interactions_count'] + $point['qr_scans_count'];
         }
 
         return array_values($mapData);
